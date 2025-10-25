@@ -1,0 +1,29 @@
+{
+  "name": "pawspace-booking",
+  "version": "1.0.0",
+  "description": "Provider profile and booking calendar system for PawSpace",
+  "main": "index.js",
+  "scripts": {
+    "start": "react-native start",
+    "android": "react-native run-android",
+    "ios": "react-native run-ios",
+    "test": "jest",
+    "lint": "eslint ."
+  },
+  "dependencies": {
+    "react": "^18.2.0",
+    "react-native": "^0.72.0",
+    "react-native-calendars": "^1.1305.0"
+  },
+  "devDependencies": {
+    "@types/react": "^18.2.0",
+    "@types/react-native": "^0.72.0",
+    "typescript": "^5.0.0"
+  },
+  "keywords": [
+    "react-native",
+    "booking",
+    "calendar",
+    "provider-profile"
+  ]
+}
