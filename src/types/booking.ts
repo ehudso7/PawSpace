@@ -1,81 +1,43 @@
-export interface TimeSlot {
-  id: string;
-  start_time: string;
-  end_time: string;
-  is_available: boolean;
-}
-
-export interface ProviderProfile {
-  id: string;
-  name: string;
-  avatar?: string;
-  rating: number;
-  total_reviews: number;
-  verified: boolean;
-  bio?: string;
-  phone?: string;
-  email?: string;
-}
-
-export interface Service {
-  id: string;
-  provider_id: string;
-  provider: ProviderProfile;
-  title: string;
-  description: string;
-  service_type: 'grooming' | 'walking' | 'vet_care' | 'training';
-  price: number;
-  duration: number; // minutes
-  location: {
-    address: string;
-    latitude: number;
-    longitude: number;
-  };
-  images: string[];
-  rating: number;
-  total_bookings: number;
-  availability_slots: TimeSlot[];
-  created_at: string;
-  distance?: number; // calculated distance from user
-}
-
-export interface ServiceFilters {
-  service_type?: string;
-  min_price?: number;
-  max_price?: number;
-  max_distance?: number;
-  availability_date?: string;
-  sort_by?: 'distance' | 'price' | 'rating' | 'popularity';
-  search_query?: string;
-}
-
-export interface PaginatedResponse<T> {
-  data: T[];
-  pagination: {
-    page: number;
-    limit: number;
-    total: number;
-    has_more: boolean;
-  };
-}
-
-export interface UserLocation {
-  latitude: number;
-  longitude: number;
-  address?: string;
-}
-
-export type ServiceType = 'all' | 'grooming' | 'walking' | 'vet_care' | 'training';
-export type SortOption = 'distance' | 'price' | 'rating' | 'popularity';
-export type AvailabilityFilter = 'anytime' | 'today' | 'this_week';
-
-// PR #28 Booking and Payment Types
 export interface UserProfile {
   id: string;
   name: string;
   email: string;
   phone?: string;
   avatar?: string;
+  created_at: string;
+  updated_at: string;
+}
+
+export interface ProviderProfile {
+  id: string;
+  name: string;
+  email: string;
+  phone?: string;
+  avatar?: string;
+  rating: number;
+  review_count: number;
+  bio?: string;
+  location: string;
+  verified: boolean;
+  created_at: string;
+  updated_at: string;
+}
+
+export interface Service {
+  id: string;
+  provider_id: string;
+  name: string;
+  description: string;
+  type: 'grooming' | 'walking' | 'sitting' | 'training' | 'veterinary' | 'boarding';
+  price: number;
+  duration: number; // in minutes
+  location: string;
+  available_days: string[];
+  available_hours: {
+    start: string;
+    end: string;
+  };
+  images?: string[];
   created_at: string;
   updated_at: string;
 }

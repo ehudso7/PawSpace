@@ -1,88 +1,60 @@
-import { NavigatorScreenParams } from '@react-navigation/native';
-import { Service, ProviderProfile } from './booking';
+import {StackNavigationProp} from '@react-navigation/stack';
+import {RouteProp} from '@react-navigation/native';
+import {Service, ProviderProfile, Booking} from './booking';
 
-// Root Stack Navigator
 export type RootStackParamList = {
-  Auth: NavigatorScreenParams<AuthStackParamList>;
-  Main: NavigatorScreenParams<TabParamList>;
-};
-
-// Auth Stack Navigator
-export type AuthStackParamList = {
-  Onboarding: undefined;
-  Login: undefined;
-  Signup: undefined;
-};
-
-// Tab Navigator
-export type TabParamList = {
-  Home: NavigatorScreenParams<HomeStackParamList>;
-  Booking: NavigatorScreenParams<BookingStackParamList>;
-  Create: NavigatorScreenParams<CreateStackParamList>;
-  Profile: NavigatorScreenParams<ProfileStackParamList>;
-};
-
-// Home Stack Navigator
-export type HomeStackParamList = {
-  Feed: undefined;
-  TransformationDetail: {
-    transformationId: string;
-  };
-};
-
-// Booking Stack Navigator
-export type BookingStackParamList = {
+  Main: undefined;
+  Home: undefined;
   ServiceList: undefined;
-  ProviderProfile: {
-    providerId: string;
-  };
-  BookingCalendar: {
-    serviceId: string;
-    providerId: string;
-  };
+  ServiceDetail: {service: Service; provider: ProviderProfile};
   BookingConfirm: {
     service: Service;
     provider: ProviderProfile;
     appointmentTime: string;
   };
-  BookingSuccess: {
-    booking: any;
-  };
+  BookingSuccess: {booking: Booking};
   MyBookings: undefined;
+  BookingDetail: {bookingId: string};
 };
 
-// Create Stack Navigator
-export type CreateStackParamList = {
-  ImageSelector: undefined;
-  Editor: {
-    imageUri: string;
-  };
-  Preview: {
-    transformationData: {
-      imageUri: string;
-      beforeImageUri?: string;
-      caption: string;
-      tags: string[];
-    };
-  };
+export type TabParamList = {
+  HomeTab: undefined;
+  ServicesTab: undefined;
+  BookingsTab: undefined;
+  ProfileTab: undefined;
 };
 
-// Profile Stack Navigator
-export type ProfileStackParamList = {
-  Profile: undefined;
-  EditProfile: undefined;
-  Settings: undefined;
-  Subscription: undefined;
-};
+export type BookingConfirmScreenNavigationProp = StackNavigationProp<
+  RootStackParamList,
+  'BookingConfirm'
+>;
 
-// Navigation prop types for screens
-export type BookingConfirmScreenNavigationProp = any;
-export type BookingConfirmScreenRouteProp = {
-  params: BookingStackParamList['BookingConfirm'];
-};
+export type BookingConfirmScreenRouteProp = RouteProp<
+  RootStackParamList,
+  'BookingConfirm'
+>;
 
-declare global {
-  namespace ReactNavigation {
-    interface RootParamList extends RootStackParamList {}
-  }
-}
+export type BookingSuccessScreenNavigationProp = StackNavigationProp<
+  RootStackParamList,
+  'BookingSuccess'
+>;
+
+export type BookingSuccessScreenRouteProp = RouteProp<
+  RootStackParamList,
+  'BookingSuccess'
+>;
+
+export type MyBookingsScreenNavigationProp = StackNavigationProp<
+  RootStackParamList,
+  'MyBookings'
+>;
+
+export type BookingDetailScreenNavigationProp = StackNavigationProp<
+  RootStackParamList,
+  'BookingDetail'
+>;
+
+export type BookingDetailScreenRouteProp = RouteProp<
+  RootStackParamList,
+  'BookingDetail'
+>;

@@ -1,390 +1,416 @@
-import React, { useState, useEffect } from 'react';
+import React, {useState, useEffect} from 'react';
 import {
   View,
   Text,
   StyleSheet,
   ScrollView,
-  TouchableOpacity,
-  Alert,
-  ActivityIndicator,
   Image,
+  Alert,
   Linking,
-  Share,
+  TouchableOpacity,
 } from 'react-native';
-import { SafeAreaView } from 'react-native-safe-area-context';
-import { Ionicons } from '@expo/vector-icons';
-import { useNavigation, useRoute } from '@react-navigation/native';
-import { Booking } from '../../types/booking';
-import { getBookingById, cancelBooking } from '../../services/bookings';
+import {SafeAreaView} from 'react-native-safe-area-context';
+import {useNavigation, useRoute} from '@react-navigation/native';
+import MapView, {Marker} from 'react-native-maps';
+import QRCode from 'react-native-qrcode-svg';
+import Icon from 'react-native-vector-icons/MaterialIcons';
 
-interface RouteParams {
-  bookingId: string;
-}
+import {
+  BookingDetailScreenNavigationProp,
+  BookingDetailScreenRouteProp,
+} from '../../types/navigation';
+import {Booking} from '../../types/booking';
+import LoadingSpinner from '../../components/LoadingSpinner';
+import Button from '../../components/Button';
+import bookingService from '../../services/booking';
 
 const BookingDetailScreen: React.FC = () => {
-  const navigation = useNavigation();
-  const route = useRoute();
-  const { bookingId } = route.params as RouteParams;
+  const navigation = useNavigation<BookingDetailScreenNavigationProp>();
+  const route = useRoute<BookingDetailScreenRouteProp>();
+  const {bookingId} = route.params;
 
   const [booking, setBooking] = useState<Booking | null>(null);
-  const [loading, setLoading] = useState(true);
+  const [loading, setLoading] = useState<boolean>(true);
+  const [showQRCode, setShowQRCode] = useState<boolean>(false);
 
   useEffect(() => {
-    loadBooking();
+    loadBookingDetails();
   }, [bookingId]);
 
-  const loadBooking = async () => {
+  const loadBookingDetails = async () => {
     try {
       setLoading(true);
-      const data = await getBookingById(bookingId);
-      setBooking(data);
+      const bookingData = await bookingService.getBookingById(bookingId);
+      setBooking(bookingData);
     } catch (error) {
-      console.error('Error loading booking:', error);
-      Alert.alert('Error', 'Failed to load booking details. Please try again.');
+      console.error('Error loading booking details:', error);
+      Alert.alert('Error', 'Failed to load booking details');
+      navigation.goBack();
     } finally {
       setLoading(false);
     }
   };
 
-  const handleCancelBooking = () => {
-    if (!booking) return;
-
-    Alert.alert(
-      'Cancel Booking',
-      'Are you sure you want to cancel this booking? This action cannot be undone.',
-      [
-        { text: 'No', style: 'cancel' },
-        {
-          text: 'Yes, Cancel',
-          style: 'destructive',
-          onPress: async () => {
-            try {
-              await cancelBooking(booking.id, 'User requested cancellation');
-              Alert.alert('Success', 'Booking has been cancelled');
-              navigation.goBack();
-            } catch (error) {
-              console.error('Error cancelling booking:', error);
-              Alert.alert('Error', 'Failed to cancel booking. Please try again.');
-            }
-          },
-        },
-      ]
-    );
-  };
-
   const handleGetDirections = () => {
     if (!booking) return;
 
-    const { lat, lng } = booking.provider.location.coordinates;
-    const url = `https://maps.google.com/?q=${lat},${lng}`;
+    const address = encodeURIComponent(booking.service.location);
+    const url = `https://maps.google.com/maps?daddr=${address}`;
     
     Linking.openURL(url).catch(() => {
-      Alert.alert('Error', 'Could not open maps app');
+      Alert.alert('Error', 'Unable to open maps application');
     });
   };
 
   const handleContactProvider = () => {
     if (!booking) return;
 
-    // Navigate to chat with provider
-    navigation.navigate('Chat', { 
-      providerId: booking.provider.id,
-      bookingId: booking.id 
-    });
+    Alert.alert(
+      'Contact Provider',
+      `Contact ${booking.provider.name}`,
+      [
+        {
+          text: 'Call',
+          onPress: () => {
+            if (booking.provider.phone) {
+              Linking.openURL(`tel:${booking.provider.phone}`);
+            } else {
+              Alert.alert('Error', 'Phone number not available');
+            }
+          },
+        },
+        {
+          text: 'Message',
+          onPress: () => {
+            // Navigate to chat screen
+            console.log('Navigate to chat with provider');
+          },
+        },
+        {text: 'Cancel', style: 'cancel'},
+      ]
+    );
   };
 
-  const handleShareBooking = async () => {
+  const handleCancelBooking = () => {
+    if (!booking) return;
+
+    if (!bookingService.canCancelBooking(booking)) {
+      Alert.alert(
+        'Cannot Cancel',
+        'Bookings can only be cancelled more than 24 hours before the appointment time.'
+      );
+      return;
+    }
+
+    Alert.alert(
+      'Cancel Booking',
+      'Are you sure you want to cancel this booking? This action cannot be undone.',
+      [
+        {text: 'No', style: 'cancel'},
+        {
+          text: 'Yes, Cancel',
+          style: 'destructive',
+          onPress: showCancellationReasons,
+        },
+      ]
+    );
+  };
+
+  const showCancellationReasons = () => {
+    const reasons = [
+      'Change of plans',
+      'Pet is unwell',
+      'Provider unavailable',
+      'Emergency',
+      'Other',
+    ];
+
+    Alert.alert(
+      'Cancellation Reason',
+      'Please select a reason for cancellation:',
+      reasons.map(reason => ({
+        text: reason,
+        onPress: () => confirmCancellation(reason),
+      }))
+    );
+  };
+
+  const confirmCancellation = async (reason: string) => {
     if (!booking) return;
 
     try {
-      const message = `Check out my booking with ${booking.provider.business_name} for ${booking.service.name} on ${new Date(booking.appointment_time).toLocaleDateString()}. Booking ID: ${booking.id}`;
-      
-      await Share.share({
-        message,
-        title: 'Booking Details',
-      });
+      await bookingService.cancelBooking(booking.id, reason);
+      Alert.alert('Success', 'Booking cancelled successfully');
+      navigation.goBack();
     } catch (error) {
-      console.error('Error sharing:', error);
-      Alert.alert('Error', 'Failed to share booking details');
+      console.error('Error cancelling booking:', error);
+      Alert.alert('Error', 'Failed to cancel booking');
     }
   };
 
   const handleLeaveReview = () => {
     if (!booking) return;
-
     // Navigate to review screen
-    navigation.navigate('Review', { 
+    console.log('Navigate to review screen');
+  };
+
+  const generateQRData = (): string => {
+    if (!booking) return '';
+    return JSON.stringify({
       bookingId: booking.id,
-      providerId: booking.provider.id 
+      providerId: booking.provider_id,
+      clientId: booking.client_id,
+      appointmentTime: booking.appointment_time,
     });
   };
 
-  const getStatusColor = (status: string) => {
-    switch (status) {
-      case 'confirmed':
-        return '#4CAF50';
-      case 'pending':
-        return '#FF9800';
-      case 'completed':
-        return '#2196F3';
-      case 'cancelled':
-        return '#F44336';
-      default:
-        return '#666';
-    }
+  const renderBookingHeader = () => (
+    <View style={styles.headerCard}>
+      <View style={styles.statusContainer}>
+        <View style={[
+          styles.statusBadge,
+          {backgroundColor: bookingService.getBookingStatusColor(booking!.status)}
+        ]}>
+          <Text style={styles.statusText}>
+            {bookingService.getBookingStatusText(booking!.status)}
+          </Text>
+        </View>
+        <Text style={styles.bookingId}>
+          Booking #{booking!.id.slice(-8).toUpperCase()}
+        </Text>
+      </View>
+
+      <View style={styles.providerSection}>
+        <Image
+          source={{uri: booking!.provider.avatar || 'https://via.placeholder.com/60'}}
+          style={styles.providerAvatar}
+        />
+        <View style={styles.providerInfo}>
+          <Text style={styles.providerName}>{booking!.provider.name}</Text>
+          <View style={styles.ratingContainer}>
+            <Icon name="star" size={16} color="#FFD700" />
+            <Text style={styles.rating}>
+              {booking!.provider.rating.toFixed(1)} ({booking!.provider.review_count} reviews)
+            </Text>
+          </View>
+          {booking!.provider.verified && (
+            <View style={styles.verifiedBadge}>
+              <Icon name="verified" size={16} color="#4CAF50" />
+              <Text style={styles.verifiedText}>Verified</Text>
+            </View>
+          )}
+        </View>
+      </View>
+    </View>
+  );
+
+  const renderServiceDetails = () => (
+    <View style={styles.card}>
+      <Text style={styles.cardTitle}>Service Details</Text>
+      
+      <View style={styles.serviceInfo}>
+        <Text style={styles.serviceName}>{booking!.service.name}</Text>
+        <Text style={styles.serviceType}>{booking!.service.type}</Text>
+        <Text style={styles.serviceDescription}>{booking!.service.description}</Text>
+      </View>
+
+      <View style={styles.detailsGrid}>
+        <View style={styles.detailItem}>
+          <Icon name="schedule" size={20} color="#666" />
+          <Text style={styles.detailLabel}>Date & Time</Text>
+          <Text style={styles.detailValue}>
+            {bookingService.formatBookingTime(booking!.appointment_time)}
+          </Text>
+        </View>
+
+        <View style={styles.detailItem}>
+          <Icon name="access-time" size={20} color="#666" />
+          <Text style={styles.detailLabel}>Duration</Text>
+          <Text style={styles.detailValue}>
+            {bookingService.formatDuration(booking!.duration)}
+          </Text>
+        </View>
+
+        <View style={styles.detailItem}>
+          <Icon name="location-on" size={20} color="#666" />
+          <Text style={styles.detailLabel}>Location</Text>
+          <Text style={styles.detailValue}>{booking!.service.location}</Text>
+        </View>
+
+        <View style={styles.detailItem}>
+          <Icon name="attach-money" size={20} color="#666" />
+          <Text style={styles.detailLabel}>Total Paid</Text>
+          <Text style={[styles.detailValue, styles.priceValue]}>
+            ${booking!.total_price.toFixed(2)}
+          </Text>
+        </View>
+      </View>
+    </View>
+  );
+
+  const renderPetInfo = () => {
+    if (!booking!.pet) return null;
+
+    return (
+      <View style={styles.card}>
+        <Text style={styles.cardTitle}>Pet Information</Text>
+        
+        <View style={styles.petInfo}>
+          <Image
+            source={{uri: booking!.pet.avatar || 'https://via.placeholder.com/50'}}
+            style={styles.petAvatar}
+          />
+          <View style={styles.petDetails}>
+            <Text style={styles.petName}>{booking!.pet.name}</Text>
+            <Text style={styles.petBreed}>
+              {booking!.pet.breed} • {booking!.pet.species}
+            </Text>
+            {booking!.pet.age && (
+              <Text style={styles.petAge}>{booking!.pet.age} years old</Text>
+            )}
+          </View>
+        </View>
+
+        {booking!.pet.special_instructions && (
+          <View style={styles.specialInstructions}>
+            <Text style={styles.instructionsLabel}>Special Instructions:</Text>
+            <Text style={styles.instructionsText}>
+              {booking!.pet.special_instructions}
+            </Text>
+          </View>
+        )}
+      </View>
+    );
   };
 
-  const getStatusText = (status: string) => {
-    switch (status) {
-      case 'confirmed':
-        return 'Confirmed';
-      case 'pending':
-        return 'Pending';
-      case 'completed':
-        return 'Completed';
-      case 'cancelled':
-        return 'Cancelled';
-      default:
-        return status;
-    }
+  const renderNotesSection = () => {
+    if (!booking!.notes) return null;
+
+    return (
+      <View style={styles.card}>
+        <Text style={styles.cardTitle}>Notes to Provider</Text>
+        <Text style={styles.notesText}>{booking!.notes}</Text>
+      </View>
+    );
   };
 
-  const formatDateTime = (dateTime: string) => {
-    const date = new Date(dateTime);
-    return {
-      date: date.toLocaleDateString('en-US', {
-        weekday: 'long',
-        year: 'numeric',
-        month: 'long',
-        day: 'numeric',
-      }),
-      time: date.toLocaleTimeString('en-US', {
-        hour: '2-digit',
-        minute: '2-digit',
-      }),
-    };
-  };
+  const renderLocationMap = () => (
+    <View style={styles.card}>
+      <Text style={styles.cardTitle}>Location</Text>
+      
+      <View style={styles.mapContainer}>
+        <MapView
+          style={styles.map}
+          initialRegion={{
+            latitude: 37.7749, // Default to San Francisco, replace with actual coordinates
+            longitude: -122.4194,
+            latitudeDelta: 0.01,
+            longitudeDelta: 0.01,
+          }}>
+          <Marker
+            coordinate={{
+              latitude: 37.7749,
+              longitude: -122.4194,
+            }}
+            title={booking!.provider.name}
+            description={booking!.service.location}
+          />
+        </MapView>
+      </View>
+
+      <Button
+        title="Get Directions"
+        onPress={handleGetDirections}
+        variant="outline"
+        style={styles.directionsButton}
+      />
+    </View>
+  );
+
+  const renderQRCode = () => (
+    <View style={styles.card}>
+      <View style={styles.qrHeader}>
+        <Text style={styles.cardTitle}>Check-in QR Code</Text>
+        <TouchableOpacity onPress={() => setShowQRCode(!showQRCode)}>
+          <Icon
+            name={showQRCode ? 'visibility-off' : 'visibility'}
+            size={24}
+            color="#007AFF"
+          />
+        </TouchableOpacity>
+      </View>
+      
+      {showQRCode && (
+        <View style={styles.qrContainer}>
+          <QRCode
+            value={generateQRData()}
+            size={200}
+            backgroundColor="white"
+            color="black"
+          />
+          <Text style={styles.qrInstructions}>
+            Show this QR code to your provider for easy check-in
+          </Text>
+        </View>
+      )}
+    </View>
+  );
+
+  const renderActionButtons = () => (
+    <View style={styles.actionContainer}>
+      <Button
+        title="Contact Provider"
+        onPress={handleContactProvider}
+        variant="primary"
+        style={styles.actionButton}
+      />
+
+      {bookingService.canCancelBooking(booking!) && (
+        <Button
+          title="Cancel Booking"
+          onPress={handleCancelBooking}
+          variant="outline"
+          style={[styles.actionButton, styles.cancelButton]}
+          textStyle={styles.cancelButtonText}
+        />
+      )}
+
+      {bookingService.canLeaveReview(booking!) && (
+        <Button
+          title="Leave Review"
+          onPress={handleLeaveReview}
+          variant="secondary"
+          style={styles.actionButton}
+        />
+      )}
+    </View>
+  );
 
   if (loading) {
-    return (
-      <SafeAreaView style={styles.container}>
-        <View style={styles.loadingContainer}>
-          <ActivityIndicator size="large" color="#007AFF" />
-          <Text style={styles.loadingText}>Loading booking details...</Text>
-        </View>
-      </SafeAreaView>
-    );
+    return <LoadingSpinner message="Loading booking details..." />;
   }
 
   if (!booking) {
     return (
       <SafeAreaView style={styles.container}>
         <View style={styles.errorContainer}>
-          <Ionicons name="alert-circle-outline" size={64} color="#F44336" />
-          <Text style={styles.errorTitle}>Booking Not Found</Text>
-          <Text style={styles.errorSubtitle}>
-            The booking you're looking for doesn't exist or has been removed.
-          </Text>
-          <TouchableOpacity
-            style={styles.retryButton}
-            onPress={() => navigation.goBack()}
-          >
-            <Text style={styles.retryButtonText}>Go Back</Text>
-          </TouchableOpacity>
+          <Text style={styles.errorText}>Booking not found</Text>
         </View>
       </SafeAreaView>
     );
   }
 
-  const { date, time } = formatDateTime(booking.appointment_time);
-
   return (
     <SafeAreaView style={styles.container}>
       <ScrollView style={styles.scrollView} showsVerticalScrollIndicator={false}>
-        {/* Header */}
-        <View style={styles.header}>
-          <TouchableOpacity onPress={() => navigation.goBack()}>
-            <Ionicons name="arrow-back" size={24} color="#333" />
-          </TouchableOpacity>
-          <Text style={styles.headerTitle}>Booking Details</Text>
-          <TouchableOpacity onPress={handleShareBooking}>
-            <Ionicons name="share-outline" size={24} color="#333" />
-          </TouchableOpacity>
-        </View>
-
-        {/* Status Card */}
-        <View style={styles.statusCard}>
-          <View style={styles.statusHeader}>
-            <View style={[styles.statusBadge, { backgroundColor: getStatusColor(booking.status) }]}>
-              <Text style={styles.statusText}>{getStatusText(booking.status)}</Text>
-            </View>
-            <Text style={styles.bookingId}>#{booking.id}</Text>
-          </View>
-          <Text style={styles.statusDescription}>
-            {booking.status === 'confirmed' && 'Your booking is confirmed and ready to go!'}
-            {booking.status === 'pending' && 'Your booking is being reviewed by the provider.'}
-            {booking.status === 'completed' && 'This booking has been completed successfully.'}
-            {booking.status === 'cancelled' && 'This booking has been cancelled.'}
-          </Text>
-        </View>
-
-        {/* Service Information */}
-        <View style={styles.card}>
-          <Text style={styles.cardTitle}>Service Information</Text>
-          <View style={styles.serviceHeader}>
-            <View style={styles.serviceInfo}>
-              <Text style={styles.serviceName}>{booking.service.name}</Text>
-              <Text style={styles.serviceType}>{booking.service.type}</Text>
-              <Text style={styles.serviceDescription}>{booking.service.description}</Text>
-            </View>
-            <View style={styles.priceContainer}>
-              <Text style={styles.priceLabel}>Total Price</Text>
-              <Text style={styles.priceValue}>${booking.total_price.toFixed(2)}</Text>
-            </View>
-          </View>
-        </View>
-
-        {/* Provider Information */}
-        <View style={styles.card}>
-          <Text style={styles.cardTitle}>Provider Information</Text>
-          <View style={styles.providerInfo}>
-            <Image
-              source={{ uri: booking.provider.avatar || 'https://via.placeholder.com/60' }}
-              style={styles.providerAvatar}
-            />
-            <View style={styles.providerDetails}>
-              <Text style={styles.providerName}>{booking.provider.business_name}</Text>
-              <View style={styles.ratingContainer}>
-                <Ionicons name="star" size={16} color="#FFD700" />
-                <Text style={styles.rating}>{booking.provider.rating.toFixed(1)}</Text>
-                <Text style={styles.reviewCount}>({booking.provider.review_count} reviews)</Text>
-              </View>
-              <View style={styles.locationContainer}>
-                <Ionicons name="location-outline" size={16} color="#666" />
-                <Text style={styles.locationText}>{booking.provider.location.address}</Text>
-              </View>
-            </View>
-          </View>
-        </View>
-
-        {/* Appointment Details */}
-        <View style={styles.card}>
-          <Text style={styles.cardTitle}>Appointment Details</Text>
-          <View style={styles.appointmentInfo}>
-            <View style={styles.appointmentItem}>
-              <Ionicons name="calendar-outline" size={20} color="#666" />
-              <View style={styles.appointmentTextContainer}>
-                <Text style={styles.appointmentLabel}>Date</Text>
-                <Text style={styles.appointmentValue}>{date}</Text>
-              </View>
-            </View>
-            <View style={styles.appointmentItem}>
-              <Ionicons name="time-outline" size={20} color="#666" />
-              <View style={styles.appointmentTextContainer}>
-                <Text style={styles.appointmentLabel}>Time</Text>
-                <Text style={styles.appointmentValue}>{time}</Text>
-              </View>
-            </View>
-            <View style={styles.appointmentItem}>
-              <Ionicons name="hourglass-outline" size={20} color="#666" />
-              <View style={styles.appointmentTextContainer}>
-                <Text style={styles.appointmentLabel}>Duration</Text>
-                <Text style={styles.appointmentValue}>{booking.duration} minutes</Text>
-              </View>
-            </View>
-          </View>
-        </View>
-
-        {/* Pet Information */}
-        {booking.pet && (
-          <View style={styles.card}>
-            <Text style={styles.cardTitle}>Pet Information</Text>
-            <View style={styles.petInfo}>
-              <Ionicons name="paw-outline" size={24} color="#666" />
-              <View style={styles.petDetails}>
-                <Text style={styles.petName}>{booking.pet.name}</Text>
-                <Text style={styles.petBreed}>
-                  {booking.pet.species} • {booking.pet.breed || 'Mixed'}
-                </Text>
-                {booking.pet.special_notes && (
-                  <Text style={styles.petNotes}>{booking.pet.special_notes}</Text>
-                )}
-              </View>
-            </View>
-          </View>
-        )}
-
-        {/* Special Instructions */}
-        {booking.notes && (
-          <View style={styles.card}>
-            <Text style={styles.cardTitle}>Special Instructions</Text>
-            <Text style={styles.notesText}>{booking.notes}</Text>
-          </View>
-        )}
-
-        {/* Payment Information */}
-        <View style={styles.card}>
-          <Text style={styles.cardTitle}>Payment Information</Text>
-          <View style={styles.paymentInfo}>
-            <View style={styles.paymentRow}>
-              <Text style={styles.paymentLabel}>Service Price</Text>
-              <Text style={styles.paymentValue}>${(booking.total_price - booking.platform_fee).toFixed(2)}</Text>
-            </View>
-            <View style={styles.paymentRow}>
-              <Text style={styles.paymentLabel}>Platform Fee</Text>
-              <Text style={styles.paymentValue}>${booking.platform_fee.toFixed(2)}</Text>
-            </View>
-            <View style={[styles.paymentRow, styles.totalRow]}>
-              <Text style={styles.totalLabel}>Total Paid</Text>
-              <Text style={styles.totalValue}>${booking.total_price.toFixed(2)}</Text>
-            </View>
-            <View style={styles.paymentStatus}>
-              <Ionicons name="checkmark-circle" size={16} color="#4CAF50" />
-              <Text style={styles.paymentStatusText}>Payment completed</Text>
-            </View>
-          </View>
-        </View>
-
-        {/* QR Code for Check-in */}
-        {booking.status === 'confirmed' && (
-          <View style={styles.card}>
-            <Text style={styles.cardTitle}>Check-in QR Code</Text>
-            <View style={styles.qrContainer}>
-              <View style={styles.qrPlaceholder}>
-                <Ionicons name="qr-code-outline" size={64} color="#666" />
-                <Text style={styles.qrText}>QR Code will be available 24 hours before appointment</Text>
-              </View>
-            </View>
-          </View>
-        )}
+        {renderBookingHeader()}
+        {renderServiceDetails()}
+        {renderPetInfo()}
+        {renderNotesSection()}
+        {renderLocationMap()}
+        {booking.status === 'confirmed' && renderQRCode()}
+        {renderActionButtons()}
       </ScrollView>
-
-      {/* Action Buttons */}
-      <View style={styles.actionContainer}>
-        {booking.status === 'confirmed' && (
-          <>
-            <TouchableOpacity style={styles.primaryButton} onPress={handleGetDirections}>
-              <Ionicons name="navigate-outline" size={20} color="white" />
-              <Text style={styles.primaryButtonText}>Get Directions</Text>
-            </TouchableOpacity>
-            <TouchableOpacity style={styles.secondaryButton} onPress={handleContactProvider}>
-              <Ionicons name="chatbubble-outline" size={20} color="#007AFF" />
-              <Text style={styles.secondaryButtonText}>Contact Provider</Text>
-            </TouchableOpacity>
-            <TouchableOpacity style={styles.cancelButton} onPress={handleCancelBooking}>
-              <Ionicons name="close-circle-outline" size={20} color="#F44336" />
-              <Text style={styles.cancelButtonText}>Cancel Booking</Text>
-            </TouchableOpacity>
-          </>
-        )}
-        
-        {booking.status === 'completed' && (
-          <TouchableOpacity style={styles.primaryButton} onPress={handleLeaveReview}>
-            <Ionicons name="star-outline" size={20} color="white" />
-            <Text style={styles.primaryButtonText}>Leave Review</Text>
-          </TouchableOpacity>
-        )}
-      </View>
     </SafeAreaView>
   );
 };
@@ -392,83 +418,37 @@ const BookingDetailScreen: React.FC = () => {
 const styles = StyleSheet.create({
   container: {
     flex: 1,
-    backgroundColor: '#f5f5f5',
+    backgroundColor: '#F8F9FA',
   },
   scrollView: {
     flex: 1,
-  },
-  loadingContainer: {
-    flex: 1,
-    justifyContent: 'center',
-    alignItems: 'center',
-  },
-  loadingText: {
-    marginTop: 12,
-    fontSize: 16,
-    color: '#666',
+    padding: 16,
   },
   errorContainer: {
     flex: 1,
     justifyContent: 'center',
     alignItems: 'center',
-    paddingHorizontal: 40,
   },
-  errorTitle: {
-    fontSize: 20,
-    fontWeight: 'bold',
-    color: '#333',
-    marginTop: 16,
-    marginBottom: 8,
-  },
-  errorSubtitle: {
-    fontSize: 16,
-    color: '#666',
-    textAlign: 'center',
-    marginBottom: 24,
-  },
-  retryButton: {
-    backgroundColor: '#007AFF',
-    paddingVertical: 12,
-    paddingHorizontal: 24,
-    borderRadius: 8,
-  },
-  retryButtonText: {
-    fontSize: 16,
-    fontWeight: '600',
-    color: 'white',
-  },
-  header: {
-    flexDirection: 'row',
-    alignItems: 'center',
-    justifyContent: 'space-between',
-    paddingHorizontal: 20,
-    paddingVertical: 16,
-    backgroundColor: 'white',
-    borderBottomWidth: 1,
-    borderBottomColor: '#e0e0e0',
-  },
-  headerTitle: {
+  errorText: {
     fontSize: 18,
-    fontWeight: '600',
-    color: '#333',
+    color: '#666',
   },
-  statusCard: {
-    backgroundColor: 'white',
-    marginHorizontal: 20,
-    marginVertical: 8,
-    padding: 20,
+  headerCard: {
+    backgroundColor: '#FFFFFF',
     borderRadius: 12,
+    padding: 16,
+    marginBottom: 16,
     shadowColor: '#000',
-    shadowOffset: { width: 0, height: 2 },
+    shadowOffset: {width: 0, height: 2},
     shadowOpacity: 0.1,
     shadowRadius: 4,
     elevation: 3,
   },
-  statusHeader: {
+  statusContainer: {
     flexDirection: 'row',
     justifyContent: 'space-between',
     alignItems: 'center',
-    marginBottom: 8,
+    marginBottom: 16,
   },
   statusBadge: {
     paddingHorizontal: 12,
@@ -478,75 +458,14 @@ const styles = StyleSheet.create({
   statusText: {
     fontSize: 14,
     fontWeight: '600',
-    color: 'white',
+    color: '#FFFFFF',
   },
   bookingId: {
     fontSize: 14,
     color: '#666',
-    fontFamily: 'monospace',
+    fontWeight: '500',
   },
-  statusDescription: {
-    fontSize: 14,
-    color: '#666',
-    lineHeight: 20,
-  },
-  card: {
-    backgroundColor: 'white',
-    marginHorizontal: 20,
-    marginVertical: 8,
-    padding: 20,
-    borderRadius: 12,
-    shadowColor: '#000',
-    shadowOffset: { width: 0, height: 2 },
-    shadowOpacity: 0.1,
-    shadowRadius: 4,
-    elevation: 3,
-  },
-  cardTitle: {
-    fontSize: 18,
-    fontWeight: '600',
-    color: '#333',
-    marginBottom: 16,
-  },
-  serviceHeader: {
-    flexDirection: 'row',
-    justifyContent: 'space-between',
-    alignItems: 'flex-start',
-  },
-  serviceInfo: {
-    flex: 1,
-    marginRight: 16,
-  },
-  serviceName: {
-    fontSize: 16,
-    fontWeight: '600',
-    color: '#333',
-    marginBottom: 4,
-  },
-  serviceType: {
-    fontSize: 14,
-    color: '#666',
-    marginBottom: 4,
-  },
-  serviceDescription: {
-    fontSize: 14,
-    color: '#666',
-    lineHeight: 20,
-  },
-  priceContainer: {
-    alignItems: 'flex-end',
-  },
-  priceLabel: {
-    fontSize: 12,
-    color: '#666',
-    marginBottom: 2,
-  },
-  priceValue: {
-    fontSize: 18,
-    fontWeight: '600',
-    color: '#333',
-  },
-  providerInfo: {
+  providerSection: {
     flexDirection: 'row',
     alignItems: 'center',
   },
@@ -556,13 +475,13 @@ const styles = StyleSheet.create({
     borderRadius: 30,
     marginRight: 16,
   },
-  providerDetails: {
+  providerInfo: {
     flex: 1,
   },
   providerName: {
-    fontSize: 16,
+    fontSize: 20,
     fontWeight: '600',
-    color: '#333',
+    color: '#1C1C1E',
     marginBottom: 4,
   },
   ratingContainer: {
@@ -572,186 +491,172 @@ const styles = StyleSheet.create({
   },
   rating: {
     fontSize: 14,
-    fontWeight: '500',
-    color: '#333',
-    marginLeft: 4,
-  },
-  reviewCount: {
-    fontSize: 14,
     color: '#666',
     marginLeft: 4,
   },
-  locationContainer: {
+  verifiedBadge: {
     flexDirection: 'row',
     alignItems: 'center',
   },
-  locationText: {
+  verifiedText: {
+    fontSize: 14,
+    color: '#4CAF50',
+    marginLeft: 4,
+    fontWeight: '500',
+  },
+  card: {
+    backgroundColor: '#FFFFFF',
+    borderRadius: 12,
+    padding: 16,
+    marginBottom: 16,
+    shadowColor: '#000',
+    shadowOffset: {width: 0, height: 2},
+    shadowOpacity: 0.1,
+    shadowRadius: 4,
+    elevation: 3,
+  },
+  cardTitle: {
+    fontSize: 18,
+    fontWeight: '600',
+    color: '#1C1C1E',
+    marginBottom: 16,
+  },
+  serviceInfo: {
+    marginBottom: 16,
+  },
+  serviceName: {
+    fontSize: 20,
+    fontWeight: '600',
+    color: '#1C1C1E',
+    marginBottom: 4,
+  },
+  serviceType: {
+    fontSize: 16,
+    color: '#666',
+    textTransform: 'capitalize',
+    marginBottom: 8,
+  },
+  serviceDescription: {
     fontSize: 14,
     color: '#666',
-    marginLeft: 4,
-    flex: 1,
+    lineHeight: 20,
   },
-  appointmentInfo: {
+  detailsGrid: {
     gap: 16,
   },
-  appointmentItem: {
+  detailItem: {
     flexDirection: 'row',
     alignItems: 'center',
   },
-  appointmentTextContainer: {
-    marginLeft: 12,
-  },
-  appointmentLabel: {
-    fontSize: 12,
+  detailLabel: {
+    fontSize: 16,
     color: '#666',
-    marginBottom: 2,
+    marginLeft: 12,
+    flex: 1,
   },
-  appointmentValue: {
+  detailValue: {
     fontSize: 16,
     fontWeight: '500',
-    color: '#333',
+    color: '#1C1C1E',
+    textAlign: 'right',
+    flex: 1,
+  },
+  priceValue: {
+    color: '#4CAF50',
+    fontSize: 18,
+    fontWeight: '600',
   },
   petInfo: {
     flexDirection: 'row',
     alignItems: 'center',
+    marginBottom: 16,
+  },
+  petAvatar: {
+    width: 50,
+    height: 50,
+    borderRadius: 25,
+    marginRight: 12,
   },
   petDetails: {
-    marginLeft: 12,
     flex: 1,
   },
   petName: {
-    fontSize: 16,
+    fontSize: 18,
     fontWeight: '600',
-    color: '#333',
+    color: '#1C1C1E',
     marginBottom: 2,
   },
   petBreed: {
     fontSize: 14,
     color: '#666',
-    marginBottom: 4,
+    textTransform: 'capitalize',
+    marginBottom: 2,
   },
-  petNotes: {
+  petAge: {
     fontSize: 14,
     color: '#666',
-    fontStyle: 'italic',
+  },
+  specialInstructions: {
+    padding: 12,
+    backgroundColor: '#F8F9FA',
+    borderRadius: 8,
+  },
+  instructionsLabel: {
+    fontSize: 14,
+    fontWeight: '600',
+    color: '#1C1C1E',
+    marginBottom: 4,
+  },
+  instructionsText: {
+    fontSize: 14,
+    color: '#666',
+    lineHeight: 18,
   },
   notesText: {
-    fontSize: 14,
-    color: '#333',
-    lineHeight: 20,
+    fontSize: 16,
+    color: '#1C1C1E',
+    lineHeight: 22,
   },
-  paymentInfo: {
-    gap: 8,
+  mapContainer: {
+    height: 200,
+    borderRadius: 8,
+    overflow: 'hidden',
+    marginBottom: 16,
   },
-  paymentRow: {
+  map: {
+    flex: 1,
+  },
+  directionsButton: {
+    alignSelf: 'flex-start',
+  },
+  qrHeader: {
     flexDirection: 'row',
     justifyContent: 'space-between',
     alignItems: 'center',
-  },
-  totalRow: {
-    borderTopWidth: 1,
-    borderTopColor: '#e0e0e0',
-    paddingTop: 8,
-    marginTop: 8,
-  },
-  paymentLabel: {
-    fontSize: 14,
-    color: '#666',
-  },
-  paymentValue: {
-    fontSize: 14,
-    color: '#333',
-  },
-  totalLabel: {
-    fontSize: 16,
-    fontWeight: '600',
-    color: '#333',
-  },
-  totalValue: {
-    fontSize: 16,
-    fontWeight: '600',
-    color: '#333',
-  },
-  paymentStatus: {
-    flexDirection: 'row',
-    alignItems: 'center',
-    marginTop: 8,
-  },
-  paymentStatusText: {
-    fontSize: 14,
-    color: '#4CAF50',
-    marginLeft: 4,
+    marginBottom: 16,
   },
   qrContainer: {
     alignItems: 'center',
   },
-  qrPlaceholder: {
-    alignItems: 'center',
-    padding: 20,
-    borderWidth: 1,
-    borderColor: '#e0e0e0',
-    borderRadius: 8,
-    borderStyle: 'dashed',
-  },
-  qrText: {
-    fontSize: 12,
+  qrInstructions: {
+    fontSize: 14,
     color: '#666',
     textAlign: 'center',
-    marginTop: 8,
+    marginTop: 16,
+    lineHeight: 18,
   },
   actionContainer: {
-    backgroundColor: 'white',
-    paddingHorizontal: 20,
-    paddingVertical: 16,
-    borderTopWidth: 1,
-    borderTopColor: '#e0e0e0',
     gap: 12,
+    marginBottom: 32,
   },
-  primaryButton: {
-    backgroundColor: '#007AFF',
-    flexDirection: 'row',
-    alignItems: 'center',
-    justifyContent: 'center',
-    paddingVertical: 16,
-    borderRadius: 8,
-  },
-  primaryButtonText: {
-    fontSize: 16,
-    fontWeight: '600',
-    color: 'white',
-    marginLeft: 8,
-  },
-  secondaryButton: {
-    backgroundColor: 'white',
-    borderWidth: 1,
-    borderColor: '#007AFF',
-    flexDirection: 'row',
-    alignItems: 'center',
-    justifyContent: 'center',
-    paddingVertical: 16,
-    borderRadius: 8,
-  },
-  secondaryButtonText: {
-    fontSize: 16,
-    fontWeight: '600',
-    color: '#007AFF',
-    marginLeft: 8,
+  actionButton: {
+    width: '100%',
   },
   cancelButton: {
-    backgroundColor: 'white',
-    borderWidth: 1,
     borderColor: '#F44336',
-    flexDirection: 'row',
-    alignItems: 'center',
-    justifyContent: 'center',
-    paddingVertical: 16,
-    borderRadius: 8,
   },
   cancelButtonText: {
-    fontSize: 16,
-    fontWeight: '600',
     color: '#F44336',
-    marginLeft: 8,
   },
 });
 

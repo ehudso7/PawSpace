@@ -1,68 +1,52 @@
-import React, { useEffect, useRef } from 'react';
+import React, {useEffect, useRef} from 'react';
 import {
   View,
   Text,
   StyleSheet,
-  TouchableOpacity,
   Animated,
-  Dimensions,
+  Easing,
   Share,
   Alert,
 } from 'react-native';
-import { SafeAreaView } from 'react-native-safe-area-context';
-import { Ionicons } from '@expo/vector-icons';
-import { useNavigation, useRoute } from '@react-navigation/native';
-import { Booking } from '../../types/booking';
+import {SafeAreaView} from 'react-native-safe-area-context';
+import {useNavigation, useRoute} from '@react-navigation/native';
+import * as Animatable from 'react-native-animatable';
+import Icon from 'react-native-vector-icons/MaterialIcons';
 
-interface RouteParams {
-  booking: Booking;
-}
-
-const { width } = Dimensions.get('window');
+import {
+  BookingSuccessScreenNavigationProp,
+  BookingSuccessScreenRouteProp,
+} from '../../types/navigation';
+import Button from '../../components/Button';
+import bookingService from '../../services/booking';
 
 const BookingSuccessScreen: React.FC = () => {
-  const navigation = useNavigation();
-  const route = useRoute();
-  const { booking } = route.params as RouteParams;
+  const navigation = useNavigation<BookingSuccessScreenNavigationProp>();
+  const route = useRoute<BookingSuccessScreenRouteProp>();
+  const {booking} = route.params;
 
   const scaleAnim = useRef(new Animated.Value(0)).current;
   const fadeAnim = useRef(new Animated.Value(0)).current;
-  const slideAnim = useRef(new Animated.Value(50)).current;
 
   useEffect(() => {
-    // Animate checkmark
+    // Start animations
     Animated.sequence([
       Animated.timing(scaleAnim, {
-        toValue: 1.2,
-        duration: 300,
-        useNativeDriver: true,
-      }),
-      Animated.timing(scaleAnim, {
         toValue: 1,
-        duration: 200,
+        duration: 600,
+        easing: Easing.elastic(1),
         useNativeDriver: true,
       }),
-    ]).start();
-
-    // Animate content
-    Animated.parallel([
       Animated.timing(fadeAnim, {
         toValue: 1,
-        duration: 500,
-        delay: 300,
-        useNativeDriver: true,
-      }),
-      Animated.timing(slideAnim, {
-        toValue: 0,
-        duration: 500,
-        delay: 300,
+        duration: 400,
         useNativeDriver: true,
       }),
     ]).start();
-  }, []);
+  }, [scaleAnim, fadeAnim]);
 
   const handleViewBooking = () => {
-    navigation.navigate('BookingDetail', { bookingId: booking.id });
+    navigation.navigate('BookingDetail', {bookingId: booking.id});
   };
 
   const handleBookAnother = () => {
@@ -71,178 +55,136 @@ const BookingSuccessScreen: React.FC = () => {
 
   const handleShare = async () => {
     try {
-      const message = `I just booked ${booking.service.name} with ${booking.provider.business_name} for ${new Date(booking.appointment_time).toLocaleDateString()}. Booking ID: ${booking.id}`;
-      
+      const message = `🐾 Booking Confirmed!\n\nService: ${booking.service.name}\nProvider: ${booking.provider.name}\nDate: ${bookingService.formatBookingTime(booking.appointment_time)}\nBooking ID: ${booking.id}\n\nBooked via PawSpace`;
+
       await Share.share({
         message,
         title: 'Booking Confirmation',
       });
     } catch (error) {
       console.error('Error sharing:', error);
-      Alert.alert('Error', 'Failed to share booking details');
+      Alert.alert('Error', 'Failed to share booking confirmation');
     }
   };
 
-  const formatDateTime = (dateTime: string) => {
-    const date = new Date(dateTime);
-    return {
-      date: date.toLocaleDateString('en-US', {
-        weekday: 'long',
-        year: 'numeric',
-        month: 'long',
-        day: 'numeric',
-      }),
-      time: date.toLocaleTimeString('en-US', {
-        hour: '2-digit',
-        minute: '2-digit',
-      }),
-    };
+  const generateBookingReference = (bookingId: string): string => {
+    // Generate a user-friendly booking reference
+    return `PS${bookingId.slice(-8).toUpperCase()}`;
   };
-
-  const { date, time } = formatDateTime(booking.appointment_time);
 
   return (
     <SafeAreaView style={styles.container}>
       <View style={styles.content}>
         {/* Success Animation */}
-        <View style={styles.animationContainer}>
-          <Animated.View
-            style={[
-              styles.checkmarkContainer,
-              {
-                transform: [{ scale: scaleAnim }],
-              },
-            ]}
-          >
-            <Ionicons name="checkmark-circle" size={120} color="#4CAF50" />
-          </Animated.View>
-        </View>
-
-        {/* Success Message */}
         <Animated.View
           style={[
-            styles.messageContainer,
+            styles.checkmarkContainer,
             {
-              opacity: fadeAnim,
-              transform: [{ translateY: slideAnim }],
+              transform: [{scale: scaleAnim}],
             },
-          ]}
-        >
+          ]}>
+          <Animatable.View
+            animation="pulse"
+            iterationCount="infinite"
+            duration={2000}
+            style={styles.checkmarkBackground}>
+            <Icon name="check" size={60} color="#FFFFFF" />
+          </Animatable.View>
+        </Animated.View>
+
+        {/* Success Message */}
+        <Animated.View style={[styles.messageContainer, {opacity: fadeAnim}]}>
           <Text style={styles.successTitle}>Booking Confirmed!</Text>
           <Text style={styles.successSubtitle}>
             Your appointment has been successfully booked
           </Text>
         </Animated.View>
 
-        {/* Booking Details Card */}
-        <Animated.View
-          style={[
-            styles.bookingCard,
-            {
-              opacity: fadeAnim,
-              transform: [{ translateY: slideAnim }],
-            },
-          ]}
-        >
-          <View style={styles.bookingHeader}>
-            <Text style={styles.bookingTitle}>Booking Details</Text>
-            <View style={styles.statusBadge}>
-              <Text style={styles.statusText}>Confirmed</Text>
-            </View>
+        {/* Booking Details */}
+        <Animated.View style={[styles.detailsCard, {opacity: fadeAnim}]}>
+          <View style={styles.detailRow}>
+            <Text style={styles.detailLabel}>Booking ID</Text>
+            <Text style={styles.detailValue}>{generateBookingReference(booking.id)}</Text>
           </View>
 
-          <View style={styles.bookingInfo}>
-            <View style={styles.infoRow}>
-              <Ionicons name="calendar-outline" size={20} color="#666" />
-              <Text style={styles.infoText}>{date}</Text>
-            </View>
-            <View style={styles.infoRow}>
-              <Ionicons name="time-outline" size={20} color="#666" />
-              <Text style={styles.infoText}>{time}</Text>
-            </View>
-            <View style={styles.infoRow}>
-              <Ionicons name="business-outline" size={20} color="#666" />
-              <Text style={styles.infoText}>{booking.provider.business_name}</Text>
-            </View>
-            <View style={styles.infoRow}>
-              <Ionicons name="paw-outline" size={20} color="#666" />
-              <Text style={styles.infoText}>{booking.service.name}</Text>
-            </View>
-            <View style={styles.infoRow}>
-              <Ionicons name="location-outline" size={20} color="#666" />
-              <Text style={styles.infoText}>{booking.provider.location.address}</Text>
-            </View>
+          <View style={styles.detailRow}>
+            <Text style={styles.detailLabel}>Service</Text>
+            <Text style={styles.detailValue}>{booking.service.name}</Text>
           </View>
 
-          <View style={styles.bookingIdContainer}>
-            <Text style={styles.bookingIdLabel}>Booking ID</Text>
-            <Text style={styles.bookingId}>{booking.id}</Text>
+          <View style={styles.detailRow}>
+            <Text style={styles.detailLabel}>Provider</Text>
+            <Text style={styles.detailValue}>{booking.provider.name}</Text>
           </View>
-        </Animated.View>
 
-        {/* Action Buttons */}
-        <Animated.View
-          style={[
-            styles.buttonContainer,
-            {
-              opacity: fadeAnim,
-              transform: [{ translateY: slideAnim }],
-            },
-          ]}
-        >
-          <TouchableOpacity style={styles.primaryButton} onPress={handleViewBooking}>
-            <Ionicons name="eye-outline" size={20} color="white" />
-            <Text style={styles.primaryButtonText}>View Booking</Text>
-          </TouchableOpacity>
-
-          <TouchableOpacity style={styles.secondaryButton} onPress={handleBookAnother}>
-            <Ionicons name="add-circle-outline" size={20} color="#007AFF" />
-            <Text style={styles.secondaryButtonText}>Book Another</Text>
-          </TouchableOpacity>
-
-          <TouchableOpacity style={styles.shareButton} onPress={handleShare}>
-            <Ionicons name="share-outline" size={20} color="#666" />
-            <Text style={styles.shareButtonText}>Share</Text>
-          </TouchableOpacity>
-        </Animated.View>
-
-        {/* Next Steps */}
-        <Animated.View
-          style={[
-            styles.nextStepsContainer,
-            {
-              opacity: fadeAnim,
-              transform: [{ translateY: slideAnim }],
-            },
-          ]}
-        >
-          <Text style={styles.nextStepsTitle}>What's Next?</Text>
-          <View style={styles.stepItem}>
-            <View style={styles.stepNumber}>
-              <Text style={styles.stepNumberText}>1</Text>
-            </View>
-            <Text style={styles.stepText}>
-              You'll receive a confirmation email with all the details
+          <View style={styles.detailRow}>
+            <Text style={styles.detailLabel}>Date & Time</Text>
+            <Text style={styles.detailValue}>
+              {bookingService.formatBookingTime(booking.appointment_time)}
             </Text>
           </View>
-          <View style={styles.stepItem}>
-            <View style={styles.stepNumber}>
-              <Text style={styles.stepNumberText}>2</Text>
-            </View>
-            <Text style={styles.stepText}>
-              The provider will contact you 24 hours before the appointment
+
+          <View style={styles.detailRow}>
+            <Text style={styles.detailLabel}>Duration</Text>
+            <Text style={styles.detailValue}>
+              {bookingService.formatDuration(booking.duration)}
             </Text>
           </View>
-          <View style={styles.stepItem}>
-            <View style={styles.stepNumber}>
-              <Text style={styles.stepNumberText}>3</Text>
+
+          <View style={styles.detailRow}>
+            <Text style={styles.detailLabel}>Total Paid</Text>
+            <Text style={[styles.detailValue, styles.priceValue]}>
+              ${booking.total_price.toFixed(2)}
+            </Text>
+          </View>
+
+          {booking.pet && (
+            <View style={styles.detailRow}>
+              <Text style={styles.detailLabel}>Pet</Text>
+              <Text style={styles.detailValue}>{booking.pet.name}</Text>
             </View>
-            <Text style={styles.stepText}>
-              Check in with the QR code when you arrive
+          )}
+        </Animated.View>
+
+        {/* Confirmation Message */}
+        <Animated.View style={[styles.confirmationContainer, {opacity: fadeAnim}]}>
+          <View style={styles.infoRow}>
+            <Icon name="info" size={20} color="#007AFF" />
+            <Text style={styles.infoText}>
+              You'll receive a confirmation email shortly. The provider will contact you to confirm the appointment details.
             </Text>
           </View>
         </Animated.View>
       </View>
+
+      {/* Action Buttons */}
+      <Animated.View style={[styles.buttonContainer, {opacity: fadeAnim}]}>
+        <Button
+          title="View Booking"
+          onPress={handleViewBooking}
+          variant="primary"
+          size="large"
+          style={styles.primaryButton}
+        />
+
+        <View style={styles.secondaryButtons}>
+          <Button
+            title="Book Another"
+            onPress={handleBookAnother}
+            variant="outline"
+            size="medium"
+            style={styles.secondaryButton}
+          />
+
+          <Button
+            title="Share"
+            onPress={handleShare}
+            variant="secondary"
+            size="medium"
+            style={styles.secondaryButton}
+          />
+        </View>
+      </Animated.View>
     </SafeAreaView>
   );
 };
@@ -250,187 +192,113 @@ const BookingSuccessScreen: React.FC = () => {
 const styles = StyleSheet.create({
   container: {
     flex: 1,
-    backgroundColor: '#f5f5f5',
+    backgroundColor: '#F8F9FA',
   },
   content: {
     flex: 1,
-    paddingHorizontal: 20,
-  },
-  animationContainer: {
-    alignItems: 'center',
-    paddingVertical: 40,
+    padding: 24,
+    justifyContent: 'center',
   },
   checkmarkContainer: {
     alignItems: 'center',
+    marginBottom: 32,
+  },
+  checkmarkBackground: {
+    width: 120,
+    height: 120,
+    borderRadius: 60,
+    backgroundColor: '#4CAF50',
     justifyContent: 'center',
+    alignItems: 'center',
+    shadowColor: '#4CAF50',
+    shadowOffset: {width: 0, height: 4},
+    shadowOpacity: 0.3,
+    shadowRadius: 8,
+    elevation: 8,
   },
   messageContainer: {
     alignItems: 'center',
-    marginBottom: 30,
+    marginBottom: 32,
   },
   successTitle: {
     fontSize: 28,
-    fontWeight: 'bold',
-    color: '#333',
-    marginBottom: 8,
+    fontWeight: '700',
+    color: '#1C1C1E',
     textAlign: 'center',
+    marginBottom: 8,
   },
   successSubtitle: {
     fontSize: 16,
     color: '#666',
     textAlign: 'center',
-    lineHeight: 24,
+    lineHeight: 22,
   },
-  bookingCard: {
-    backgroundColor: 'white',
-    borderRadius: 12,
+  detailsCard: {
+    backgroundColor: '#FFFFFF',
+    borderRadius: 16,
     padding: 20,
-    marginBottom: 20,
+    marginBottom: 24,
     shadowColor: '#000',
-    shadowOffset: { width: 0, height: 2 },
+    shadowOffset: {width: 0, height: 2},
     shadowOpacity: 0.1,
-    shadowRadius: 4,
-    elevation: 3,
+    shadowRadius: 8,
+    elevation: 4,
   },
-  bookingHeader: {
+  detailRow: {
     flexDirection: 'row',
     justifyContent: 'space-between',
-    alignItems: 'center',
-    marginBottom: 16,
+    alignItems: 'flex-start',
+    paddingVertical: 12,
+    borderBottomWidth: 1,
+    borderBottomColor: '#F2F2F7',
   },
-  bookingTitle: {
+  detailLabel: {
+    fontSize: 16,
+    color: '#666',
+    flex: 1,
+  },
+  detailValue: {
+    fontSize: 16,
+    fontWeight: '600',
+    color: '#1C1C1E',
+    flex: 1,
+    textAlign: 'right',
+  },
+  priceValue: {
+    color: '#4CAF50',
     fontSize: 18,
-    fontWeight: '600',
-    color: '#333',
   },
-  statusBadge: {
-    backgroundColor: '#4CAF50',
-    paddingHorizontal: 12,
-    paddingVertical: 4,
+  confirmationContainer: {
+    backgroundColor: '#E3F2FD',
     borderRadius: 12,
-  },
-  statusText: {
-    fontSize: 12,
-    fontWeight: '600',
-    color: 'white',
-  },
-  bookingInfo: {
-    marginBottom: 16,
+    padding: 16,
+    marginBottom: 24,
   },
   infoRow: {
     flexDirection: 'row',
-    alignItems: 'center',
-    marginBottom: 8,
+    alignItems: 'flex-start',
   },
   infoText: {
     fontSize: 14,
-    color: '#333',
-    marginLeft: 8,
+    color: '#1565C0',
+    lineHeight: 20,
+    marginLeft: 12,
     flex: 1,
-  },
-  bookingIdContainer: {
-    borderTopWidth: 1,
-    borderTopColor: '#e0e0e0',
-    paddingTop: 16,
-  },
-  bookingIdLabel: {
-    fontSize: 12,
-    color: '#666',
-    marginBottom: 4,
-  },
-  bookingId: {
-    fontSize: 14,
-    fontWeight: '600',
-    color: '#333',
-    fontFamily: 'monospace',
   },
   buttonContainer: {
-    marginBottom: 20,
+    padding: 24,
+    paddingTop: 0,
   },
   primaryButton: {
-    backgroundColor: '#007AFF',
-    flexDirection: 'row',
-    alignItems: 'center',
-    justifyContent: 'center',
-    paddingVertical: 16,
-    borderRadius: 8,
-    marginBottom: 12,
-  },
-  primaryButtonText: {
-    fontSize: 16,
-    fontWeight: '600',
-    color: 'white',
-    marginLeft: 8,
-  },
-  secondaryButton: {
-    backgroundColor: 'white',
-    borderWidth: 1,
-    borderColor: '#007AFF',
-    flexDirection: 'row',
-    alignItems: 'center',
-    justifyContent: 'center',
-    paddingVertical: 16,
-    borderRadius: 8,
-    marginBottom: 12,
-  },
-  secondaryButtonText: {
-    fontSize: 16,
-    fontWeight: '600',
-    color: '#007AFF',
-    marginLeft: 8,
-  },
-  shareButton: {
-    backgroundColor: 'white',
-    borderWidth: 1,
-    borderColor: '#e0e0e0',
-    flexDirection: 'row',
-    alignItems: 'center',
-    justifyContent: 'center',
-    paddingVertical: 16,
-    borderRadius: 8,
-  },
-  shareButtonText: {
-    fontSize: 16,
-    color: '#666',
-    marginLeft: 8,
-  },
-  nextStepsContainer: {
-    backgroundColor: 'white',
-    borderRadius: 12,
-    padding: 20,
-    marginBottom: 20,
-  },
-  nextStepsTitle: {
-    fontSize: 18,
-    fontWeight: '600',
-    color: '#333',
     marginBottom: 16,
   },
-  stepItem: {
+  secondaryButtons: {
     flexDirection: 'row',
-    alignItems: 'flex-start',
-    marginBottom: 12,
+    justifyContent: 'space-between',
   },
-  stepNumber: {
-    width: 24,
-    height: 24,
-    borderRadius: 12,
-    backgroundColor: '#007AFF',
-    alignItems: 'center',
-    justifyContent: 'center',
-    marginRight: 12,
-    marginTop: 2,
-  },
-  stepNumberText: {
-    fontSize: 12,
-    fontWeight: '600',
-    color: 'white',
-  },
-  stepText: {
-    fontSize: 14,
-    color: '#666',
+  secondaryButton: {
     flex: 1,
-    lineHeight: 20,
+    marginHorizontal: 8,
   },
 });
 

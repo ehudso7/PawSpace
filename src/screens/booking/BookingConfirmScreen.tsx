@@ -18,8 +18,8 @@ import {
   BookingConfirmScreenRouteProp,
 } from '../../types/navigation';
 import {Pet, PaymentMethod, BookingData} from '../../types/booking';
-import Button from '../../components/common/Button';
-import { LoadingSpinner } from '../../components/common/LoadingSpinner';
+import Button from '../../components/Button';
+import LoadingSpinner from '../../components/LoadingSpinner';
 import bookingService from '../../services/booking';
 import stripeService from '../../services/stripe';
 
