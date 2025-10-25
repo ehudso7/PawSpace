@@ -1,11 +1,23 @@
 import React from 'react';
+<<<<<<< HEAD
+import { View, StyleSheet } from 'react-native';
+=======
 import { View, Text, StyleSheet } from 'react-native';
 <<<<<<< HEAD
+>>>>>>> origin/main
 import { NativeStackScreenProps } from '@react-navigation/native-stack';
 import { HomeStackParamList } from '@/types/navigation';
 
 type Props = NativeStackScreenProps<HomeStackParamList, 'TransformationDetail'>;
 
+<<<<<<< HEAD
+const TransformationDetailScreen: React.FC<Props> = ({ navigation, route }) => {
+  const { transformationId } = route.params;
+
+  return (
+    <View style={styles.container}>
+      {/* TODO: Implement transformation detail view */}
+=======
 const TransformationDetailScreen: React.FC<Props> = ({ route }) => {
   return (
     <View style={styles.container}>
@@ -17,6 +29,7 @@ const TransformationDetailScreen: React.FC = () => {
     <View style={styles.container}>
       <Text style={styles.title}>Transformation Details</Text>
 >>>>>>> origin/main
+>>>>>>> origin/main
     </View>
   );
 };
@@ -24,6 +37,13 @@ const TransformationDetailScreen: React.FC = () => {
 const styles = StyleSheet.create({
   container: {
     flex: 1,
+<<<<<<< HEAD
+    backgroundColor: '#fff',
+  },
+});
+
+export default TransformationDetailScreen;
+=======
 <<<<<<< HEAD
     justifyContent: 'center',
     alignItems: 'center',
@@ -45,4 +65,5 @@ export default TransformationDetailScreen;
 });
 
 export default TransformationDetailScreen;
+>>>>>>> origin/main
 >>>>>>> origin/main

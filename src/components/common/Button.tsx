@@ -1,5 +1,9 @@
 import React from 'react';
 <<<<<<< HEAD
+import { TouchableOpacity, Text, StyleSheet, ViewStyle, TextStyle } from 'react-native';
+import { theme } from '@/constants/theme';
+=======
+<<<<<<< HEAD
 import { TouchableOpacity, Text, StyleSheet, TouchableOpacityProps } from 'react-native';
 
 interface ButtonProps extends TouchableOpacityProps {
@@ -16,6 +20,7 @@ const Button: React.FC<ButtonProps> = ({ title, variant = 'primary', style, ...p
       <Text style={[styles.text, styles[`${variant}Text`]]}>{title}</Text>
 =======
 import { TouchableOpacity, Text, StyleSheet, ViewStyle, TextStyle } from 'react-native';
+>>>>>>> origin/main
 
 interface ButtonProps {
   title: string;
@@ -47,10 +52,17 @@ const Button: React.FC<ButtonProps> = ({
       ]}
       onPress={onPress}
       disabled={disabled}
+<<<<<<< HEAD
+      activeOpacity={0.7}
+=======
+>>>>>>> origin/main
     >
       <Text style={[styles.text, styles[`${variant}Text`], textStyle]}>
         {title}
       </Text>
+<<<<<<< HEAD
+=======
+>>>>>>> origin/main
 >>>>>>> origin/main
     </TouchableOpacity>
   );
@@ -59,15 +71,24 @@ const Button: React.FC<ButtonProps> = ({
 const styles = StyleSheet.create({
   button: {
 <<<<<<< HEAD
+=======
+<<<<<<< HEAD
     paddingVertical: 12,
     paddingHorizontal: 24,
 =======
+>>>>>>> origin/main
 >>>>>>> origin/main
     borderRadius: 8,
     alignItems: 'center',
     justifyContent: 'center',
   },
   primary: {
+<<<<<<< HEAD
+    backgroundColor: theme.colors.primary,
+  },
+  secondary: {
+    backgroundColor: theme.colors.secondary,
+=======
     backgroundColor: '#007AFF',
   },
   secondary: {
@@ -76,16 +97,22 @@ const styles = StyleSheet.create({
 =======
     backgroundColor: '#6C757D',
 >>>>>>> origin/main
+>>>>>>> origin/main
   },
   outline: {
     backgroundColor: 'transparent',
     borderWidth: 1,
+<<<<<<< HEAD
+    borderColor: theme.colors.primary,
+  },
+=======
     borderColor: '#007AFF',
   },
 <<<<<<< HEAD
   text: {
     fontSize: 16,
 =======
+>>>>>>> origin/main
   small: {
     paddingVertical: 8,
     paddingHorizontal: 16,
@@ -102,6 +129,23 @@ const styles = StyleSheet.create({
     opacity: 0.5,
   },
   text: {
+<<<<<<< HEAD
+    fontSize: 16,
+    fontWeight: '600',
+  },
+  primaryText: {
+    color: theme.colors.white,
+  },
+  secondaryText: {
+    color: theme.colors.white,
+  },
+  outlineText: {
+    color: theme.colors.primary,
+  },
+});
+
+export default Button;
+=======
 >>>>>>> origin/main
     fontWeight: '600',
   },
@@ -120,4 +164,5 @@ const styles = StyleSheet.create({
 export default Button;
 =======
 export default Button;
+>>>>>>> origin/main
 >>>>>>> origin/main

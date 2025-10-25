@@ -1,11 +1,23 @@
 import React from 'react';
+<<<<<<< HEAD
+import { View, StyleSheet } from 'react-native';
+=======
 import { View, Text, StyleSheet } from 'react-native';
 <<<<<<< HEAD
+>>>>>>> origin/main
 import { NativeStackScreenProps } from '@react-navigation/native-stack';
 import { CreateStackParamList } from '@/types/navigation';
 
 type Props = NativeStackScreenProps<CreateStackParamList, 'Editor'>;
 
+<<<<<<< HEAD
+const EditorScreen: React.FC<Props> = ({ navigation, route }) => {
+  const { imageUri } = route.params;
+
+  return (
+    <View style={styles.container}>
+      {/* TODO: Implement image editor with filters and effects */}
+=======
 const EditorScreen: React.FC<Props> = ({ route }) => {
   return (
     <View style={styles.container}>
@@ -17,6 +29,7 @@ const EditorScreen: React.FC = () => {
     <View style={styles.container}>
       <Text style={styles.title}>Edit Transformation</Text>
 >>>>>>> origin/main
+>>>>>>> origin/main
     </View>
   );
 };
@@ -24,6 +37,13 @@ const EditorScreen: React.FC = () => {
 const styles = StyleSheet.create({
   container: {
     flex: 1,
+<<<<<<< HEAD
+    backgroundColor: '#fff',
+  },
+});
+
+export default EditorScreen;
+=======
 <<<<<<< HEAD
     justifyContent: 'center',
     alignItems: 'center',
@@ -45,4 +65,5 @@ export default EditorScreen;
 });
 
 export default EditorScreen;
+>>>>>>> origin/main
 >>>>>>> origin/main

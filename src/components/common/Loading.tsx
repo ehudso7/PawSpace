@@ -1,5 +1,25 @@
 import React from 'react';
 <<<<<<< HEAD
+import { View, ActivityIndicator, Text, StyleSheet } from 'react-native';
+import { theme } from '@/constants/theme';
+
+interface LoadingProps {
+  size?: 'small' | 'large';
+  text?: string;
+  fullScreen?: boolean;
+}
+
+const Loading: React.FC<LoadingProps> = ({
+  size = 'large',
+  text,
+  fullScreen = false,
+}) => {
+  return (
+    <View style={[styles.container, fullScreen && styles.fullScreen]}>
+      <ActivityIndicator size={size} color={theme.colors.primary} />
+      {text && <Text style={styles.text}>{text}</Text>}
+=======
+<<<<<<< HEAD
 import { View, ActivityIndicator, StyleSheet, Text } from 'react-native';
 =======
 import { View, ActivityIndicator, Text, StyleSheet } from 'react-native';
@@ -23,12 +43,32 @@ const Loading: React.FC<LoadingProps> = ({ message = 'Loading...', size = 'large
       <ActivityIndicator size={size} color="#007AFF" />
       <Text style={styles.text}>{message}</Text>
 >>>>>>> origin/main
+>>>>>>> origin/main
     </View>
   );
 };
 
 const styles = StyleSheet.create({
   container: {
+<<<<<<< HEAD
+    alignItems: 'center',
+    justifyContent: 'center',
+    padding: 20,
+  },
+  fullScreen: {
+    flex: 1,
+    backgroundColor: theme.colors.white,
+  },
+  text: {
+    marginTop: 12,
+    fontSize: 16,
+    color: theme.colors.text,
+    textAlign: 'center',
+  },
+});
+
+export default Loading;
+=======
     flex: 1,
     justifyContent: 'center',
     alignItems: 'center',
@@ -50,4 +90,5 @@ const styles = StyleSheet.create({
 export default Loading;
 =======
 export default Loading;
+>>>>>>> origin/main
 >>>>>>> origin/main

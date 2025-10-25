@@ -5,6 +5,21 @@ import { createNativeStackNavigator } from '@react-navigation/native-stack';
 import { useAuth } from '@/hooks/useAuth';
 import AuthNavigator from './AuthNavigator';
 import TabNavigator from './TabNavigator';
+import { RootStackParamList } from '@/types/navigation';
+
+const Stack = createNativeStackNavigator<RootStackParamList>();
+
+const AppNavigator: React.FC = () => {
+  const { user, isLoading } = useAuth();
+
+  if (isLoading) {
+    // TODO: Add loading screen component
+    return null;
+=======
+<<<<<<< HEAD
+import { useAuth } from '@/hooks/useAuth';
+import AuthNavigator from './AuthNavigator';
+import TabNavigator from './TabNavigator';
 =======
 import { AuthNavigator } from './AuthNavigator';
 import { TabNavigator } from './TabNavigator';
@@ -18,6 +33,7 @@ const AppNavigator: React.FC = () => {
 
   if (loading) {
     return null; // Or a loading screen
+>>>>>>> origin/main
   }
 
   return (
@@ -28,12 +44,15 @@ const AppNavigator: React.FC = () => {
         ) : (
           <Stack.Screen name="Auth" component={AuthNavigator} />
         )}
+<<<<<<< HEAD
+=======
 =======
   return (
     <NavigationContainer>
       <Stack.Navigator screenOptions={{ headerShown: false }}>
         <Stack.Screen name="Auth" component={AuthNavigator} />
         <Stack.Screen name="Main" component={TabNavigator} />
+>>>>>>> origin/main
 >>>>>>> origin/main
       </Stack.Navigator>
     </NavigationContainer>
@@ -43,5 +62,9 @@ const AppNavigator: React.FC = () => {
 <<<<<<< HEAD
 export default AppNavigator;
 =======
+<<<<<<< HEAD
 export default AppNavigator;
+=======
+export default AppNavigator;
+>>>>>>> origin/main
 >>>>>>> origin/main

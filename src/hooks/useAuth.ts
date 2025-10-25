@@ -1,5 +1,38 @@
 import { useState, useEffect } from 'react';
 <<<<<<< HEAD
+import { supabase } from '@/services/supabase';
+import { authService, SignUpData, SignInData } from '@/services/auth';
+import { User, AuthError } from '@/types';
+
+export const useAuth = () => {
+  const [user, setUser] = useState<User | null>(null);
+  const [isLoading, setIsLoading] = useState(true);
+  const [error, setError] = useState<AuthError | null>(null);
+
+  useEffect(() => {
+    // Get initial session
+    const getInitialSession = async () => {
+      try {
+        const currentUser = await authService.getCurrentUser();
+        setUser(currentUser);
+      } catch (error) {
+        console.error('Error getting initial session:', error);
+      } finally {
+        setIsLoading(false);
+      }
+    };
+
+    getInitialSession();
+
+    // Listen for auth changes
+    const { data: { subscription } } = supabase.auth.onAuthStateChange(
+      async (event, session) => {
+        setUser(session?.user as User || null);
+        setIsLoading(false);
+      }
+    );
+=======
+<<<<<<< HEAD
 import { User } from '@supabase/supabase-js';
 import { supabase, authService } from '@/services';
 import type { AuthCredentials, SignupData } from '@/services/auth';
@@ -65,10 +98,56 @@ export const useAuth = () => {
       setUser(user);
       setLoading(false);
     });
+>>>>>>> origin/main
 
     return () => subscription.unsubscribe();
   }, []);
 
+<<<<<<< HEAD
+  const signUp = async (data: SignUpData) => {
+    setIsLoading(true);
+    setError(null);
+
+    try {
+      const { user: newUser, error } = await authService.signUp(data);
+      
+      if (error) {
+        setError(error);
+        return { success: false, error };
+      }
+
+      setUser(newUser);
+      return { success: true, user: newUser };
+    } catch (error) {
+      const authError = { message: 'An unexpected error occurred' };
+      setError(authError);
+      return { success: false, error: authError };
+    } finally {
+      setIsLoading(false);
+    }
+  };
+
+  const signIn = async (data: SignInData) => {
+    setIsLoading(true);
+    setError(null);
+
+    try {
+      const { user: signedInUser, error } = await authService.signIn(data);
+      
+      if (error) {
+        setError(error);
+        return { success: false, error };
+      }
+
+      setUser(signedInUser);
+      return { success: true, user: signedInUser };
+    } catch (error) {
+      const authError = { message: 'An unexpected error occurred' };
+      setError(authError);
+      return { success: false, error: authError };
+    } finally {
+      setIsLoading(false);
+=======
   const signIn = async (email: string, password: string) => {
     setLoading(true);
     try {
@@ -108,10 +187,67 @@ export const useAuth = () => {
 >>>>>>> origin/main
     } finally {
       setLoading(false);
+>>>>>>> origin/main
     }
   };
 
   const signOut = async () => {
+<<<<<<< HEAD
+    setIsLoading(true);
+    setError(null);
+
+    try {
+      const { error } = await authService.signOut();
+      
+      if (error) {
+        setError(error);
+        return { success: false, error };
+      }
+
+      setUser(null);
+      return { success: true };
+    } catch (error) {
+      const authError = { message: 'An unexpected error occurred' };
+      setError(authError);
+      return { success: false, error: authError };
+    } finally {
+      setIsLoading(false);
+    }
+  };
+
+  const resetPassword = async (email: string) => {
+    setError(null);
+
+    try {
+      const { error } = await authService.resetPassword(email);
+      
+      if (error) {
+        setError(error);
+        return { success: false, error };
+      }
+
+      return { success: true };
+    } catch (error) {
+      const authError = { message: 'An unexpected error occurred' };
+      setError(authError);
+      return { success: false, error: authError };
+    }
+  };
+
+  const clearError = () => setError(null);
+
+  return {
+    user,
+    isLoading,
+    error,
+    signUp,
+    signIn,
+    signOut,
+    resetPassword,
+    clearError,
+  };
+};
+=======
     setLoading(true);
 <<<<<<< HEAD
     setError(null);
@@ -155,4 +291,5 @@ export default useAuth;
     isAuthenticated: !!user,
   };
 };
+>>>>>>> origin/main
 >>>>>>> origin/main

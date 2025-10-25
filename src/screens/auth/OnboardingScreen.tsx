@@ -1,4 +1,16 @@
 import React from 'react';
+<<<<<<< HEAD
+import { View, StyleSheet } from 'react-native';
+import { NativeStackScreenProps } from '@react-navigation/native-stack';
+import { AuthStackParamList } from '@/types/navigation';
+
+type Props = NativeStackScreenProps<AuthStackParamList, 'Onboarding'>;
+
+const OnboardingScreen: React.FC<Props> = ({ navigation }) => {
+  return (
+    <View style={styles.container}>
+      {/* TODO: Implement onboarding carousel */}
+=======
 import { View, Text, StyleSheet } from 'react-native';
 
 const OnboardingScreen: React.FC = () => {
@@ -9,6 +21,7 @@ const OnboardingScreen: React.FC = () => {
 =======
       <Text style={styles.title}>Welcome to PawSpace</Text>
 >>>>>>> origin/main
+>>>>>>> origin/main
     </View>
   );
 };
@@ -16,6 +29,13 @@ const OnboardingScreen: React.FC = () => {
 const styles = StyleSheet.create({
   container: {
     flex: 1,
+<<<<<<< HEAD
+    backgroundColor: '#fff',
+  },
+});
+
+export default OnboardingScreen;
+=======
     justifyContent: 'center',
     alignItems: 'center',
 <<<<<<< HEAD
@@ -37,4 +57,5 @@ export default OnboardingScreen;
 });
 
 export default OnboardingScreen;
+>>>>>>> origin/main
 >>>>>>> origin/main

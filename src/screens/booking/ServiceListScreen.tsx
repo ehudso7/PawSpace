@@ -1,5 +1,17 @@
 import React from 'react';
 <<<<<<< HEAD
+import { View, StyleSheet } from 'react-native';
+import { NativeStackScreenProps } from '@react-navigation/native-stack';
+import { BookingStackParamList } from '@/types/navigation';
+
+type Props = NativeStackScreenProps<BookingStackParamList, 'ServiceList'>;
+
+const ServiceListScreen: React.FC<Props> = ({ navigation }) => {
+  return (
+    <View style={styles.container}>
+      {/* TODO: Implement service list with filters */}
+=======
+<<<<<<< HEAD
 import { View, Text, StyleSheet } from 'react-native';
 =======
 import { View, Text, StyleSheet, FlatList } from 'react-native';
@@ -175,6 +187,7 @@ export const ServiceListScreen: React.FC<any> = ({ navigation }) => {
         </View>
       )}
 >>>>>>> origin/main
+>>>>>>> origin/main
     </View>
   );
 };
@@ -182,6 +195,13 @@ export const ServiceListScreen: React.FC<any> = ({ navigation }) => {
 const styles = StyleSheet.create({
   container: {
     flex: 1,
+<<<<<<< HEAD
+    backgroundColor: '#fff',
+  },
+});
+
+export default ServiceListScreen;
+=======
 <<<<<<< HEAD
     justifyContent: 'center',
     alignItems: 'center',
@@ -213,4 +233,5 @@ export default ServiceListScreen;
 });
 
 export default ServiceListScreen;
+>>>>>>> origin/main
 >>>>>>> origin/main
