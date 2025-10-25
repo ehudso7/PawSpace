@@ -1,312 +1,237 @@
-import React, { useCallback, useEffect, useMemo, useState } from 'react';
-import { FlatList, RefreshControl, View } from 'react-native';
-import { Appbar, ActivityIndicator, Chip, SegmentedButtons, Searchbar, Text, HelperText, Menu, Button, Divider } from 'react-native-paper';
-import Slider from '@react-native-community/slider';
-import { useNavigation } from '@react-navigation/native';
-import type { RootStackParamList } from '@/navigation';
-import { useQuery } from '@tanstack/react-query';
-import { Service, ServiceFilters } from '@/types/booking';
-import { getServices, searchServices } from '@/services/bookings';
-import { useDebouncedValue } from '@/hooks/useDebouncedValue';
-import { useCurrentLocation } from '@/hooks/useCurrentLocation';
-import { getDistanceMiles } from '@/utils/location';
-import { ServiceCard } from '@/components/booking/ServiceCard';
+import React from 'react';
+<<<<<<< HEAD
+import { View, StyleSheet } from 'react-native';
+import { NativeStackScreenProps } from '@react-navigation/native-stack';
+import { BookingStackParamList } from '@/types/navigation';
 
-const PAGE_SIZE = 10;
+type Props = NativeStackScreenProps<BookingStackParamList, 'ServiceList'>;
 
-const serviceTypes = [
-  { label: 'All', value: '' },
-  { label: 'Grooming', value: 'grooming' },
-  { label: 'Walking', value: 'walking' },
-  { label: 'Vet Care', value: 'vet_care' },
-  { label: 'Training', value: 'training' },
-];
+const ServiceListScreen: React.FC<Props> = ({ navigation }) => {
+  return (
+    <View style={styles.container}>
+      {/* TODO: Implement service list with filters */}
+=======
+<<<<<<< HEAD
+import { View, Text, StyleSheet } from 'react-native';
+=======
+import { View, Text, StyleSheet, FlatList } from 'react-native';
+>>>>>>> origin/main
 
-const availabilityOptions = [
-  { label: 'Today', value: 'today' },
-  { label: 'This Week', value: 'week' },
-  { label: 'Anytime', value: 'any' },
-];
+const ServiceListScreen: React.FC = () => {
+  return (
+    <View style={styles.container}>
+<<<<<<< HEAD
+      <Text style={styles.title}>Service List Screen</Text>
+=======
+      <Text style={styles.title}>Pet Services</Text>
+      <FlatList
+        data={[]}
+        renderItem={() => null}
+        keyExtractor={(item, index) => index.toString()}
+        contentContainerStyle={styles.list}
+      />
+import { View, FlatList, RefreshControl, StyleSheet } from 'react-native';
+import { Appbar, Chip, Searchbar, SegmentedButtons, Text, Button, Menu, IconButton } from 'react-native-paper';
+import { useInfiniteServices } from '../../hooks/useServices';
+import { useDebouncedValue } from '../../hooks/useDebounce';
+import { useUserLocation } from '../../hooks/useUserLocation';
+import { ServiceCard } from '../../components/booking/ServiceCard';
+import type { ServiceFilters } from '../../types/service';
 
-const sortOptions = [
-  { label: 'Nearest', value: 'distance' },
-  { label: 'Price (Low-High)', value: 'price' },
-  { label: 'Top Rated', value: 'rating' },
-  { label: 'Most Popular', value: 'popularity' },
-];
+const SERVICE_TYPES = ['all', 'grooming', 'walking', 'vet_care', 'training'] as const;
 
-export default function ServiceListScreen() {
-  const navigation = useNavigation<any>();
-  const [query, setQuery] = useState('');
+type SortChoice = 'nearest' | 'price_asc' | 'rating' | 'popular';
+
+function mapSort(choice: SortChoice): ServiceFilters['sort_by'] {
+  switch (choice) {
+    case 'nearest':
+      return 'distance';
+    case 'price_asc':
+      return 'price';
+    case 'rating':
+      return 'rating';
+    case 'popular':
+      return 'popularity';
+    default:
+      return undefined;
+  }
+}
+
+export const ServiceListScreen: React.FC<any> = ({ navigation }) => {
+  // Search
+  const [query, setQuery] = React.useState('');
   const debouncedQuery = useDebouncedValue(query, 500);
 
-  const [selectedType, setSelectedType] = useState('');
-  const [maxPrice, setMaxPrice] = useState(200);
-  const [maxDistance, setMaxDistance] = useState(50);
-  const [availability, setAvailability] = useState<'today' | 'week' | 'any'>('any');
-  const [sortBy, setSortBy] = useState<'distance' | 'price' | 'rating' | 'popularity'>('distance');
+  // Filters
+  const [serviceType, setServiceType] = React.useState<(typeof SERVICE_TYPES)[number]>('all');
+  const [priceRange, setPriceRange] = React.useState<[number, number]>([0, 200]);
+  const [distance, setDistance] = React.useState<number>(50);
+  const [availability, setAvailability] = React.useState<'today' | 'this_week' | 'anytime'>('anytime');
+  const [sort, setSort] = React.useState<SortChoice>('nearest');
 
-  const { coords, loading: locationLoading, error: locationError } = useCurrentLocation();
+  const filters: ServiceFilters = React.useMemo(() => ({
+    service_type: serviceType,
+    min_price: priceRange[0],
+    max_price: priceRange[1],
+    max_distance: distance,
+    availability_date: availability === 'anytime' ? undefined : availability,
+    sort_by: mapSort(sort),
+  }), [serviceType, priceRange, distance, availability, sort]);
 
-  const filters: ServiceFilters = useMemo(() => {
-    let availability_date: string | undefined = undefined;
-    if (availability === 'today') {
-      availability_date = new Date().toISOString().slice(0, 10);
-    } else if (availability === 'week') {
-      // We'll fetch all and allow UI filter by next 7 days (mock data already contains many)
-      availability_date = undefined;
-    }
-    return {
-      service_type: selectedType || undefined,
-      max_price: maxPrice,
-      min_price: 0,
-      max_distance: maxDistance,
-      availability_date,
-      sort_by: sortBy,
-    };
-  }, [selectedType, maxPrice, maxDistance, availability, sortBy]);
+  const { location } = useUserLocation();
 
-  const { data, isFetching, refetch, isRefetching, error } = useQuery({
-    queryKey: ['services', filters, debouncedQuery, coords?.latitude ?? null, coords?.longitude ?? null],
-    queryFn: async (): Promise<Service[]> => {
-      const base = debouncedQuery.trim()
-        ? await searchServices(debouncedQuery.trim())
-        : await getServices(filters);
-      // Client-side refinements for mock layer: price cap + week availability
-      const now = new Date();
-      const weekAhead = new Date(now.getTime() + 7 * 24 * 60 * 60 * 1000);
-      let refined = base.filter((s) => {
-        const typeOk = !selectedType || s.service_type === (selectedType as any);
-        const priceOk = s.price <= maxPrice;
-        const weekOk = availability !== 'week' ? true : s.availability_slots.some((slot) => {
-          if (!slot.is_available) return false;
-          const d = new Date(slot.date);
-          return d >= now && d <= weekAhead;
-        });
-        const distanceOk = coords && maxDistance >= 0
-          ? getDistanceMiles(coords, s.location) <= maxDistance
-          : true;
-        return typeOk && priceOk && weekOk && distanceOk;
-      });
-      // Sorting
-      refined = [...refined].sort((a, b) => {
-        switch (sortBy) {
-          case 'price':
-            return a.price - b.price;
-          case 'rating':
-            return b.rating - a.rating;
-          case 'popularity':
-            return b.total_bookings - a.total_bookings;
-          case 'distance':
-            if (!coords) return 0;
-            return getDistanceMiles(coords, a.location) - getDistanceMiles(coords, b.location);
-          default:
-            return 0;
-        }
-      });
-      return refined;
-    },
-  });
+  const { data, fetchNextPage, hasNextPage, isFetchingNextPage, isRefetching, refetch, isLoading, error } = useInfiniteServices(filters, 12);
 
-  const [page, setPage] = useState(1);
-  const items = data ?? [];
-  const pagedItems = items.slice(0, page * PAGE_SIZE);
-  const canLoadMore = pagedItems.length < items.length;
+  const flatData = React.useMemo(() => (data?.pages || []).flat(), [data]);
 
-  useEffect(() => {
-    // Reset pagination when filters or query change
-    setPage(1);
-  }, [debouncedQuery, selectedType, maxPrice, maxDistance, availability, sortBy]);
+  const onRefresh = React.useCallback(() => { refetch(); }, [refetch]);
 
-  const onEndReached = useCallback(() => {
-    if (!isFetching && canLoadMore) {
-      setPage((p) => p + 1);
-    }
-  }, [isFetching, canLoadMore]);
+  const renderItem = React.useCallback(({ item }: any) => (
+    <ServiceCard
+      service={item}
+      userLocation={location || undefined}
+      onPress={(svc) => navigation?.navigate?.('ProviderProfile', { id: svc.provider_id })}
+      onBook={(svc) => navigation?.navigate?.('Booking', { id: svc.id })}
+    />
+  ), [location, navigation]);
 
-  const onRefresh = useCallback(async () => {
-    setPage(1);
-    await refetch();
-  }, [refetch]);
+  const keyExtractor = React.useCallback((item: any) => item.id, []);
 
-  const renderItem = useCallback(({ item }: { item: Service }) => {
-    const distance = coords ? getDistanceMiles(coords, item.location) : null;
-    return (
-      <ServiceCard
-        service={item}
-        distanceMiles={distance}
-        onPress={() => navigation.navigate('ProviderProfile', { service: item })}
-        onBook={() => navigation.navigate('ProviderProfile', { service: item })}
-      />
-    );
-  }, [coords, navigation]);
-
-  function ListHeaderContent() {
-    return (
-    <View style={{ paddingHorizontal: 16, paddingTop: 8, paddingBottom: 4 }}>
-      <Searchbar
-        placeholder="Search services or providers"
-        value={query}
-        onChangeText={setQuery}
-      />
-      <View style={{ flexDirection: 'row', flexWrap: 'wrap', marginTop: 8 }}>
-        {serviceTypes.map((t) => (
-          <Chip
-            key={t.value}
-            compact
-            selected={selectedType === t.value}
-            onPress={() => setSelectedType(t.value)}
-            style={{ marginRight: 8, marginBottom: 8 }}
-          >
-            {t.label}
-          </Chip>
-        ))}
-      </View>
-      {/* Sliders could be added with @react-native-community/slider; placeholder bars shown here */}
-      <View style={{ marginTop: 4 }}>
-        <Text variant="labelLarge">Max Price: ${maxPrice}</Text>
-        <Slider
-          minimumValue={0}
-          maximumValue={200}
-          step={5}
-          value={maxPrice}
-          onValueChange={setMaxPrice}
-          minimumTrackTintColor="#6200ee"
-        />
-      </View>
-      <View style={{ marginTop: 8 }}>
-        <Text variant="labelLarge">Max Distance: {maxDistance} mi</Text>
-        <Slider
-          minimumValue={0}
-          maximumValue={50}
-          step={1}
-          value={maxDistance}
-          onValueChange={setMaxDistance}
-          minimumTrackTintColor="#6200ee"
-        />
-      </View>
-      <SegmentedButtons
-        value={availability}
-        onValueChange={(v) => setAvailability(v as any)}
-        buttons={availabilityOptions}
-        style={{ marginTop: 8 }}
-      />
-      <SortMenu sortBy={sortBy} setSortBy={setSortBy} />
-      {!!locationError && (
-        <HelperText type="error">Location unavailable. Distance and nearest sort may be inaccurate.</HelperText>
-      )}
-      {!!error && !isFetching && (
-        <HelperText type="error">Failed to load services. Pull to refresh to retry.</HelperText>
-      )}
-    </View>
-    );
-  }
-
-  const ListEmpty = (
-    <View style={{ alignItems: 'center', padding: 24 }}>
-      {isFetching ? (
-        <ActivityIndicator />
-      ) : (
-        <Text>No services found. Try adjusting filters.</Text>
-      )}
+  const ListEmpty = () => (
+    <View style={styles.empty}> 
+      {isLoading ? <Text>Loading...</Text> : <Text>No services found</Text>}
     </View>
   );
+
+  const ListFooter = () => (
+    <View style={{ paddingVertical: 16 }}>
+      {isFetchingNextPage && <Text>Loading more...</Text>}
+      {!hasNextPage && flatData.length > 0 && <Text style={{ textAlign: 'center', color: '#666' }}>You\'re all caught up</Text>}
+    </View>
+  );
+
+  const [menuVisible, setMenuVisible] = React.useState(false);
 
   return (
     <View style={{ flex: 1 }}>
       <Appbar.Header>
-        <Appbar.Content title="Find Services" />
+        <Appbar.Content title="Services" />
+        <Menu visible={menuVisible} onDismiss={() => setMenuVisible(false)} anchor={<Appbar.Action icon="sort" onPress={() => setMenuVisible(true)} />}>
+          <Menu.Item title="Nearest" onPress={() => { setSort('nearest'); setMenuVisible(false); }} />
+          <Menu.Item title="Price (Low-High)" onPress={() => { setSort('price_asc'); setMenuVisible(false); }} />
+          <Menu.Item title="Top Rated" onPress={() => { setSort('rating'); setMenuVisible(false); }} />
+          <Menu.Item title="Most Popular" onPress={() => { setSort('popular'); setMenuVisible(false); }} />
+        </Menu>
       </Appbar.Header>
-      {isFetching && items.length === 0 ? (
-        <View style={{ padding: 16 }}>
-          <ListHeaderContent />
-          <SkeletonList count={6} />
-        </View>
-      ) : (
-        <FlatList
-          data={pagedItems}
-          keyExtractor={(item) => item.id}
-          renderItem={renderItem}
-          ListHeaderComponent={ListHeaderContent}
-          ListEmptyComponent={ListEmpty}
-          contentContainerStyle={{ padding: 16 }}
-          onEndReached={onEndReached}
-          onEndReachedThreshold={0.4}
-          refreshControl={<RefreshControl refreshing={isRefetching} onRefresh={onRefresh} />}
+
+      <View style={styles.container}>
+        {/* Search */}
+        <Searchbar
+          placeholder="Search by service or provider"
+          value={query}
+          onChangeText={setQuery}
+          style={{ marginBottom: 8 }}
+          onSubmitEditing={() => setQuery((q) => q)}
         />
-      )}
-    </View>
-  );
-}
 
-function SortMenu({ sortBy, setSortBy }: { sortBy: 'distance' | 'price' | 'rating' | 'popularity'; setSortBy: (v: any) => void }) {
-  const [visible, setVisible] = useState(false);
-  const label = sortOptions.find((s) => s.value === sortBy)?.label ?? 'Sort';
-  return (
-    <View style={{ marginTop: 8, alignSelf: 'flex-start' }}>
-      <Menu
-        visible={visible}
-        onDismiss={() => setVisible(false)}
-        anchor={<Button mode="outlined" onPress={() => setVisible(true)}>Sort: {label}</Button>}
-      >
-        {sortOptions.map((s, idx) => (
-          <React.Fragment key={s.value}>
-            <Menu.Item
-              onPress={() => {
-                setSortBy(s.value);
-                setVisible(false);
-              }}
-              title={s.label}
-              leadingIcon={sortBy === (s.value as any) ? 'check' : undefined}
-            />
-            {idx < sortOptions.length - 1 && <Divider />}
-          </React.Fragment>
-        ))}
-      </Menu>
-    </View>
-  );
-}
+        {/* Filter Chips */}
+        <View style={styles.filtersRow}>
+          <FlatList
+            horizontal
+            data={SERVICE_TYPES as unknown as string[]}
+            keyExtractor={(t) => t}
+            showsHorizontalScrollIndicator={false}
+            ItemSeparatorComponent={() => <View style={{ width: 8 }} />}
+            renderItem={({ item }) => (
+              <Chip selected={serviceType === item} onPress={() => setServiceType(item as any)}>{item === 'all' ? 'All' : item.replace('_', ' ')}</Chip>
+            )}
+          />
+        </View>
 
-function SkeletonList({ count = 6 }: { count?: number }) {
-  const items = new Array(count).fill(0);
-  return (
-    <View>
-      {items.map((_, idx) => (
-        <SkeletonCard key={idx} />
-      ))}
-    </View>
-  );
-}
-
-import { Animated } from 'react-native';
-function SkeletonCard() {
-  const opacity = React.useRef(new Animated.Value(0.6)).current;
-  React.useEffect(() => {
-    const loop = Animated.loop(
-      Animated.sequence([
-        Animated.timing(opacity, { toValue: 1, duration: 700, useNativeDriver: true }),
-        Animated.timing(opacity, { toValue: 0.6, duration: 700, useNativeDriver: true }),
-      ])
-    );
-    loop.start();
-    return () => loop.stop();
-  }, [opacity]);
-
-  return (
-    <View style={{ marginVertical: 8, borderRadius: 12, overflow: 'hidden', backgroundColor: 'white', padding: 12 }}>
-      <View style={{ flexDirection: 'row', alignItems: 'center' }}>
-        <Animated.View style={{ width: 48, height: 48, borderRadius: 24, backgroundColor: '#e0e0e0', opacity }} />
-        <View style={{ marginLeft: 12, flex: 1 }}>
-          <Animated.View style={{ height: 16, borderRadius: 4, backgroundColor: '#e0e0e0', opacity, width: '60%' }} />
-          <Animated.View style={{ height: 12, borderRadius: 4, backgroundColor: '#e0e0e0', opacity, width: '40%', marginTop: 8 }} />
-          <View style={{ flexDirection: 'row', alignItems: 'center', marginTop: 8 }}>
-            <Animated.View style={{ height: 24, borderRadius: 12, backgroundColor: '#e0e0e0', opacity, width: 80, marginRight: 8 }} />
-            <Animated.View style={{ height: 14, borderRadius: 4, backgroundColor: '#e0e0e0', opacity, width: 120 }} />
+        {/* Secondary filters: Simple quick toggles and icon leading to full filters (sliders) */}
+        <View style={styles.quickFilters}>
+          <SegmentedButtons
+            value={availability}
+            onValueChange={(v: any) => setAvailability(v)}
+            buttons={[
+              { value: 'today', label: 'Today' },
+              { value: 'this_week', label: 'This Week' },
+              { value: 'anytime', label: 'Anytime' },
+            ]}
+          />
+          {/* Placeholder icons for range filters; full screen modal could be added later */}
+          <View style={{ flexDirection: 'row', gap: 8 }}>
+            <Chip icon="cash" onPress={() => setPriceRange(([a, b]) => [a, b])}>{`$${priceRange[0]}-$${priceRange[1]}`}</Chip>
+            <Chip icon="map-marker-distance" onPress={() => setDistance((d) => d)}>{`${distance} mi`}</Chip>
           </View>
         </View>
-        <Animated.View style={{ width: 88, height: 36, borderRadius: 18, backgroundColor: '#e0e0e0', opacity, marginLeft: 8 }} />
+
+        {/* Results */}
+        <FlatList
+          data={flatData}
+          keyExtractor={keyExtractor}
+          renderItem={renderItem}
+          contentContainerStyle={{ paddingVertical: 8 }}
+          onEndReachedThreshold={0.3}
+          onEndReached={() => { if (hasNextPage && !isFetchingNextPage) fetchNextPage(); }}
+          ListEmptyComponent={ListEmpty}
+          ListFooterComponent={ListFooter}
+          refreshControl={<RefreshControl refreshing={!!isRefetching} onRefresh={onRefresh} />}
+        />
       </View>
-      <Animated.View style={{ height: 180, borderRadius: 8, backgroundColor: '#e0e0e0', opacity, marginTop: 12 }} />
+
+      {error && (
+        <View style={styles.errorToast}>
+          <Text style={{ color: 'white' }}>{error.message}</Text>
+          <Button onPress={() => refetch()}>Retry</Button>
+        </View>
+      )}
+>>>>>>> origin/main
+>>>>>>> origin/main
     </View>
   );
-}
+};
+
+const styles = StyleSheet.create({
+  container: {
+    flex: 1,
+<<<<<<< HEAD
+    backgroundColor: '#fff',
+  },
+});
+
+export default ServiceListScreen;
+=======
+<<<<<<< HEAD
+    justifyContent: 'center',
+    alignItems: 'center',
+=======
+    padding: 20,
+>>>>>>> origin/main
+  },
+  title: {
+    fontSize: 24,
+    fontWeight: 'bold',
+<<<<<<< HEAD
+=======
+    marginBottom: 20,
+  },
+  list: {
+    flexGrow: 1,
+>>>>>>> origin/main
+  },
+});
+
+export default ServiceListScreen;
+<<<<<<< HEAD
+=======
+  container: { flex: 1, paddingHorizontal: 12 },
+  filtersRow: { marginBottom: 8 },
+  quickFilters: { flexDirection: 'row', alignItems: 'center', justifyContent: 'space-between', marginBottom: 8 },
+  empty: { padding: 24, alignItems: 'center' },
+  errorToast: { position: 'absolute', bottom: 24, left: 24, right: 24, backgroundColor: '#D32F2F', borderRadius: 8, flexDirection: 'row', alignItems: 'center', justifyContent: 'space-between', paddingHorizontal: 12, paddingVertical: 8 },
+});
+
+export default ServiceListScreen;
+>>>>>>> origin/main
+>>>>>>> origin/main

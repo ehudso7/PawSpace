@@ -1,26 +1,20 @@
-export type ServiceType = 'grooming' | 'walking' | 'vet_care' | 'training';
+export interface TimeSlot {
+  id: string;
+  start_time: string;
+  end_time: string;
+  is_available: boolean;
+}
 
 export interface ProviderProfile {
   id: string;
   name: string;
-  avatar_url: string;
-  bio?: string;
-  rating: number; // 0-5
+  avatar?: string;
+  rating: number;
   total_reviews: number;
-  years_of_experience?: number;
-  verified?: boolean;
-  location: {
-    address: string;
-    latitude: number;
-    longitude: number;
-  };
-}
-
-export interface TimeSlot {
-  date: string; // YYYY-MM-DD
-  start: string; // HH:mm
-  end: string; // HH:mm
-  is_available: boolean;
+  verified: boolean;
+  bio?: string;
+  phone?: string;
+  email?: string;
 }
 
 export interface Service {
@@ -29,7 +23,7 @@ export interface Service {
   provider: ProviderProfile;
   title: string;
   description: string;
-  service_type: ServiceType;
+  service_type: 'grooming' | 'walking' | 'vet_care' | 'training';
   price: number;
   duration: number; // minutes
   location: {
@@ -42,13 +36,35 @@ export interface Service {
   total_bookings: number;
   availability_slots: TimeSlot[];
   created_at: string;
+  distance?: number; // calculated distance from user
 }
 
 export interface ServiceFilters {
   service_type?: string;
   min_price?: number;
   max_price?: number;
-  max_distance?: number; // miles
-  availability_date?: string; // YYYY-MM-DD
+  max_distance?: number;
+  availability_date?: string;
   sort_by?: 'distance' | 'price' | 'rating' | 'popularity';
+  search_query?: string;
 }
+
+export interface PaginatedResponse<T> {
+  data: T[];
+  pagination: {
+    page: number;
+    limit: number;
+    total: number;
+    has_more: boolean;
+  };
+}
+
+export interface UserLocation {
+  latitude: number;
+  longitude: number;
+  address?: string;
+}
+
+export type ServiceType = 'all' | 'grooming' | 'walking' | 'vet_care' | 'training';
+export type SortOption = 'distance' | 'price' | 'rating' | 'popularity';
+export type AvailabilityFilter = 'anytime' | 'today' | 'this_week';
