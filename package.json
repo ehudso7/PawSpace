@@ -1,0 +1,23 @@
+{
+  "name": "workspace",
+  "version": "1.0.0",
+  "description": "",
+  "main": "index.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/ehudso7/PawSpace.git"
+  },
+  "keywords": [],
+  "author": "",
+  "license": "ISC",
+  "bugs": {
+    "url": "https://github.com/ehudso7/PawSpace/issues"
+  },
+  "homepage": "https://github.com/ehudso7/PawSpace#readme",
+  "dependencies": {
+    "@stripe/stripe-react-native": "^0.55.1"
+  }
+}
