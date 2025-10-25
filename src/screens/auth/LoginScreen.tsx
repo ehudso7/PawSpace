@@ -1,84 +1,61 @@
-import React, { useState, useCallback } from 'react';
-import { View, StyleSheet, TouchableOpacity } from 'react-native';
-import { TextInput, Button, Text, ActivityIndicator } from 'react-native-paper';
-import { useAuth } from '../../hooks/useAuth';
-import { validateEmail } from '../../utils/validators';
+import React from 'react';
+<<<<<<< HEAD
+import { View, StyleSheet } from 'react-native';
+import { NativeStackScreenProps } from '@react-navigation/native-stack';
+import { AuthStackParamList } from '@/types/navigation';
 
-interface Props {
-  navigation: any;
-}
+type Props = NativeStackScreenProps<AuthStackParamList, 'Login'>;
 
-export default function LoginScreen({ navigation }: Props) {
-  const { signIn, loading, error, user } = useAuth();
-  const [email, setEmail] = useState('');
-  const [password, setPassword] = useState('');
-  const [formError, setFormError] = useState<string | null>(null);
-
-  const onLogin = useCallback(async () => {
-    setFormError(null);
-    if (!validateEmail(email)) {
-      setFormError('Please enter a valid email.');
-      return;
-    }
-    if (!password) {
-      setFormError('Please enter your password.');
-      return;
-    }
-    await signIn(email.trim(), password);
-  }, [email, password, signIn]);
-
-  React.useEffect(() => {
-    if (user) {
-      navigation.reset({ index: 0, routes: [{ name: 'Home' }] });
-    }
-  }, [user, navigation]);
-
+const LoginScreen: React.FC<Props> = ({ navigation }) => {
   return (
     <View style={styles.container}>
-      <Text variant="headlineLarge" style={styles.title}>Welcome back</Text>
+      {/* TODO: Implement login form */}
+=======
+import { View, Text, StyleSheet } from 'react-native';
 
-      <TextInput
-        label="Email"
-        value={email}
-        onChangeText={setEmail}
-        autoCapitalize="none"
-        keyboardType="email-address"
-        style={styles.input}
-      />
-      <TextInput
-        label="Password"
-        value={password}
-        onChangeText={setPassword}
-        secureTextEntry
-        style={styles.input}
-      />
-
-      {(formError || error) && (
-        <Text style={styles.errorText}>{formError || error}</Text>
-      )}
-
-      <Button mode="contained" onPress={onLogin} disabled={loading} style={styles.button}>
-        {loading ? <ActivityIndicator animating color="white" /> : 'Login'}
-      </Button>
-
-      <View style={styles.linksRow}>
-        <TouchableOpacity onPress={() => navigation.navigate('ForgotPassword')}>
-          <Text style={styles.link}>Forgot password?</Text>
-        </TouchableOpacity>
-        <TouchableOpacity onPress={() => navigation.navigate('Signup')}>
-          <Text style={styles.link}>Sign up</Text>
-        </TouchableOpacity>
-      </View>
+const LoginScreen: React.FC = () => {
+  return (
+    <View style={styles.container}>
+<<<<<<< HEAD
+      <Text style={styles.title}>Login Screen</Text>
+=======
+      <Text style={styles.title}>Login</Text>
+>>>>>>> origin/main
+>>>>>>> origin/main
     </View>
   );
-}
+};
 
 const styles = StyleSheet.create({
-  container: { flex: 1, padding: 24, justifyContent: 'center' },
-  title: { textAlign: 'center', marginBottom: 24 },
-  input: { marginBottom: 12 },
-  button: { marginTop: 8 },
-  linksRow: { flexDirection: 'row', justifyContent: 'space-between', marginTop: 16 },
-  link: { color: '#0a7', fontWeight: '600' },
-  errorText: { color: '#B00020', marginTop: 8 },
+  container: {
+    flex: 1,
+<<<<<<< HEAD
+    backgroundColor: '#fff',
+  },
 });
+
+export default LoginScreen;
+=======
+    justifyContent: 'center',
+    alignItems: 'center',
+<<<<<<< HEAD
+=======
+    padding: 20,
+>>>>>>> origin/main
+  },
+  title: {
+    fontSize: 24,
+    fontWeight: 'bold',
+<<<<<<< HEAD
+  },
+});
+
+export default LoginScreen;
+=======
+    marginBottom: 20,
+  },
+});
+
+export default LoginScreen;
+>>>>>>> origin/main
+>>>>>>> origin/main

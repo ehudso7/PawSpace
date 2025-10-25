@@ -1,35 +1,50 @@
+import { createClient } from '@supabase/supabase-js';
+<<<<<<< HEAD
 import AsyncStorage from '@react-native-async-storage/async-storage';
-import { createClient, SupabaseClient } from '@supabase/supabase-js';
-import type { Database } from '../types/supabase';
+import { Database } from '@/types/database';
 
-const SUPABASE_URL =
-  process.env.EXPO_PUBLIC_SUPABASE_URL ||
-  process.env.SUPABASE_URL ||
-  '';
+const supabaseUrl = process.env.EXPO_PUBLIC_SUPABASE_URL!;
+const supabaseAnonKey = process.env.EXPO_PUBLIC_SUPABASE_ANON_KEY!;
 
-const SUPABASE_ANON_KEY =
-  process.env.EXPO_PUBLIC_SUPABASE_ANON_KEY ||
-  process.env.SUPABASE_ANON_KEY ||
-  '';
+export const supabase = createClient<Database>(supabaseUrl, supabaseAnonKey, {
+  auth: {
+    storage: AsyncStorage,
+=======
+<<<<<<< HEAD
+import { Database } from '@/types/database';
 
-if (!SUPABASE_URL || !SUPABASE_ANON_KEY) {
-  // eslint-disable-next-line no-console
-  console.warn(
-    'Supabase environment variables are not set. Ensure URL and anon key are configured.'
-  );
+const supabaseUrl = process.env.EXPO_PUBLIC_SUPABASE_URL || '';
+const supabaseAnonKey = process.env.EXPO_PUBLIC_SUPABASE_ANON_KEY || '';
+
+export const supabase = createClient<Database>(supabaseUrl, supabaseAnonKey, {
+  auth: {
+    storage: undefined, // TODO: Implement session persistence by providing a storage implementation.
+    // For Expo/React Native, use AsyncStorage from '@react-native-async-storage/async-storage':
+    // import AsyncStorage from '@react-native-async-storage/async-storage';
+    // storage: AsyncStorage,
+    // See Supabase docs: https://supabase.com/docs/guides/auth/auth-helpers/auth-ui#react-native
+    // If using a custom storage, ensure it implements getItem, setItem, removeItem methods.
+>>>>>>> origin/main
+    autoRefreshToken: true,
+    persistSession: true,
+    detectSessionInUrl: false,
+  },
+});
+
+<<<<<<< HEAD
+export default supabase;
+=======
+export default supabase;
+=======
+import Constants from 'expo-constants';
+
+const supabaseUrl = Constants.expoConfig?.extra?.supabaseUrl || process.env.EXPO_PUBLIC_SUPABASE_URL;
+const supabaseAnonKey = Constants.expoConfig?.extra?.supabaseAnonKey || process.env.EXPO_PUBLIC_SUPABASE_ANON_KEY;
+
+if (!supabaseUrl || !supabaseAnonKey) {
+  throw new Error('Missing Supabase environment variables');
 }
 
-export const supabase: SupabaseClient<Database> = createClient<Database>(
-  SUPABASE_URL,
-  SUPABASE_ANON_KEY,
-  {
-    auth: {
-      storage: AsyncStorage as unknown as Storage,
-      autoRefreshToken: true,
-      persistSession: true,
-      detectSessionInUrl: false,
-    },
-  }
-);
-
-export type TypedSupabaseClient = SupabaseClient<Database>;
+export const supabase = createClient(supabaseUrl, supabaseAnonKey);
+>>>>>>> origin/main
+>>>>>>> origin/main

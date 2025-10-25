@@ -1,10 +1,12 @@
-// Minimal Supabase Database types for typed client usage
+// Minimal inferred Database type for Supabase typed client usage.
+// Adjust to match your actual Supabase schema if it differs.
+
 export type Json =
   | string
   | number
   | boolean
   | null
-  | { [key: string]: Json }
+  | { [key: string]: Json | undefined }
   | Json[];
 
 export interface Database {
@@ -12,47 +14,38 @@ export interface Database {
     Tables: {
       profiles: {
         Row: {
-          id: string;
-          email: string | null;
+          id: string; // UUID referencing auth.users
+          user_type: 'pet_owner' | 'service_provider';
           full_name: string | null;
           avatar_url: string | null;
           phone: string | null;
           location: string | null;
           bio: string | null;
-          user_type: 'pet_owner' | 'service_provider';
           created_at: string | null;
           updated_at: string | null;
         };
         Insert: {
           id: string;
-          email?: string | null;
+          user_type: 'pet_owner' | 'service_provider';
           full_name?: string | null;
           avatar_url?: string | null;
           phone?: string | null;
           location?: string | null;
           bio?: string | null;
-          user_type: 'pet_owner' | 'service_provider';
           created_at?: string | null;
           updated_at?: string | null;
         };
         Update: {
-          email?: string | null;
+          user_type?: 'pet_owner' | 'service_provider';
           full_name?: string | null;
           avatar_url?: string | null;
           phone?: string | null;
           location?: string | null;
           bio?: string | null;
-          user_type?: 'pet_owner' | 'service_provider';
+          created_at?: string | null;
           updated_at?: string | null;
         };
-        Relationships: [
-          {
-            foreignKeyName: 'profiles_id_fkey';
-            columns: ['id'];
-            referencedRelation: 'users';
-            referencedColumns: ['id'];
-          }
-        ];
+        Relationships: [];
       };
     };
     Views: {};
