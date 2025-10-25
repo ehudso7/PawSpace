@@ -1,18 +1,25 @@
 import React from 'react';
-import { LinkingOptions, NavigationContainer, DefaultTheme } from '@react-navigation/native';
+import { NavigationContainer, LinkingOptions } from '@react-navigation/native';
 import { createNativeStackNavigator } from '@react-navigation/native-stack';
+import { ActivityIndicator } from 'react-native-paper';
+import { View, StyleSheet } from 'react-native';
+import { supabase } from '../lib/supabase';
 import AuthNavigator from './AuthNavigator';
 import TabNavigator from './TabNavigator';
 import type { RootStackParamList } from '../types/navigation';
-import { supabase } from '../lib/supabase';
-import { ActivityIndicator, MD3LightTheme, PaperProvider } from 'react-native-paper';
-import { View, StyleSheet } from 'react-native';
 
 const RootStack = createNativeStackNavigator<RootStackParamList>();
 
 const linking: LinkingOptions<RootStackParamList> = {
-  prefixes: ['pawspace://', 'https://pawspace.app'],
+  prefixes: [
+    'pawspace://',
+    'https://pawspace.app',
+    // Allow overriding via env at runtime if provided
+    // @ts-expect-error - React Native will ignore undefined
+    process.env.EXPO_PUBLIC_DEEP_LINK_PREFIX || process.env.DEEPLINK_PREFIX,
+  ].filter(Boolean) as string[],
   config: {
+    initialRouteName: 'Auth',
     screens: {
       Auth: {
         screens: {
@@ -25,7 +32,7 @@ const linking: LinkingOptions<RootStackParamList> = {
         screens: {
           HomeTab: {
             screens: {
-              Feed: 'home',
+              Feed: '',
               PostDetails: 'post/:postId',
             },
           },
@@ -33,7 +40,7 @@ const linking: LinkingOptions<RootStackParamList> = {
             screens: {
               ServiceList: 'book',
               ServiceDetails: 'service/:serviceId',
-              BookingCheckout: 'checkout/:serviceId/:date',
+              BookingCheckout: 'checkout',
             },
           },
           CreateTab: {
@@ -44,7 +51,7 @@ const linking: LinkingOptions<RootStackParamList> = {
           },
           ProfileTab: {
             screens: {
-              Profile: 'profile',
+              Profile: 'profile/:userId?',
               EditProfile: 'profile/edit',
               Settings: 'settings',
             },
@@ -55,72 +62,60 @@ const linking: LinkingOptions<RootStackParamList> = {
   },
 };
 
-const navigationTheme = {
-  ...DefaultTheme,
-  colors: {
-    ...DefaultTheme.colors,
-    background: 'transparent',
-  },
-};
-
-const paperTheme = {
-  ...MD3LightTheme,
-};
-
 const AppNavigator: React.FC = () => {
   const [isLoading, setIsLoading] = React.useState(true);
-  const [isAuthenticated, setIsAuthenticated] = React.useState<boolean | null>(null);
+  const [isAuthenticated, setIsAuthenticated] = React.useState(false);
 
   React.useEffect(() => {
     let isMounted = true;
-    const init = async () => {
-      const {
-        data: { session },
-      } = await supabase.auth.getSession();
+
+    supabase.auth
+      .getSession()
+      .then(({ data }) => {
+        if (!isMounted) return;
+        setIsAuthenticated(Boolean(data.session));
+        setIsLoading(false);
+      })
+      .catch(() => {
+        if (!isMounted) return;
+        setIsAuthenticated(false);
+        setIsLoading(false);
+      });
+
+    const { data: listener } = supabase.auth.onAuthStateChange((_event, session) => {
       if (!isMounted) return;
-      setIsAuthenticated(!!session);
-      setIsLoading(false);
-    };
-
-    init();
-
-    const { data: authListener } = supabase.auth.onAuthStateChange((_event, session) => {
-      setIsAuthenticated(!!session);
+      setIsAuthenticated(Boolean(session));
     });
 
     return () => {
       isMounted = false;
-      authListener.subscription.unsubscribe();
+      listener.subscription.unsubscribe();
     };
   }, []);
 
-  if (isLoading || isAuthenticated === null) {
+  if (isLoading) {
     return (
-      <PaperProvider theme={paperTheme}>
-        <View style={styles.center}>
-          <ActivityIndicator />
-        </View>
-      </PaperProvider>
+      <View style={styles.loader}>
+        <ActivityIndicator animating size="large" />
+      </View>
     );
   }
 
   return (
-    <PaperProvider theme={paperTheme}>
-      <NavigationContainer linking={linking} theme={navigationTheme}>
-        <RootStack.Navigator screenOptions={{ headerShown: false }}>
-          {isAuthenticated ? (
-            <RootStack.Screen name="Main" component={TabNavigator} />
-          ) : (
-            <RootStack.Screen name="Auth" component={AuthNavigator} />
-          )}
-        </RootStack.Navigator>
-      </NavigationContainer>
-    </PaperProvider>
+    <NavigationContainer linking={linking}>
+      <RootStack.Navigator screenOptions={{ headerShown: false }}>
+        {isAuthenticated ? (
+          <RootStack.Screen name="Main" component={TabNavigator} />
+        ) : (
+          <RootStack.Screen name="Auth" component={AuthNavigator} />
+        )}
+      </RootStack.Navigator>
+    </NavigationContainer>
   );
 };
 
 const styles = StyleSheet.create({
-  center: {
+  loader: {
     flex: 1,
     alignItems: 'center',
     justifyContent: 'center',

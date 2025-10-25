@@ -2,6 +2,7 @@ import React from 'react';
 import { Platform } from 'react-native';
 import { createBottomTabNavigator } from '@react-navigation/bottom-tabs';
 import { createNativeStackNavigator } from '@react-navigation/native-stack';
+import { getFocusedRouteNameFromRoute, RouteProp } from '@react-navigation/native';
 import { useTheme } from 'react-native-paper';
 import type {
   TabParamList,
@@ -74,6 +75,43 @@ function ProfileStackNavigator() {
 const TabNavigator: React.FC = () => {
   const theme = useTheme();
 
+  const defaultTabBarStyle = React.useMemo(
+    () => ({
+      backgroundColor: 'white',
+      borderTopWidth: Platform.OS === 'ios' ? 0.5 : 0.2,
+      borderTopColor: '#e0e0e0',
+      height: Platform.OS === 'ios' ? 88 : 64,
+      paddingBottom: Platform.OS === 'ios' ? 24 : 10,
+      paddingTop: 8,
+    }),
+    []
+  );
+
+  const getStyleForRoute = (
+    route: RouteProp<TabParamList, keyof TabParamList>
+  ): any => {
+    const focused = getFocusedRouteNameFromRoute(route);
+
+    const defaultNested: Record<keyof TabParamList, string> = {
+      HomeTab: 'Feed',
+      BookTab: 'ServiceList',
+      CreateTab: 'ImageSelector',
+      ProfileTab: 'Profile',
+    };
+
+    const routeName = focused ?? defaultNested[route.name];
+
+    const hideFor: Record<keyof TabParamList, Set<string>> = {
+      HomeTab: new Set(['PostDetails']),
+      BookTab: new Set(['ServiceDetails', 'BookingCheckout']),
+      CreateTab: new Set(['CreatePost']),
+      ProfileTab: new Set(['EditProfile', 'Settings']),
+    };
+
+    const shouldHide = hideFor[route.name].has(routeName);
+    return shouldHide ? [{ ...defaultTabBarStyle }, { display: 'none' }] : defaultTabBarStyle;
+  };
+
   return (
     <Tab.Navigator
       screenOptions={({ route }) => ({
@@ -81,14 +119,6 @@ const TabNavigator: React.FC = () => {
         tabBarShowLabel: true,
         tabBarActiveTintColor: theme.colors.primary,
         tabBarInactiveTintColor: theme.colors.onSurfaceDisabled,
-        tabBarStyle: {
-          backgroundColor: 'white',
-          borderTopWidth: Platform.OS === 'ios' ? 0.5 : 0.2,
-          borderTopColor: '#e0e0e0',
-          height: Platform.OS === 'ios' ? 88 : 64,
-          paddingBottom: Platform.OS === 'ios' ? 24 : 10,
-          paddingTop: 8,
-        },
         tabBarIcon: ({ color, size, focused }) => {
           let iconName: keyof typeof MaterialCommunityIcons.glyphMap = 'circle-outline';
           switch (route.name) {
@@ -112,22 +142,22 @@ const TabNavigator: React.FC = () => {
       <Tab.Screen
         name="HomeTab"
         component={HomeStackNavigator}
-        options={{ tabBarLabel: 'Home' }}
+        options={({ route }) => ({ tabBarLabel: 'Home', tabBarStyle: getStyleForRoute(route) })}
       />
       <Tab.Screen
         name="BookTab"
         component={BookStackNavigator}
-        options={{ tabBarLabel: 'Book' }}
+        options={({ route }) => ({ tabBarLabel: 'Book', tabBarStyle: getStyleForRoute(route) })}
       />
       <Tab.Screen
         name="CreateTab"
         component={CreateStackNavigator}
-        options={{ tabBarLabel: 'Create' }}
+        options={({ route }) => ({ tabBarLabel: 'Create', tabBarStyle: getStyleForRoute(route) })}
       />
       <Tab.Screen
         name="ProfileTab"
         component={ProfileStackNavigator}
-        options={{ tabBarLabel: 'Profile' }}
+        options={({ route }) => ({ tabBarLabel: 'Profile', tabBarStyle: getStyleForRoute(route) })}
       />
     </Tab.Navigator>
   );
