@@ -1,0 +1,41 @@
+{
+  "expo": {
+    "name": "PetCareApp",
+    "slug": "pet-care-app",
+    "scheme": "petcare",
+    "version": "1.0.0",
+    "orientation": "portrait",
+    "icon": "./assets/icon.png",
+    "userInterfaceStyle": "automatic",
+    "splash": {
+      "image": "./assets/splash.png",
+      "resizeMode": "contain",
+      "backgroundColor": "#ffffff"
+    },
+    "plugins": [
+      ["sentry-expo", { "androidEvaluationDelay": 1000 }]
+    ],
+    "ios": {
+      "supportsTablet": true
+    },
+    "android": {
+      "adaptiveIcon": {
+        "foregroundImage": "./assets/adaptive-icon.png",
+        "backgroundColor": "#ffffff"
+      },
+      "permissions": ["ACCESS_FINE_LOCATION"]
+    },
+    "web": {
+      "bundler": "metro",
+      "output": "static"
+    },
+    "extra": {
+      "eas": {
+        "projectId": "00000000-0000-0000-0000-000000000000"
+      },
+      "SENTRY_DSN": "",
+      "SUPABASE_URL": "",
+      "SUPABASE_ANON_KEY": ""
+    }
+  }
+}
