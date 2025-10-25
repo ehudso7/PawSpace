@@ -1,23 +1,27 @@
 import React from 'react';
+<<<<<<< HEAD
 import { View, StyleSheet } from 'react-native';
-import { Text, Button, useTheme } from 'react-native-paper';
-import type { NativeStackScreenProps } from '@react-navigation/native-stack';
-import type { AuthStackParamList } from '../../types/navigation';
+import { NativeStackScreenProps } from '@react-navigation/native-stack';
+import { AuthStackParamList } from '@/types/navigation';
 
-export type OnboardingScreenProps = NativeStackScreenProps<
-  AuthStackParamList,
-  'Onboarding'
->;
+type Props = NativeStackScreenProps<AuthStackParamList, 'Onboarding'>;
 
-const OnboardingScreen: React.FC<OnboardingScreenProps> = ({ navigation }) => {
-  const theme = useTheme();
+const OnboardingScreen: React.FC<Props> = ({ navigation }) => {
   return (
-    <View style={[styles.container, { backgroundColor: theme.colors.background }]}>
-      <Text variant="headlineMedium">Onboarding</Text>
-      <Text style={styles.meta}>Tell us about your pet!</Text>
-      <Button mode="contained" style={styles.button} onPress={() => navigation.navigate('Login')}>
-        Finish
-      </Button>
+    <View style={styles.container}>
+      {/* TODO: Implement onboarding carousel */}
+=======
+import { View, Text, StyleSheet } from 'react-native';
+
+const OnboardingScreen: React.FC = () => {
+  return (
+    <View style={styles.container}>
+<<<<<<< HEAD
+      <Text style={styles.title}>Onboarding Screen</Text>
+=======
+      <Text style={styles.title}>Welcome to PawSpace</Text>
+>>>>>>> origin/main
+>>>>>>> origin/main
     </View>
   );
 };
@@ -25,14 +29,33 @@ const OnboardingScreen: React.FC<OnboardingScreenProps> = ({ navigation }) => {
 const styles = StyleSheet.create({
   container: {
     flex: 1,
-    alignItems: 'center',
-    justifyContent: 'center',
-    padding: 16,
+<<<<<<< HEAD
+    backgroundColor: '#fff',
   },
-  button: {
-    marginTop: 16,
-  },
-  meta: { marginTop: 8 },
 });
 
 export default OnboardingScreen;
+=======
+    justifyContent: 'center',
+    alignItems: 'center',
+<<<<<<< HEAD
+=======
+    padding: 20,
+>>>>>>> origin/main
+  },
+  title: {
+    fontSize: 24,
+    fontWeight: 'bold',
+<<<<<<< HEAD
+  },
+});
+
+export default OnboardingScreen;
+=======
+    marginBottom: 20,
+  },
+});
+
+export default OnboardingScreen;
+>>>>>>> origin/main
+>>>>>>> origin/main
