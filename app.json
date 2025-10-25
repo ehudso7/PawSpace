@@ -1,0 +1,12 @@
+{
+  "expo": {
+    "name": "PawSpace",
+    "slug": "pawspace-transformations",
+    "version": "1.0.0",
+    "orientation": "portrait",
+    "jsEngine": "hermes",
+    "newArchEnabled": true,
+    "plugins": ["react-native-reanimated"],
+    "extra": {}
+  }
+}
