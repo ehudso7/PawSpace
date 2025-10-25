@@ -1,184 +1,448 @@
-import { supabase } from '../utils/supabase';
-import { AvailabilitySlot, BusinessHours, ProviderProfile, TimeSlot } from '../types/booking';
-import { addMinutes, formatYmd, generateCandidateStarts, rangesOverlap, zonedDateTimeToUtc } from '../utils/time';
+import { supabase } from './supabase';
+<<<<<<< HEAD
+import { Booking, Service, Provider, BookingStatus } from '@/types';
 
-async function fetchProviderBusinessHours(providerId: string): Promise<BusinessHours | undefined> {
-  const { data, error } = await supabase
-    .from('providers')
-    .select('business_hours')
-    .eq('id', providerId)
-    .maybeSingle();
-  if (error) {
-    console.warn('fetchProviderBusinessHours error', error.message);
-    return undefined;
-  }
-  return (data as unknown as { business_hours?: BusinessHours } | null)?.business_hours ?? undefined;
+export interface CreateBookingData {
+  serviceId: string;
+  providerId: string;
+  date: string;
+  timeSlot: string;
+  notes?: string;
 }
 
-async function fetchProviderBookingsInRange(
-  providerId: string,
-  startIso: string,
-  endIso: string
-): Promise<Array<{ id: string; start_time: string; end_time: string; status?: string }>> {
-  const { data, error } = await supabase
-    .from('bookings')
-    .select('id,start_time,end_time,status')
-    .eq('provider_id', providerId)
-    .neq('status', 'cancelled')
-    .lt('start_time', endIso)
-    .gt('end_time', startIso);
+export const bookingsService = {
+  async getServices(filters?: {
+    category?: string;
+    location?: string;
+    priceRange?: [number, number];
+  }): Promise<Service[]> {
+    try {
+      let query = supabase
+        .from('services')
+        .select(`
+          *,
+          provider:providers(*)
+        `);
 
-  if (error) {
-    console.warn('fetchProviderBookingsInRange error', error.message);
-    return [];
-  }
-  return (data as Array<{ id: string; start_time: string; end_time: string; status?: string }>) || [];
-}
-
-function getMonthStartEnd(month: string, timeZone: string) {
-  // month: 'YYYY-MM' in provider TZ
-  const [yearStr, monthStr] = month.split('-');
-  const year = parseInt(yearStr, 10);
-  const m = parseInt(monthStr, 10);
-  const firstOfMonth = zonedDateTimeToUtc(`${year}-${String(m).padStart(2, '0')}-01`, '00:00', timeZone);
-  const firstNextMonth = m === 12
-    ? zonedDateTimeToUtc(`${year + 1}-01-01`, '00:00', timeZone)
-    : zonedDateTimeToUtc(`${year}-${String(m + 1).padStart(2, '0')}-01`, '00:00', timeZone);
-  return { startUtc: firstOfMonth, endUtc: firstNextMonth };
-}
-
-export async function getProviderAvailability(providerId: string, month: string): Promise<AvailabilitySlot[]> {
-  const businessHours = (await fetchProviderBusinessHours(providerId)) || { timezone: 'UTC' } as BusinessHours;
-  const timeZone = businessHours.timezone || 'UTC';
-  const { startUtc, endUtc } = getMonthStartEnd(month, timeZone);
-  const startIso = startUtc.toISOString();
-  const endIso = endUtc.toISOString();
-
-  const bookings = await fetchProviderBookingsInRange(providerId, startIso, endIso);
-
-  // Build a map of day -> bookings
-  const bookingsByDay = new Map<string, Array<{ start: Date; end: Date }>>();
-  for (const b of bookings) {
-    const start = new Date(b.start_time);
-    const end = new Date(b.end_time);
-    const ymd = formatYmd(start, timeZone);
-    const arr = bookingsByDay.get(ymd) || [];
-    arr.push({ start, end });
-    bookingsByDay.set(ymd, arr);
-  }
-
-  // Iterate days of the month with 30-min slots for availability count
-  const slots: AvailabilitySlot[] = [];
-  const cursor = new Date(startUtc);
-  while (cursor < endUtc) {
-    const ymd = formatYmd(cursor, timeZone);
-    const candidates = generateCandidateStarts(ymd, businessHours, 30);
-
-    let availableCount = 0;
-    if (candidates.length > 0) {
-      const dayBookings = bookingsByDay.get(ymd) || [];
-      for (const c of candidates) {
-        const overlap = dayBookings.some((bk) => rangesOverlap(c.startUtc, c.endUtc, bk.start, bk.end));
-        if (!overlap) availableCount += 1;
+      if (filters?.category) {
+        query = query.eq('category', filters.category);
       }
+
+      if (filters?.priceRange) {
+        query = query
+          .gte('price', filters.priceRange[0])
+          .lte('price', filters.priceRange[1]);
+      }
+
+      const { data, error } = await query;
+
+      if (error) throw error;
+
+      return data || [];
+    } catch (error) {
+      console.error('Error fetching services:', error);
+      return [];
     }
+  },
 
-    slots.push({
-      date: ymd,
-      available_slots: availableCount,
-      is_available: availableCount > 0,
-    });
+  async getProviders(location?: string): Promise<Provider[]> {
+    try {
+      let query = supabase
+        .from('providers')
+        .select(`
+          *,
+          services(*)
+        `);
 
-    // move to next day in provider TZ by adding 24h from provider midnight
-    cursor.setUTCDate(cursor.getUTCDate() + 1);
-  }
+      if (location) {
+        query = query.ilike('location', `%${location}%`);
+      }
 
-  return slots;
+      const { data, error } = await query;
+
+      if (error) throw error;
+
+      return data || [];
+    } catch (error) {
+      console.error('Error fetching providers:', error);
+      return [];
+    }
+  },
+
+  async getProviderById(id: string): Promise<Provider | null> {
+    try {
+      const { data, error } = await supabase
+        .from('providers')
+        .select(`
+          *,
+          services(*),
+          reviews(*)
+        `)
+        .eq('id', id)
+        .single();
+
+      if (error) throw error;
+
+      return data;
+    } catch (error) {
+      console.error('Error fetching provider:', error);
+      return null;
+    }
+  },
+
+  async createBooking(bookingData: CreateBookingData): Promise<{ booking: Booking | null; error: string | null }> {
+    try {
+      const { data: { user } } = await supabase.auth.getUser();
+      
+      if (!user) {
+        return { booking: null, error: 'User not authenticated' };
+      }
+
+      const { data, error } = await supabase
+        .from('bookings')
+        .insert({
+          ...bookingData,
+          userId: user.id,
+          status: 'pending' as BookingStatus,
+        })
+        .select()
+        .single();
+
+      if (error) throw error;
+
+      return { booking: data, error: null };
+    } catch (error) {
+      console.error('Error creating booking:', error);
+      return { booking: null, error: 'Failed to create booking' };
+    }
+  },
+
+  async getUserBookings(): Promise<Booking[]> {
+    try {
+      const { data: { user } } = await supabase.auth.getUser();
+      
+      if (!user) return [];
+
+      const { data, error } = await supabase
+        .from('bookings')
+        .select(`
+          *,
+          service:services(*),
+          provider:providers(*)
+        `)
+        .eq('userId', user.id)
+        .order('date', { ascending: false });
+
+      if (error) throw error;
+
+      return data || [];
+    } catch (error) {
+      console.error('Error fetching user bookings:', error);
+      return [];
+    }
+  },
+
+  async updateBookingStatus(bookingId: string, status: BookingStatus): Promise<{ error: string | null }> {
+    try {
+      const { error } = await supabase
+        .from('bookings')
+        .update({ status })
+        .eq('id', bookingId);
+
+      if (error) throw error;
+
+      return { error: null };
+    } catch (error) {
+      console.error('Error updating booking status:', error);
+      return { error: 'Failed to update booking status' };
+    }
+  },
+
+  async getAvailableTimeSlots(providerId: string, date: string): Promise<string[]> {
+    try {
+      // TODO: Implement logic to fetch available time slots based on provider schedule and existing bookings
+      const defaultSlots = [
+        '09:00', '10:00', '11:00', '12:00',
+        '13:00', '14:00', '15:00', '16:00', '17:00'
+      ];
+
+      return defaultSlots;
+    } catch (error) {
+      console.error('Error fetching time slots:', error);
+      return [];
+    }
+  },
+};
+=======
+<<<<<<< HEAD
+
+export interface Booking {
+  id: string;
+  user_id: string;
+  provider_id: string;
+  service_id: string;
+  date: string;
+  time: string;
+  status: 'pending' | 'confirmed' | 'completed' | 'cancelled';
+  created_at: string;
 }
 
-export async function getTimeSlots(
-  providerId: string,
-  dateYmd: string,
-  durationMinutes: number
-): Promise<TimeSlot[]> {
-  const businessHours = (await fetchProviderBusinessHours(providerId)) || { timezone: 'UTC' } as BusinessHours;
-  const timeZone = businessHours.timezone || 'UTC';
+export const bookingsService = {
+  async createBooking(bookingData: Omit<Booking, 'id' | 'created_at'>): Promise<{ data: Booking | null; error: Error | null }> {
+    const { data, error } = await supabase
+      .from('bookings')
+      .insert(bookingData)
+      .select()
+      .single();
 
-  const dayCandidates = generateCandidateStarts(dateYmd, businessHours, 30);
-  if (dayCandidates.length === 0) return [];
-
-  // Query bookings for the day
-  const dayStartUtc = zonedDateTimeToUtc(dateYmd, '00:00', timeZone);
-  const dayEndUtc = zonedDateTimeToUtc(dateYmd, '23:59', timeZone);
-  const existing = await fetchProviderBookingsInRange(providerId, dayStartUtc.toISOString(), dayEndUtc.toISOString());
-  const existingRanges = existing.map((b) => ({ start: new Date(b.start_time), end: new Date(b.end_time) }));
-
-  const now = new Date();
-
-  const slots: TimeSlot[] = dayCandidates.map((c) => {
-    const end = addMinutes(c.startUtc, durationMinutes);
-    const conflict = existingRanges.some((bk) => rangesOverlap(c.startUtc, end, bk.start, bk.end));
-    const inPast = c.startUtc < now;
     return {
-      start_time: c.startUtc.toISOString(),
-      end_time: end.toISOString(),
-      is_available: !conflict && !inPast,
+      data: data as Booking | null,
+      error: error as Error | null,
     };
+  },
+
+  async getBookings(userId: string): Promise<{ data: Booking[] | null; error: Error | null }> {
+    const { data, error } = await supabase
+      .from('bookings')
+      .select('*')
+      .eq('user_id', userId)
+      .order('date', { ascending: false });
+
+    return {
+      data: data as Booking[] | null,
+      error: error as Error | null,
+    };
+  },
+
+  async getBookingById(id: string): Promise<{ data: Booking | null; error: Error | null }> {
+    const { data, error } = await supabase
+      .from('bookings')
+      .select('*')
+      .eq('id', id)
+      .single();
+
+    return {
+      data: data as Booking | null,
+      error: error as Error | null,
+    };
+  },
+
+  async updateBooking(id: string, updates: Partial<Booking>): Promise<{ data: Booking | null; error: Error | null }> {
+=======
+import { Booking, Service, Provider } from '@/types/database';
+
+export const bookingService = {
+  async getServices(): Promise<Service[]> {
+    const { data, error } = await supabase
+      .from('services')
+      .select('*')
+      .order('created_at', { ascending: false });
+    
+    if (error) throw error;
+    return data || [];
+  },
+
+  async getServiceById(id: string): Promise<Service | null> {
+    const { data, error } = await supabase
+      .from('services')
+      .select('*')
+      .eq('id', id)
+      .single();
+    
+    if (error) throw error;
+    return data;
+  },
+
+  async getProviders(): Promise<Provider[]> {
+    const { data, error } = await supabase
+      .from('providers')
+      .select('*')
+      .order('rating', { ascending: false });
+    
+    if (error) throw error;
+    return data || [];
+  },
+
+  async getProviderById(id: string): Promise<Provider | null> {
+    const { data, error } = await supabase
+      .from('providers')
+      .select('*')
+      .eq('id', id)
+      .single();
+    
+    if (error) throw error;
+    return data;
+  },
+
+  async createBooking(booking: Omit<Booking, 'id' | 'created_at' | 'updated_at'>) {
+    const { data, error } = await supabase
+      .from('bookings')
+      .insert([booking])
+      .select()
+      .single();
+    
+    if (error) throw error;
+    return data;
+  },
+
+  async getUserBookings(userId: string): Promise<Booking[]> {
+    const { data, error } = await supabase
+      .from('bookings')
+      .select(`
+        *,
+        service:services(*),
+        provider:providers(*)
+      `)
+      .eq('user_id', userId)
+      .order('created_at', { ascending: false });
+    
+    if (error) throw error;
+    return data || [];
+  },
+
+  async updateBooking(id: string, updates: Partial<Booking>) {
+>>>>>>> origin/main
+    const { data, error } = await supabase
+      .from('bookings')
+      .update(updates)
+      .eq('id', id)
+      .select()
+      .single();
+<<<<<<< HEAD
+
+    return {
+      data: data as Booking | null,
+      error: error as Error | null,
+    };
+  },
+
+  async cancelBooking(id: string): Promise<{ data: Booking | null; error: Error | null }> {
+    return this.updateBooking(id, { status: 'cancelled' });
+  },
+};
+
+export default bookingsService;
+=======
+    
+    if (error) throw error;
+    return data;
+  },
+
+  async cancelBooking(id: string) {
+    return this.updateBooking(id, { status: 'cancelled' });
+  },
+};
+import { Service, ServiceFilters } from '../types/service';
+import { MOCK_SERVICES } from '../mock/services';
+import { Coordinate, getUserLocationSafe, haversineDistanceMiles } from '../utils/geo';
+
+function sleep(ms: number) {
+  return new Promise((resolve) => setTimeout(resolve, ms));
+}
+
+function normalize(str: string): string {
+  return str
+    .toLowerCase()
+    .normalize('NFD')
+    .replace(/\p{Diacritic}/gu, '')
+    .trim();
+}
+
+function matchesQuery(service: Service, query: string): boolean {
+  const q = normalize(query);
+  if (!q) return true;
+  return (
+    normalize(service.title).includes(q) ||
+    normalize(service.provider.name).includes(q)
+  );
+}
+
+function isAvailableMatch(service: Service, value: string): boolean {
+  if (!value) return true;
+  const today = new Date();
+  const dateOnly = (d: Date) => d.toISOString().slice(0, 10);
+  const slots = service.availability_slots.filter((s) => s.isAvailable);
+
+  if (value === 'today') {
+    const t = dateOnly(today);
+    return slots.some((slot) => slot.start.slice(0, 10) === t);
+  }
+  if (value === 'this_week') {
+    const start = new Date(today);
+    const end = new Date(today);
+    end.setDate(end.getDate() + 7);
+    return slots.some((slot) => {
+      const d = new Date(slot.start);
+      return d >= start && d <= end;
+    });
+  }
+  // Expect yyyy-mm-dd or full ISO; compare by date
+  const isoDate = value.slice(0, 10);
+  return slots.some((slot) => slot.start.slice(0, 10) === isoDate);
+}
+
+function applyFilters(services: Service[], filters: ServiceFilters, userLoc: Coordinate | null): Service[] {
+  const { service_type, min_price, max_price, max_distance, availability_date, sort_by } = filters;
+  let result = services.filter((svc) => {
+    if (service_type && service_type !== 'all' && svc.service_type !== (service_type as any)) return false;
+    if (min_price != null && svc.price < min_price) return false;
+    if (max_price != null && svc.price > max_price) return false;
+    if (availability_date && !isAvailableMatch(svc, availability_date)) return false;
+    if (max_distance != null && userLoc) {
+      const d = haversineDistanceMiles(userLoc, svc.location);
+      if (d > max_distance) return false;
+    }
+    return true;
   });
 
-  return slots;
-}
-
-export async function checkSlotAvailability(
-  providerId: string,
-  startTimeIso: string,
-  durationMinutes: number
-): Promise<boolean> {
-  const start = new Date(startTimeIso);
-  const end = addMinutes(start, durationMinutes);
-  const { data, error } = await supabase
-    .from('bookings')
-    .select('id')
-    .eq('provider_id', providerId)
-    .neq('status', 'cancelled')
-    .lt('start_time', end.toISOString())
-    .gt('end_time', start.toISOString())
-    .limit(1);
-
-  if (error) {
-    console.warn('checkSlotAvailability error', error.message);
-    return false;
+  if (sort_by) {
+    if (sort_by === 'distance' && userLoc) {
+      result = result.sort((a, b) => haversineDistanceMiles(userLoc, a.location) - haversineDistanceMiles(userLoc, b.location));
+    } else if (sort_by === 'price') {
+      result = result.sort((a, b) => a.price - b.price);
+    } else if (sort_by === 'rating') {
+      result = result.sort((a, b) => b.rating - a.rating);
+    } else if (sort_by === 'popularity') {
+      result = result.sort((a, b) => b.total_bookings - a.total_bookings);
+    }
   }
 
-  return !data || data.length === 0;
+  return result;
 }
 
-// Optional: helper to build marked dates for react-native-calendars
-export function buildMarkedDates(
-  availability: AvailabilitySlot[],
-  selectedDate?: string,
-  timeZone?: string
-): Record<string, any> {
-  const marked: Record<string, any> = {};
-  const now = new Date();
-  const todayYmd = formatYmd(now, timeZone);
-
-  for (const a of availability) {
-    const isPast = a.date < todayYmd;
-    marked[a.date] = {
-      disabled: isPast || !a.is_available,
-      disableTouchEvent: isPast || !a.is_available,
-      marked: a.available_slots > 0,
-      dots: a.available_slots > 0 ? [{ color: '#34C759' }] : undefined,
-    };
-  }
-  if (selectedDate) {
-    marked[selectedDate] = {
-      ...(marked[selectedDate] || {}),
-      selected: true,
-      selectedColor: '#0A84FF',
-      selectedTextColor: '#fff',
-    };
-  }
-  return marked;
+export async function getServices(filters: ServiceFilters): Promise<Service[]> {
+  // Simulate network latency
+  await sleep(250);
+  const userLoc = await getUserLocationSafe();
+  return applyFilters(MOCK_SERVICES, filters, userLoc);
 }
+
+export async function getServiceById(id: string): Promise<Service> {
+  await sleep(150);
+  const svc = MOCK_SERVICES.find((s) => s.id === id);
+  if (!svc) {
+    throw new Error('Service not found');
+  }
+  return svc;
+}
+
+export async function searchServices(query: string): Promise<Service[]> {
+  await sleep(200);
+  const userLoc = await getUserLocationSafe();
+  const pre = MOCK_SERVICES.filter((svc) => matchesQuery(svc, query));
+  // Maintain a reasonable default sort (by relevance: rating then popularity, distance if available)
+  const sorted = pre.sort((a, b) => {
+    // Composite score
+    const ratingDelta = b.rating - a.rating;
+    if (Math.abs(ratingDelta) > 0.01) return ratingDelta;
+    const popDelta = b.total_bookings - a.total_bookings;
+    if (popDelta !== 0) return popDelta;
+    if (userLoc) {
+      return haversineDistanceMiles(userLoc, a.location) - haversineDistanceMiles(userLoc, b.location);
+    }
+    return 0;
+  });
+  return sorted;
+}
+>>>>>>> origin/main
+>>>>>>> origin/main

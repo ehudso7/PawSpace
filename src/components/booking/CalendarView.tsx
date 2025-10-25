@@ -1,77 +1,114 @@
-import React, { useEffect, useMemo, useState } from 'react';
-import { ActivityIndicator, View } from 'react-native';
-import { Calendar, DateObject } from 'react-native-calendars';
-import { AvailabilitySlot, BusinessHours } from '../../types/booking';
-import { buildMarkedDates, getProviderAvailability } from '../../services/bookings';
-import { formatYmd } from '../../utils/time';
+<<<<<<< HEAD
+import React from 'react';
+import { View, Text, TouchableOpacity, StyleSheet } from 'react-native';
+import { theme } from '@/constants/theme';
 
 interface CalendarViewProps {
-  providerId: string;
-  businessHours?: BusinessHours; // optional, if provided, use its timezone for past-date logic
-  selectedDate?: string; // 'YYYY-MM-DD'
-  onDateChange?: (date: string) => void;
+  selectedDate: Date;
+=======
+<<<<<<< HEAD
+import React, { useState } from 'react';
+import { View, Text, StyleSheet, TouchableOpacity } from 'react-native';
+
+interface CalendarViewProps {
+  selectedDate?: Date;
+  onDateSelect?: (date: Date) => void;
 }
 
-export const CalendarView: React.FC<CalendarViewProps> = ({
-  providerId,
-  businessHours,
-  selectedDate,
-  onDateChange,
-}) => {
-  const timeZone = businessHours?.timezone || 'UTC';
-  const [loading, setLoading] = useState(false);
-  const [month, setMonth] = useState(() => formatYmd(new Date(), timeZone).slice(0, 7)); // 'YYYY-MM'
-  const [availability, setAvailability] = useState<AvailabilitySlot[]>([]);
-  const minDate = useMemo(() => formatYmd(new Date(), timeZone), [timeZone]);
-
-  useEffect(() => {
-    let cancelled = false;
-    async function load() {
-      setLoading(true);
-      try {
-        const data = await getProviderAvailability(providerId, month);
-        if (!cancelled) setAvailability(data);
-      } catch (e) {
-        console.warn('CalendarView availability error', (e as Error).message);
-      } finally {
-        if (!cancelled) setLoading(false);
-      }
-    }
-    load();
-    return () => {
-      cancelled = true;
-    };
-  }, [providerId, month]);
-
-  const marked = useMemo(() => buildMarkedDates(availability, selectedDate, timeZone), [availability, selectedDate, timeZone]);
-
-  function handleMonthChange(d: DateObject) {
-    setMonth(`${d.year}-${String(d.month).padStart(2, '0')}`);
-  }
+const CalendarView: React.FC<CalendarViewProps> = ({ selectedDate, onDateSelect }) => {
+  const [currentMonth] = useState(new Date());
 
   return (
-    <View>
-      {loading && (
-        <View style={{ position: 'absolute', top: 8, right: 8, zIndex: 10 }}>
-          <ActivityIndicator />
-        </View>
-      )}
-      <Calendar
-        key={month}
-        markedDates={marked}
-        onDayPress={(day) => onDateChange?.(day.dateString)}
-        onMonthChange={handleMonthChange}
-        enableSwipeMonths
-        minDate={minDate}
-        disableAllTouchEventsForDisabledDays
-        theme={{
-          selectedDayBackgroundColor: '#0A84FF',
-          todayTextColor: '#0A84FF',
-          arrowColor: '#0A84FF',
-        }}
-      />
+    <View style={styles.container}>
+      <Text style={styles.title}>Select a Date</Text>
+      <View style={styles.calendar}>
+        <Text style={styles.placeholder}>Calendar component placeholder</Text>
+      </View>
+=======
+import React from 'react';
+import { View, Text, StyleSheet } from 'react-native';
+
+interface CalendarViewProps {
+  selectedDate?: Date;
+>>>>>>> origin/main
+  onDateSelect: (date: Date) => void;
+  availableDates: Date[];
+}
+
+const CalendarView: React.FC<CalendarViewProps> = ({
+  selectedDate,
+  onDateSelect,
+  availableDates,
+}) => {
+<<<<<<< HEAD
+  // TODO: Implement calendar component with date selection
+  return (
+    <View style={styles.container}>
+      <Text style={styles.placeholder}>Calendar Component</Text>
+      <Text style={styles.note}>TODO: Implement calendar with available dates</Text>
+=======
+  return (
+    <View style={styles.container}>
+      <Text style={styles.title}>Select Date</Text>
+      {/* Calendar implementation would go here */}
+>>>>>>> origin/main
+>>>>>>> origin/main
     </View>
   );
 };
 
+const styles = StyleSheet.create({
+  container: {
+    padding: 16,
+<<<<<<< HEAD
+    backgroundColor: theme.colors.background,
+    borderRadius: 8,
+  },
+  placeholder: {
+    fontSize: 16,
+    fontWeight: '600',
+    color: theme.colors.text,
+    textAlign: 'center',
+  },
+  note: {
+    fontSize: 14,
+    color: theme.colors.gray,
+    textAlign: 'center',
+    marginTop: 8,
+  },
+});
+
 export default CalendarView;
+=======
+  },
+  title: {
+    fontSize: 18,
+<<<<<<< HEAD
+    fontWeight: '600',
+    marginBottom: 16,
+    color: '#333',
+  },
+  calendar: {
+    backgroundColor: '#F9F9F9',
+    padding: 16,
+    borderRadius: 8,
+    minHeight: 300,
+    justifyContent: 'center',
+    alignItems: 'center',
+  },
+  placeholder: {
+    fontSize: 14,
+    color: '#999',
+  },
+});
+
+export default CalendarView;
+=======
+    fontWeight: 'bold',
+    marginBottom: 16,
+  },
+});
+
+export default CalendarView;
+>>>>>>> origin/main
+>>>>>>> origin/main
