@@ -1,276 +1,219 @@
 import { supabase } from './supabase';
-import { User, UserProfile, SignUpData, SignInData, AuthError } from '../types';
-import * as FileSystem from 'expo-file-system';
+<<<<<<< HEAD
+import { User, AuthError } from '@/types';
+=======
+<<<<<<< HEAD
+import type { User, Session } from '@supabase/supabase-js';
 
-export class AuthService {
-  /**
-   * Sign up a new user with email and password
-   */
-  static async signUp(data: SignUpData): Promise<{ user: User | null; error: AuthError | null }> {
+export interface AuthCredentials {
+=======
+import { User, Session } from '@supabase/supabase-js';
+
+export interface AuthUser extends User {
+  user_metadata: {
+    full_name?: string;
+    avatar_url?: string;
+  };
+}
+>>>>>>> origin/main
+
+export interface SignUpData {
+  email: string;
+  password: string;
+<<<<<<< HEAD
+  name: string;
+  phone?: string;
+}
+
+export interface SignInData {
+=======
+  fullName: string;
+}
+
+export interface SignInData {
+>>>>>>> origin/main
+>>>>>>> origin/main
+  email: string;
+  password: string;
+}
+
+<<<<<<< HEAD
+export const authService = {
+  async signUp(data: SignUpData): Promise<{ user: User | null; error: AuthError | null }> {
     try {
-      // First, create the user account
-      const { data: authData, error: authError } = await supabase.auth.signUp({
+      const { data: authData, error } = await supabase.auth.signUp({
+        email: data.email,
+        password: data.password,
+        options: {
+          data: {
+            name: data.name,
+            phone: data.phone,
+          },
+        },
+      });
+
+      if (error) {
+        return { user: null, error: { message: error.message } };
+      }
+
+      return { user: authData.user as User, error: null };
+    } catch (error) {
+      return { user: null, error: { message: 'An unexpected error occurred' } };
+    }
+  },
+
+  async signIn(data: SignInData): Promise<{ user: User | null; error: AuthError | null }> {
+    try {
+      const { data: authData, error } = await supabase.auth.signInWithPassword({
         email: data.email,
         password: data.password,
       });
 
-      if (authError) {
-        return { user: null, error: { message: authError.message, code: authError.message } };
+      if (error) {
+        return { user: null, error: { message: error.message } };
       }
 
-      if (!authData.user) {
-        return { user: null, error: { message: 'Failed to create user account' } };
-      }
-
-      // Create user profile
-      const { data: profileData, error: profileError } = await supabase
-        .from('profiles')
-        .insert({
-          user_id: authData.user.id,
-          full_name: data.profile.full_name,
-          phone: data.profile.phone,
-          location: data.profile.location,
-          bio: data.profile.bio,
-          user_type: data.userType,
-        })
-        .select()
-        .single();
-
-      if (profileError) {
-        // If profile creation fails, we should clean up the auth user
-        await supabase.auth.signOut();
-        return { user: null, error: { message: 'Failed to create user profile' } };
-      }
-
-      const user: User = {
-        id: authData.user.id,
-        email: authData.user.email!,
-        user_type: data.userType,
-        profile: {
-          full_name: profileData.full_name,
-          avatar_url: profileData.avatar_url,
-          phone: profileData.phone,
-          location: profileData.location,
-          bio: profileData.bio,
-        },
-      };
-
-      return { user, error: null };
+      return { user: authData.user as User, error: null };
     } catch (error) {
-      return { user: null, error: { message: 'An unexpected error occurred during sign up' } };
+      return { user: null, error: { message: 'An unexpected error occurred' } };
     }
-  }
+  },
 
-  /**
-   * Sign in an existing user
-   */
-  static async signIn(data: SignInData): Promise<{ user: User | null; error: AuthError | null }> {
-    try {
-      const { data: authData, error: authError } = await supabase.auth.signInWithPassword({
-        email: data.email,
-        password: data.password,
-      });
-
-      if (authError) {
-        return { user: null, error: { message: authError.message, code: authError.message } };
-      }
-
-      if (!authData.user) {
-        return { user: null, error: { message: 'Failed to sign in' } };
-      }
-
-      // Get user profile
-      const { data: profileData, error: profileError } = await supabase
-        .from('profiles')
-        .select('*')
-        .eq('user_id', authData.user.id)
-        .single();
-
-      if (profileError) {
-        return { user: null, error: { message: 'Failed to load user profile' } };
-      }
-
-      const user: User = {
-        id: authData.user.id,
-        email: authData.user.email!,
-        user_type: profileData.user_type,
-        profile: {
-          full_name: profileData.full_name,
-          avatar_url: profileData.avatar_url,
-          phone: profileData.phone,
-          location: profileData.location,
-          bio: profileData.bio,
-        },
-      };
-
-      return { user, error: null };
-    } catch (error) {
-      return { user: null, error: { message: 'An unexpected error occurred during sign in' } };
-    }
-  }
-
-  /**
-   * Sign out the current user
-   */
-  static async signOut(): Promise<{ error: AuthError | null }> {
+  async signOut(): Promise<{ error: AuthError | null }> {
     try {
       const { error } = await supabase.auth.signOut();
+      
       if (error) {
-        return { error: { message: error.message, code: error.message } };
+        return { error: { message: error.message } };
       }
+
       return { error: null };
     } catch (error) {
-      return { error: { message: 'An unexpected error occurred during sign out' } };
+      return { error: { message: 'An unexpected error occurred' } };
     }
-  }
+  },
 
-  /**
-   * Get the current authenticated user
-   */
-  static async getCurrentUser(): Promise<{ user: User | null; error: AuthError | null }> {
+  async getCurrentUser(): Promise<User | null> {
     try {
-      const { data: authData, error: authError } = await supabase.auth.getUser();
-
-      if (authError) {
-        return { user: null, error: { message: authError.message, code: authError.message } };
-      }
-
-      if (!authData.user) {
-        return { user: null, error: null };
-      }
-
-      // Get user profile
-      const { data: profileData, error: profileError } = await supabase
-        .from('profiles')
-        .select('*')
-        .eq('user_id', authData.user.id)
-        .single();
-
-      if (profileError) {
-        return { user: null, error: { message: 'Failed to load user profile' } };
-      }
-
-      const user: User = {
-        id: authData.user.id,
-        email: authData.user.email!,
-        user_type: profileData.user_type,
-        profile: {
-          full_name: profileData.full_name,
-          avatar_url: profileData.avatar_url,
-          phone: profileData.phone,
-          location: profileData.location,
-          bio: profileData.bio,
-        },
-      };
-
-      return { user, error: null };
+      const { data: { user } } = await supabase.auth.getUser();
+      return user as User;
     } catch (error) {
-      return { user: null, error: { message: 'An unexpected error occurred while getting current user' } };
+      return null;
     }
-  }
+  },
 
-  /**
-   * Update user profile
-   */
-  static async updateProfile(userId: string, profileData: Partial<UserProfile>): Promise<{ user: User | null; error: AuthError | null }> {
-    try {
-      const { data, error } = await supabase
-        .from('profiles')
-        .update({
-          ...profileData,
-          updated_at: new Date().toISOString(),
-        })
-        .eq('user_id', userId)
-        .select()
-        .single();
-
-      if (error) {
-        return { user: null, error: { message: 'Failed to update profile' } };
-      }
-
-      // Get the updated user
-      return await this.getCurrentUser();
-    } catch (error) {
-      return { user: null, error: { message: 'An unexpected error occurred while updating profile' } };
-    }
-  }
-
-  /**
-   * Upload avatar image
-   */
-  static async uploadAvatar(userId: string, imageUri: string): Promise<{ avatarUrl: string | null; error: AuthError | null }> {
-    try {
-      // Read the file
-      const fileInfo = await FileSystem.getInfoAsync(imageUri);
-      if (!fileInfo.exists) {
-        return { avatarUrl: null, error: { message: 'Image file not found' } };
-      }
-
-      // Generate a unique filename
-      const fileExt = imageUri.split('.').pop();
-      const fileName = `${userId}-${Date.now()}.${fileExt}`;
-      const filePath = `avatars/${fileName}`;
-
-      // Read file as base64
-      const base64 = await FileSystem.readAsStringAsync(imageUri, {
-        encoding: FileSystem.EncodingType.Base64,
-      });
-
-      // Convert base64 to blob
-      const byteCharacters = atob(base64);
-      const byteNumbers = new Array(byteCharacters.length);
-      for (let i = 0; i < byteCharacters.length; i++) {
-        byteNumbers[i] = byteCharacters.charCodeAt(i);
-      }
-      const byteArray = new Uint8Array(byteNumbers);
-
-      // Upload to Supabase Storage
-      const { data, error } = await supabase.storage
-        .from('avatars')
-        .upload(filePath, byteArray, {
-          contentType: `image/${fileExt}`,
-          upsert: true,
-        });
-
-      if (error) {
-        return { avatarUrl: null, error: { message: 'Failed to upload avatar' } };
-      }
-
-      // Get public URL
-      const { data: urlData } = supabase.storage
-        .from('avatars')
-        .getPublicUrl(filePath);
-
-      const avatarUrl = urlData.publicUrl;
-
-      // Update user profile with new avatar URL
-      const { error: updateError } = await supabase
-        .from('profiles')
-        .update({ avatar_url: avatarUrl })
-        .eq('user_id', userId);
-
-      if (updateError) {
-        return { avatarUrl: null, error: { message: 'Failed to update profile with new avatar' } };
-      }
-
-      return { avatarUrl, error: null };
-    } catch (error) {
-      return { avatarUrl: null, error: { message: 'An unexpected error occurred while uploading avatar' } };
-    }
-  }
-
-  /**
-   * Reset password
-   */
-  static async resetPassword(email: string): Promise<{ error: AuthError | null }> {
+  async resetPassword(email: string): Promise<{ error: AuthError | null }> {
     try {
       const { error } = await supabase.auth.resetPasswordForEmail(email);
+      
       if (error) {
-        return { error: { message: error.message, code: error.message } };
+        return { error: { message: error.message } };
       }
+
       return { error: null };
     } catch (error) {
-      return { error: { message: 'An unexpected error occurred while resetting password' } };
+      return { error: { message: 'An unexpected error occurred' } };
     }
-  }
+  },
+};
+=======
+<<<<<<< HEAD
+export interface SignupData extends AuthCredentials {
+  name: string;
 }
+
+export const authService = {
+  async signIn(credentials: AuthCredentials): Promise<{ user: User | null; session: Session | null; error: Error | null }> {
+    const { data, error } = await supabase.auth.signInWithPassword(credentials);
+    return {
+      user: data.user,
+      session: data.session,
+      error: error as Error | null,
+    };
+  },
+
+  async signUp(signupData: SignupData): Promise<{ user: User | null; session: Session | null; error: Error | null }> {
+    const { email, password, name } = signupData;
+=======
+export const authService = {
+  async signUp({ email, password, fullName }: SignUpData) {
+>>>>>>> origin/main
+    const { data, error } = await supabase.auth.signUp({
+      email,
+      password,
+      options: {
+        data: {
+<<<<<<< HEAD
+          name,
+        },
+      },
+    });
+    return {
+      user: data.user,
+      session: data.session,
+      error: error as Error | null,
+    };
+  },
+
+  async signOut(): Promise<{ error: Error | null }> {
+    const { error } = await supabase.auth.signOut();
+    return { error: error as Error | null };
+  },
+
+  async getSession(): Promise<{ session: Session | null; error: Error | null }> {
+    const { data, error } = await supabase.auth.getSession();
+    return {
+      session: data.session,
+      error: error as Error | null,
+    };
+  },
+
+  async getCurrentUser(): Promise<{ user: User | null; error: Error | null }> {
+    const { data, error } = await supabase.auth.getUser();
+    return {
+      user: data.user,
+      error: error as Error | null,
+    };
+  },
+};
+
+export default authService;
+=======
+          full_name: fullName,
+        },
+      },
+    });
+    return { data, error };
+  },
+
+  async signIn({ email, password }: SignInData) {
+    const { data, error } = await supabase.auth.signInWithPassword({
+      email,
+      password,
+    });
+    return { data, error };
+  },
+
+  async signOut() {
+    const { error } = await supabase.auth.signOut();
+    return { error };
+  },
+
+  async getCurrentUser(): Promise<AuthUser | null> {
+    const { data: { user } } = await supabase.auth.getUser();
+    return user as AuthUser | null;
+  },
+
+  async getSession(): Promise<Session | null> {
+    const { data: { session } } = await supabase.auth.getSession();
+    return session;
+  },
+
+  onAuthStateChange(callback: (user: AuthUser | null) => void) {
+    return supabase.auth.onAuthStateChange((event, session) => {
+      callback(session?.user as AuthUser || null);
+    });
+  },
+};
+>>>>>>> origin/main
+>>>>>>> origin/main

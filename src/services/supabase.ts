@@ -1,69 +1,50 @@
 import { createClient } from '@supabase/supabase-js';
+<<<<<<< HEAD
 import AsyncStorage from '@react-native-async-storage/async-storage';
-import Constants from 'expo-constants';
+import { Database } from '@/types/database';
 
-// Get environment variables
-const supabaseUrl = Constants.expoConfig?.extra?.supabaseUrl || process.env.EXPO_PUBLIC_SUPABASE_URL;
-const supabaseAnonKey = Constants.expoConfig?.extra?.supabaseAnonKey || process.env.EXPO_PUBLIC_SUPABASE_ANON_KEY;
+const supabaseUrl = process.env.EXPO_PUBLIC_SUPABASE_URL!;
+const supabaseAnonKey = process.env.EXPO_PUBLIC_SUPABASE_ANON_KEY!;
 
-if (!supabaseUrl || !supabaseAnonKey) {
-  throw new Error('Missing Supabase environment variables. Please check your .env file or app.config.js');
-}
-
-// Create Supabase client with AsyncStorage for auth persistence
-export const supabase = createClient(supabaseUrl, supabaseAnonKey, {
+export const supabase = createClient<Database>(supabaseUrl, supabaseAnonKey, {
   auth: {
     storage: AsyncStorage,
+=======
+<<<<<<< HEAD
+import { Database } from '@/types/database';
+
+const supabaseUrl = process.env.EXPO_PUBLIC_SUPABASE_URL || '';
+const supabaseAnonKey = process.env.EXPO_PUBLIC_SUPABASE_ANON_KEY || '';
+
+export const supabase = createClient<Database>(supabaseUrl, supabaseAnonKey, {
+  auth: {
+    storage: undefined, // TODO: Implement session persistence by providing a storage implementation.
+    // For Expo/React Native, use AsyncStorage from '@react-native-async-storage/async-storage':
+    // import AsyncStorage from '@react-native-async-storage/async-storage';
+    // storage: AsyncStorage,
+    // See Supabase docs: https://supabase.com/docs/guides/auth/auth-helpers/auth-ui#react-native
+    // If using a custom storage, ensure it implements getItem, setItem, removeItem methods.
+>>>>>>> origin/main
     autoRefreshToken: true,
     persistSession: true,
     detectSessionInUrl: false,
   },
 });
 
-// Database types for better TypeScript support
-export interface Database {
-  public: {
-    Tables: {
-      profiles: {
-        Row: {
-          id: string;
-          user_id: string;
-          full_name: string;
-          avatar_url: string | null;
-          phone: string | null;
-          location: string | null;
-          bio: string | null;
-          user_type: 'pet_owner' | 'service_provider';
-          created_at: string;
-          updated_at: string;
-        };
-        Insert: {
-          id?: string;
-          user_id: string;
-          full_name: string;
-          avatar_url?: string | null;
-          phone?: string | null;
-          location?: string | null;
-          bio?: string | null;
-          user_type: 'pet_owner' | 'service_provider';
-          created_at?: string;
-          updated_at?: string;
-        };
-        Update: {
-          id?: string;
-          user_id?: string;
-          full_name?: string;
-          avatar_url?: string | null;
-          phone?: string | null;
-          location?: string | null;
-          bio?: string | null;
-          user_type?: 'pet_owner' | 'service_provider';
-          created_at?: string;
-          updated_at?: string;
-        };
-      };
-    };
-  };
+<<<<<<< HEAD
+export default supabase;
+=======
+export default supabase;
+=======
+import Constants from 'expo-constants';
+
+const supabaseUrl = Constants.expoConfig?.extra?.supabaseUrl || process.env.EXPO_PUBLIC_SUPABASE_URL;
+const supabaseAnonKey = Constants.expoConfig?.extra?.supabaseAnonKey || process.env.EXPO_PUBLIC_SUPABASE_ANON_KEY;
+
+if (!supabaseUrl || !supabaseAnonKey) {
+  throw new Error('Missing Supabase environment variables');
 }
 
-export type TypedSupabaseClient = typeof supabase;
+export const supabase = createClient(supabaseUrl, supabaseAnonKey);
+>>>>>>> origin/main
+>>>>>>> origin/main

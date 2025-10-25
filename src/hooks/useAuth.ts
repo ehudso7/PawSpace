@@ -1,292 +1,295 @@
-import { useState, useEffect, useCallback } from 'react';
-import { AuthService } from '../services/auth';
-import { supabase } from '../services/supabase';
-import { User, SignUpData, SignInData, AuthState, AuthError } from '../types';
-import { AuthChangeEvent, Session } from '@supabase/supabase-js';
+import { useState, useEffect } from 'react';
+<<<<<<< HEAD
+import { supabase } from '@/services/supabase';
+import { authService, SignUpData, SignInData } from '@/services/auth';
+import { User, AuthError } from '@/types';
 
 export const useAuth = () => {
-  const [authState, setAuthState] = useState<AuthState>({
-    user: null,
-    loading: true,
-    error: null,
-  });
+  const [user, setUser] = useState<User | null>(null);
+  const [isLoading, setIsLoading] = useState(true);
+  const [error, setError] = useState<AuthError | null>(null);
 
-  // Clear error after a timeout
-  const clearError = useCallback(() => {
-    setTimeout(() => {
-      setAuthState(prev => ({ ...prev, error: null }));
-    }, 5000);
-  }, []);
-
-  // Set error with auto-clear
-  const setError = useCallback((error: string) => {
-    setAuthState(prev => ({ ...prev, error, loading: false }));
-    clearError();
-  }, [clearError]);
-
-  // Initialize auth state
   useEffect(() => {
-    let mounted = true;
-
-    const initializeAuth = async () => {
+    // Get initial session
+    const getInitialSession = async () => {
       try {
-        const { user, error } = await AuthService.getCurrentUser();
-        
-        if (mounted) {
-          if (error) {
-            setError(error.message);
-          } else {
-            setAuthState({
-              user,
-              loading: false,
-              error: null,
-            });
-          }
-        }
+        const currentUser = await authService.getCurrentUser();
+        setUser(currentUser);
       } catch (error) {
-        if (mounted) {
-          setError('Failed to initialize authentication');
-        }
+        console.error('Error getting initial session:', error);
+      } finally {
+        setIsLoading(false);
       }
     };
 
-    initializeAuth();
+    getInitialSession();
 
-    return () => {
-      mounted = false;
-    };
-  }, [setError]);
-
-  // Listen to auth state changes
-  useEffect(() => {
+    // Listen for auth changes
     const { data: { subscription } } = supabase.auth.onAuthStateChange(
-      async (event: AuthChangeEvent, session: Session | null) => {
-        try {
-          if (event === 'SIGNED_IN' && session?.user) {
-            // Get user profile when signed in
-            const { user, error } = await AuthService.getCurrentUser();
-            if (error) {
-              setError(error.message);
-            } else {
-              setAuthState({
-                user,
-                loading: false,
-                error: null,
-              });
-            }
-          } else if (event === 'SIGNED_OUT') {
-            // Clear user state when signed out
-            setAuthState({
-              user: null,
-              loading: false,
-              error: null,
-            });
-          } else if (event === 'TOKEN_REFRESHED') {
-            // Optionally refresh user data when token is refreshed
-            const { user, error } = await AuthService.getCurrentUser();
-            if (!error && user) {
-              setAuthState(prev => ({
-                ...prev,
-                user,
-                loading: false,
-              }));
-            }
-          }
-        } catch (error) {
-          setError('Authentication state change failed');
-        }
+      async (event, session) => {
+        setUser(session?.user as User || null);
+        setIsLoading(false);
       }
     );
+=======
+<<<<<<< HEAD
+import { User } from '@supabase/supabase-js';
+import { supabase, authService } from '@/services';
+import type { AuthCredentials, SignupData } from '@/services/auth';
+
+export const useAuth = () => {
+  const [user, setUser] = useState<User | null>(null);
+  const [loading, setLoading] = useState(true);
+  const [error, setError] = useState<Error | null>(null);
+
+  useEffect(() => {
+    // Get initial session
+    const initAuth = async () => {
+      try {
+        const { session } = await authService.getSession();
+        setUser(session?.user ?? null);
+      } catch (err) {
+        setError(err as Error);
+      } finally {
+        setLoading(false);
+      }
+    };
+
+    initAuth();
+
+    // Listen for auth changes
+    const { data: authListener } = supabase.auth.onAuthStateChange((_event, session) => {
+      setUser(session?.user ?? null);
+    });
+
+    return () => {
+      authListener.subscription.unsubscribe();
+    };
+  }, []);
+
+  const signIn = async (credentials: AuthCredentials) => {
+    setLoading(true);
+    setError(null);
+    try {
+      const { user: signedInUser, error: signInError } = await authService.signIn(credentials);
+      if (signInError) throw signInError;
+      setUser(signedInUser);
+      return { user: signedInUser, error: null };
+    } catch (err) {
+      const error = err as Error;
+      setError(error);
+      return { user: null, error };
+=======
+import { authService, AuthUser } from '@/services/auth';
+
+export const useAuth = () => {
+  const [user, setUser] = useState<AuthUser | null>(null);
+  const [loading, setLoading] = useState(true);
+
+  useEffect(() => {
+    // Get initial user
+    authService.getCurrentUser().then((user) => {
+      setUser(user);
+      setLoading(false);
+    });
+
+    // Listen for auth changes
+    const { data: { subscription } } = authService.onAuthStateChange((user) => {
+      setUser(user);
+      setLoading(false);
+    });
+>>>>>>> origin/main
 
     return () => subscription.unsubscribe();
-  }, [setError]);
+  }, []);
 
-  // Sign up function
-  const signUp = useCallback(async (data: SignUpData): Promise<boolean> => {
-    setAuthState(prev => ({ ...prev, loading: true, error: null }));
-
-    try {
-      const { user, error } = await AuthService.signUp(data);
-      
-      if (error) {
-        setError(error.message);
-        return false;
-      }
-
-      if (user) {
-        setAuthState({
-          user,
-          loading: false,
-          error: null,
-        });
-        return true;
-      }
-
-      setError('Sign up failed');
-      return false;
-    } catch (error) {
-      setError('An unexpected error occurred during sign up');
-      return false;
-    }
-  }, [setError]);
-
-  // Sign in function
-  const signIn = useCallback(async (data: SignInData): Promise<boolean> => {
-    setAuthState(prev => ({ ...prev, loading: true, error: null }));
+<<<<<<< HEAD
+  const signUp = async (data: SignUpData) => {
+    setIsLoading(true);
+    setError(null);
 
     try {
-      const { user, error } = await AuthService.signIn(data);
+      const { user: newUser, error } = await authService.signUp(data);
       
       if (error) {
-        setError(error.message);
-        return false;
+        setError(error);
+        return { success: false, error };
       }
 
-      if (user) {
-        setAuthState({
-          user,
-          loading: false,
-          error: null,
-        });
-        return true;
-      }
-
-      setError('Sign in failed');
-      return false;
+      setUser(newUser);
+      return { success: true, user: newUser };
     } catch (error) {
-      setError('An unexpected error occurred during sign in');
-      return false;
+      const authError = { message: 'An unexpected error occurred' };
+      setError(authError);
+      return { success: false, error: authError };
+    } finally {
+      setIsLoading(false);
     }
-  }, [setError]);
+  };
 
-  // Sign out function
-  const signOut = useCallback(async (): Promise<boolean> => {
-    setAuthState(prev => ({ ...prev, loading: true, error: null }));
+  const signIn = async (data: SignInData) => {
+    setIsLoading(true);
+    setError(null);
 
     try {
-      const { error } = await AuthService.signOut();
+      const { user: signedInUser, error } = await authService.signIn(data);
       
       if (error) {
-        setError(error.message);
-        return false;
+        setError(error);
+        return { success: false, error };
       }
 
-      setAuthState({
-        user: null,
-        loading: false,
-        error: null,
-      });
-      return true;
+      setUser(signedInUser);
+      return { success: true, user: signedInUser };
     } catch (error) {
-      setError('An unexpected error occurred during sign out');
-      return false;
+      const authError = { message: 'An unexpected error occurred' };
+      setError(authError);
+      return { success: false, error: authError };
+    } finally {
+      setIsLoading(false);
+=======
+  const signIn = async (email: string, password: string) => {
+    setLoading(true);
+    try {
+      const { data, error } = await authService.signIn({ email, password });
+      if (error) throw error;
+      return { data, error: null };
+    } catch (error) {
+      return { data: null, error };
+>>>>>>> origin/main
+    } finally {
+      setLoading(false);
     }
-  }, [setError]);
+  };
 
-  // Update profile function
-  const updateProfile = useCallback(async (profileData: Partial<User['profile']>): Promise<boolean> => {
-    if (!authState.user) {
-      setError('No user logged in');
-      return false;
+<<<<<<< HEAD
+  const signUp = async (signupData: SignupData) => {
+    setLoading(true);
+    setError(null);
+    try {
+      const { user: newUser, error: signUpError } = await authService.signUp(signupData);
+      if (signUpError) throw signUpError;
+      setUser(newUser);
+      return { user: newUser, error: null };
+    } catch (err) {
+      const error = err as Error;
+      setError(error);
+      return { user: null, error };
+=======
+  const signUp = async (email: string, password: string, fullName: string) => {
+    setLoading(true);
+    try {
+      const { data, error } = await authService.signUp({ email, password, fullName });
+      if (error) throw error;
+      return { data, error: null };
+    } catch (error) {
+      return { data: null, error };
+>>>>>>> origin/main
+    } finally {
+      setLoading(false);
+>>>>>>> origin/main
     }
+  };
 
-    setAuthState(prev => ({ ...prev, loading: true, error: null }));
+  const signOut = async () => {
+<<<<<<< HEAD
+    setIsLoading(true);
+    setError(null);
 
     try {
-      const { user, error } = await AuthService.updateProfile(authState.user.id, profileData);
+      const { error } = await authService.signOut();
       
       if (error) {
-        setError(error.message);
-        return false;
+        setError(error);
+        return { success: false, error };
       }
 
-      if (user) {
-        setAuthState({
-          user,
-          loading: false,
-          error: null,
-        });
-        return true;
-      }
-
-      setError('Profile update failed');
-      return false;
+      setUser(null);
+      return { success: true };
     } catch (error) {
-      setError('An unexpected error occurred while updating profile');
-      return false;
+      const authError = { message: 'An unexpected error occurred' };
+      setError(authError);
+      return { success: false, error: authError };
+    } finally {
+      setIsLoading(false);
     }
-  }, [authState.user, setError]);
+  };
 
-  // Upload avatar function
-  const uploadAvatar = useCallback(async (imageUri: string): Promise<string | null> => {
-    if (!authState.user) {
-      setError('No user logged in');
-      return null;
-    }
-
-    setAuthState(prev => ({ ...prev, loading: true, error: null }));
+  const resetPassword = async (email: string) => {
+    setError(null);
 
     try {
-      const { avatarUrl, error } = await AuthService.uploadAvatar(authState.user.id, imageUri);
+      const { error } = await authService.resetPassword(email);
       
       if (error) {
-        setError(error.message);
-        return null;
+        setError(error);
+        return { success: false, error };
       }
 
-      if (avatarUrl) {
-        // Update user state with new avatar URL
-        setAuthState(prev => ({
-          ...prev,
-          user: prev.user ? {
-            ...prev.user,
-            profile: {
-              ...prev.user.profile,
-              avatar_url: avatarUrl,
-            },
-          } : null,
-          loading: false,
-        }));
-        return avatarUrl;
-      }
-
-      setError('Avatar upload failed');
-      return null;
+      return { success: true };
     } catch (error) {
-      setError('An unexpected error occurred while uploading avatar');
-      return null;
+      const authError = { message: 'An unexpected error occurred' };
+      setError(authError);
+      return { success: false, error: authError };
     }
-  }, [authState.user, setError]);
+  };
 
-  // Reset password function
-  const resetPassword = useCallback(async (email: string): Promise<boolean> => {
-    setAuthState(prev => ({ ...prev, loading: true, error: null }));
-
-    try {
-      const { error } = await AuthService.resetPassword(email);
-      
-      if (error) {
-        setError(error.message);
-        return false;
-      }
-
-      setAuthState(prev => ({ ...prev, loading: false }));
-      return true;
-    } catch (error) {
-      setError('An unexpected error occurred while resetting password');
-      return false;
-    }
-  }, [setError]);
+  const clearError = () => setError(null);
 
   return {
-    user: authState.user,
-    loading: authState.loading,
-    error: authState.error,
+    user,
+    isLoading,
+    error,
     signUp,
     signIn,
     signOut,
-    updateProfile,
-    uploadAvatar,
     resetPassword,
+    clearError,
   };
 };
+=======
+    setLoading(true);
+<<<<<<< HEAD
+    setError(null);
+    try {
+      const { error: signOutError } = await authService.signOut();
+      if (signOutError) throw signOutError;
+      setUser(null);
+      return { error: null };
+    } catch (err) {
+      const error = err as Error;
+      setError(error);
+=======
+    try {
+      const { error } = await authService.signOut();
+      if (error) throw error;
+      return { error: null };
+    } catch (error) {
+>>>>>>> origin/main
+      return { error };
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  return {
+    user,
+    loading,
+<<<<<<< HEAD
+    error,
+    signIn,
+    signUp,
+    signOut,
+  };
+};
+
+export default useAuth;
+=======
+    signIn,
+    signUp,
+    signOut,
+    isAuthenticated: !!user,
+  };
+};
+>>>>>>> origin/main
+>>>>>>> origin/main
