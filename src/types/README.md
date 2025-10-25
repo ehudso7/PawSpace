@@ -1,0 +1,1 @@
+Types for PawSpace. Placeholder to ensure directory presence.
