@@ -1,255 +1,513 @@
-# PawSpace - Complete Navigation System
+<<<<<<< HEAD
+# PawSpace - Pet Services Marketplace & Social Platform
 
-A React Native application with comprehensive navigation and authentication flow for a pet social network.
+A React Native Expo TypeScript application for pet services booking and social sharing of pet transformations.
 
-## 🎯 Features Implemented
+## 🐾 Features
 
-### ✅ Navigation System
-- **AppNavigator**: Root navigator with authentication state management
-- **AuthNavigator**: Stack navigation for authentication flows
-- **TabNavigator**: Bottom tab navigation with nested stack navigators
-- **Deep Linking**: Full deep linking support with URL patterns
+- **Social Feed**: Share and discover pet transformations
+- **Service Booking**: Find and book pet services (grooming, training, veterinary, etc.)
+- **Provider Profiles**: Detailed service provider information with reviews
+- **Image Editing**: Built-in photo editor for pet transformations
+- **Real-time Chat**: Communication between pet owners and service providers
+- **Subscription Plans**: Premium features and enhanced functionality
+- **Location Services**: Find nearby pet service providers
 
-### ✅ Authentication Flow
-- Login Screen with Supabase integration
-- Signup Screen with validation
-- Onboarding Screen for new users
-- Automatic navigation based on auth state
-- Session persistence with AsyncStorage
+## 🏗️ Project Structure
+=======
+<<<<<<< HEAD
+# PawSpace - Pet Services Marketplace
 
-### ✅ Tab Navigation (4 Tabs)
-1. **Home Tab** 🏠
-   - Feed Screen (main feed)
-   - Post Detail Screen
-   - User Profile Screen
+A React Native Expo TypeScript application for pet services marketplace with social features.
 
-2. **Book Tab** 📅
-   - Service List Screen
-   - Service Detail Screen
-   - Booking Screen
-   - Booking Confirmation Screen
+## 🚀 Getting Started
 
-3. **Create Tab** ➕
-   - Image Selector Screen
-   - Post Composer Screen
+### Prerequisites
 
-4. **Profile Tab** 👤
-   - Profile Main Screen
-   - Edit Profile Screen
-   - Settings Screen
-   - My Bookings Screen
-   - My Pets Screen
+- Node.js (v18 or higher)
+- npm or yarn
+- Expo CLI
+- iOS Simulator (for iOS development) or Android Studio (for Android development)
 
-## 📁 Project Structure
-
-```
-src/
-├── navigation/
-│   ├── AppNavigator.tsx      # Root navigator with auth checking
-│   ├── AuthNavigator.tsx     # Authentication stack navigator
-│   └── TabNavigator.tsx      # Main tab navigator with nested stacks
-├── screens/
-│   ├── auth/
-│   │   ├── LoginScreen.tsx
-│   │   ├── SignupScreen.tsx
-│   │   └── OnboardingScreen.tsx
-│   └── tabs/
-│       ├── FeedScreen.tsx
-│       ├── PostDetailScreen.tsx
-│       ├── UserProfileScreen.tsx
-│       ├── ServiceListScreen.tsx
-│       ├── ServiceDetailScreen.tsx
-│       ├── BookingScreen.tsx
-│       ├── BookingConfirmationScreen.tsx
-│       ├── ImageSelectorScreen.tsx
-│       ├── PostComposerScreen.tsx
-│       ├── ProfileScreen.tsx
-│       ├── EditProfileScreen.tsx
-│       ├── SettingsScreen.tsx
-│       ├── MyBookingsScreen.tsx
-│       └── MyPetsScreen.tsx
-├── types/
-│   └── navigation.ts         # TypeScript navigation types
-└── lib/
-    └── supabase.ts          # Supabase client configuration
-```
-
-## 🚀 Installation
+### Installation
 
 1. Install dependencies:
 ```bash
 npm install
 ```
 
-2. Set up environment variables in `.env`:
-```env
-EXPO_PUBLIC_SUPABASE_URL=your_supabase_url
-EXPO_PUBLIC_SUPABASE_ANON_KEY=your_supabase_anon_key
+2. Copy the environment variables:
+```bash
+cp .env.example .env
 ```
 
-3. Start the development server:
+3. Update the `.env` file with your Supabase credentials and other configuration values.
+
+### Running the App
+
+Start the development server:
 ```bash
 npm start
 ```
 
-## 🔧 Key Technologies
+Run on specific platforms:
+```bash
+npm run ios      # Run on iOS
+npm run android  # Run on Android
+npm run web      # Run on web
+```
 
-- **React Native**: Mobile framework
-- **React Navigation**: Navigation library (v6)
-- **React Native Paper**: Material Design component library
-- **Supabase**: Backend and authentication
-- **TypeScript**: Type safety
+## 📁 Project Structure
+>>>>>>> origin/main
+
+```
+src/
+├── navigation/          # Navigation configuration
+│   ├── AppNavigator.tsx
+│   ├── AuthNavigator.tsx
+│   └── TabNavigator.tsx
+├── screens/            # Screen components
+<<<<<<< HEAD
+│   ├── auth/           # Authentication screens
+│   ├── home/           # Home feed screens
+│   ├── booking/        # Service booking screens
+│   ├── create/         # Content creation screens
+│   └── profile/        # User profile screens
+├── components/         # Reusable UI components
+│   ├── common/         # Generic components
+│   ├── feed/           # Feed-specific components
+│   └── booking/        # Booking-specific components
+├── services/           # API and external services
+│   ├── supabase.ts     # Supabase client configuration
+│   ├── auth.ts         # Authentication service
+│   ├── bookings.ts     # Booking management
+│   ├── transformations.ts # Social feed content
+│   └── storage.ts      # File upload/storage
+├── hooks/              # Custom React hooks
+│   ├── useAuth.ts      # Authentication state
+│   ├── useBookings.ts  # Booking management
+│   └── useTransformations.ts # Feed content
+├── types/              # TypeScript type definitions
+│   ├── index.ts        # Main type definitions
+│   ├── database.ts     # Supabase database types
+│   └── navigation.ts   # Navigation type definitions
+├── constants/          # App constants and configuration
+│   ├── theme.ts        # Design system and theme
+│   └── config.ts       # App configuration
+└── utils/              # Utility functions
+    ├── validators.ts   # Form validation
+    └── formatters.ts   # Data formatting
+```
+
+## 🚀 Getting Started
+
+### Prerequisites
+
+- Node.js (v16 or higher)
+- npm or yarn
+- Expo CLI (`npm install -g @expo/cli`)
+- iOS Simulator (for iOS development)
+- Android Studio & Android Emulator (for Android development)
+
+### Installation
+
+1. **Clone the repository**
+   ```bash
+   git clone <repository-url>
+   cd pawspace
+   ```
+
+2. **Install dependencies**
+=======
+│   ├── auth/          # Authentication screens
+│   ├── home/          # Home/feed screens
+│   ├── booking/       # Booking screens
+│   ├── create/        # Content creation screens
+│   └── profile/       # Profile screens
+=======
+# PawSpace
+
+A React Native Expo TypeScript app for pet services marketplace with social features.
+
+## Features
+
+- **Pet Transformations Feed**: Browse before/after photos of pet transformations
+- **Service Booking**: Book grooming, training, walking, and other pet services
+- **Provider Profiles**: View and rate service providers
+- **Social Features**: Like and share transformation posts
+- **User Profiles**: Manage your profile and subscription
+
+## Tech Stack
+
+- **React Native** with **Expo**
+- **TypeScript** for type safety
+- **Supabase** for backend services
+- **React Navigation** for navigation
+- **Expo Image Picker** for image handling
+
+## Project Structure
+
+```
+src/
+├── navigation/          # Navigation components
+├── screens/            # Screen components
+│   ├── auth/          # Authentication screens
+│   ├── home/          # Home and feed screens
+│   ├── booking/       # Booking related screens
+│   ├── create/        # Content creation screens
+│   └── profile/       # Profile and settings screens
+>>>>>>> origin/main
+├── components/         # Reusable components
+│   ├── common/        # Common UI components
+│   ├── feed/          # Feed-specific components
+│   └── booking/       # Booking-specific components
+<<<<<<< HEAD
+├── services/          # API services
+│   ├── supabase.ts
+│   ├── auth.ts
+│   ├── bookings.ts
+│   ├── transformations.ts
+│   └── storage.ts
+├── hooks/             # Custom React hooks
+│   ├── useAuth.ts
+│   ├── useBookings.ts
+│   └── useTransformations.ts
+├── types/             # TypeScript type definitions
+│   ├── index.ts
+│   ├── database.ts
+│   └── navigation.ts
+├── constants/         # App constants
+│   ├── theme.ts
+│   └── config.ts
+└── utils/            # Utility functions
+    ├── validators.ts
+    └── formatters.ts
+```
+
+## 🎨 Features
+
+- **Authentication**: Sign up, login, and user management
+- **Social Feed**: View and share pet transformation photos
+- **Service Booking**: Browse and book pet services
+- **Provider Profiles**: View service provider information
+- **Content Creation**: Create and edit pet transformation posts
+- **Profile Management**: Manage user profile and settings
+- **Subscriptions**: Premium features and subscription management
+
+## 🛠️ Technologies
+
+- **React Native**: Mobile app framework
 - **Expo**: Development platform
+- **TypeScript**: Type-safe JavaScript
+- **React Navigation**: Navigation library
+- **Supabase**: Backend and database
+- **Supabase Storage**: File storage
 
-## 📱 Navigation Architecture
+## 📝 Code Style
 
-### AppNavigator (Root)
-- Checks authentication state from Supabase
-- Shows AuthNavigator if not authenticated
-- Shows TabNavigator if authenticated
-- Handles loading states with ActivityIndicator
-- Implements deep linking configuration
+This project uses TypeScript strict mode. Make sure to:
+- Define proper types for all props and state
+- Use barrel exports (index.ts) for cleaner imports
+- Follow the established folder structure
+- Use path aliases (@/components, @/screens, etc.)
 
-### AuthNavigator
-- Stack navigator for auth screens
-- No headers on auth screens
-- Smooth transitions between screens
-- Gesture control for navigation
+## 🔧 Configuration
 
-### TabNavigator
-- Bottom tabs with custom styling
-- Each tab has its own stack navigator
-- Native iOS/Android platform conventions
-- Tab bar hides on detail screens (configurable)
-- Custom icons using MaterialCommunityIcons
+### Path Aliases
 
-## 🎨 Styling
+The following path aliases are configured in `tsconfig.json`:
 
-- Uses React Native Paper theme colors
-- Tab bar: white background with elevation
-- Active tab: primary color
-- Inactive tab: gray (#8E8E93)
-- Platform-specific adjustments for iOS/Android
-- Proper safe area handling
+- `@/*` → `./src/*`
+- `@/components/*` → `./src/components/*`
+- `@/screens/*` → `./src/screens/*`
+- `@/navigation/*` → `./src/navigation/*`
+- `@/services/*` → `./src/services/*`
+- `@/hooks/*` → `./src/hooks/*`
+- `@/types/*` → `./src/types/*`
+- `@/constants/*` → `./src/constants/*`
+- `@/utils/*` → `./src/utils/*`
 
-## 🔐 Authentication
+### Environment Variables
 
-- Supabase Auth integration
-- Email/password authentication
-- Session persistence
-- Automatic token refresh
-- Auth state listeners
-- Logout functionality
+Required environment variables (see `.env.example`):
 
-## 🧭 Deep Linking
+- `EXPO_PUBLIC_SUPABASE_URL`: Your Supabase project URL
+- `EXPO_PUBLIC_SUPABASE_ANON_KEY`: Your Supabase anonymous key
+- `EXPO_PUBLIC_API_URL`: API base URL
+- `EXPO_PUBLIC_ENV`: Environment (development/staging/production)
 
-Supported URL patterns:
-- `pawspace://login` - Login screen
-- `pawspace://signup` - Signup screen
-- `pawspace://feed` - Main feed
-- `pawspace://post/:postId` - Post detail
-- `pawspace://services` - Service list
-- `pawspace://service/:serviceId` - Service detail
-- And many more...
+## 📱 Screens
 
-## 📝 TypeScript Types
+### Authentication
+- Onboarding
+- Login
+- Signup
 
-Fully typed navigation with:
-- `RootStackParamList`
-- `AuthStackParamList`
-- `TabParamList`
-- Individual stack param lists for each tab
-- Screen props types for all screens
-- Global React Navigation types
+### Home
+- Feed (transformation posts)
+- Transformation detail
 
-## 🎯 Usage
+### Booking
+- Service list
+- Provider profile
+- Booking calendar
+- Booking confirmation
+- My bookings
 
-### In your App.tsx:
-```typescript
-import AppNavigator from './src/navigation/AppNavigator';
+### Create
+- Image selector
+- Editor
+- Preview
 
-export default function App() {
-  return <AppNavigator />;
-}
-```
+### Profile
+- Profile view
+- Edit profile
+- Settings
+- Subscription
 
-### Type-safe navigation:
-```typescript
-import type { HomeScreenProps } from '../types/navigation';
+## 🤝 Contributing
 
-type Props = HomeScreenProps<'Feed'>;
-
-const FeedScreen: React.FC<Props> = ({ navigation }) => {
-  // Navigate with type safety
-  navigation.navigate('PostDetail', { postId: '123' });
-};
-```
-
-## 🔄 Navigation Flow
-
-1. **App Start**: AppNavigator checks Supabase session
-2. **Not Authenticated**: Show AuthNavigator → Login/Signup/Onboarding
-3. **Authenticated**: Show TabNavigator → Main app with 4 tabs
-4. **Auth State Change**: Automatically switch between Auth and Main
-5. **Logout**: Navigate back to AuthNavigator
-
-## 📦 Dependencies
-
-All required dependencies are listed in `package.json`:
-- React Navigation packages (native, stack, bottom-tabs)
-- React Native Paper (UI components)
-- Supabase (auth and backend)
-- React Native Vector Icons (tab icons)
-- AsyncStorage (session persistence)
-- Other supporting libraries
-
-## 🎨 Customization
-
-The navigation system is fully customizable:
-- Change tab icons in `TabNavigator.tsx`
-- Modify colors using React Native Paper theme
-- Add/remove screens in respective navigators
-- Update deep linking patterns in `AppNavigator.tsx`
-- Customize transitions and animations
-
-## ⚡ Performance
-
-- Lazy loading of screens
-- Optimized re-renders with React Navigation
-- Efficient auth state management
-- Proper cleanup of listeners
-- Native performance with React Native
-
-## 🐛 Error Handling
-
-- Try-catch blocks in auth operations
-- Error messages displayed to users
-- Loading states for async operations
-- Graceful fallbacks for failed operations
-
-## 📱 Platform Support
-
-- ✅ iOS
-- ✅ Android
-- ✅ Web (with Expo)
-
-## 🔮 Future Enhancements
-
-- Add animations between screens
-- Implement gesture-based navigation
-- Add skeleton loaders
-- Implement pull-to-refresh
-- Add offline support
-- Implement push notifications
+1. Create a feature branch
+2. Make your changes
+3. Test thoroughly
+4. Submit a pull request
 
 ## 📄 License
 
-MIT
+This project is private and proprietary.
 
-## 👥 Contributing
+## 👥 Team
 
-Contributions are welcome! Please follow the existing code structure and TypeScript patterns.
+Built with ❤️ by the PawSpace team
+=======
+├── services/          # API and external services
+├── hooks/             # Custom React hooks
+├── types/             # TypeScript type definitions
+├── constants/         # App constants and configuration
+└── utils/             # Utility functions
+```
+
+## Getting Started
+
+1. Install dependencies:
+>>>>>>> origin/main
+   ```bash
+   npm install
+   ```
+
+<<<<<<< HEAD
+3. **Set up environment variables**
+   ```bash
+   cp .env.example .env
+   ```
+   
+   Fill in your configuration values in `.env`:
+   - Supabase URL and API key
+   - Google Maps API key
+   - Stripe publishable key
+   - Other service API keys
+
+4. **Start the development server**
+=======
+2. Set up environment variables:
+   ```bash
+   cp .env.example .env
+   ```
+   Fill in your Supabase credentials and other configuration.
+
+3. Start the development server:
+>>>>>>> origin/main
+   ```bash
+   npm start
+   ```
+
+<<<<<<< HEAD
+5. **Run on device/simulator**
+   ```bash
+   # iOS
+   npm run ios
+   
+   # Android
+   npm run android
+   
+   # Web
+   npm run web
+   ```
+
+## 🛠️ Development
+
+### Available Scripts
+
+- `npm start` - Start Expo development server
+- `npm run ios` - Run on iOS simulator
+- `npm run android` - Run on Android emulator
+- `npm run web` - Run on web browser
+- `npm run lint` - Run ESLint
+- `npm run lint:fix` - Fix ESLint issues
+- `npm run type-check` - Run TypeScript type checking
+- `npm test` - Run tests
+- `npm run test:watch` - Run tests in watch mode
+
+### Code Style
+
+This project uses:
+- **TypeScript** with strict mode enabled
+- **ESLint** for code linting
+- **Prettier** for code formatting (configured in ESLint)
+- **Path aliases** for clean imports (`@/components`, `@/screens`, etc.)
+
+### Key Technologies
+
+- **React Native** - Mobile app framework
+- **Expo** - Development platform and tools
+- **TypeScript** - Type-safe JavaScript
+- **React Navigation** - Navigation library
+- **Supabase** - Backend-as-a-Service (database, auth, storage)
+- **React Hook Form** - Form management (to be implemented)
+- **React Query** - Server state management (to be implemented)
+
+## 🎨 Design System
+
+The app uses a comprehensive design system defined in `src/constants/theme.ts`:
+
+- **Colors**: Primary (Indigo), Secondary (Pink), Status colors
+- **Typography**: Font sizes, weights, and line heights
+- **Spacing**: Consistent spacing scale
+- **Shadows**: Elevation system
+- **Border Radius**: Consistent corner radius scale
+
+## 📱 Features Implementation Status
+
+### ✅ Completed Structure
+- [x] Project folder structure
+- [x] TypeScript configuration with path aliases
+- [x] Navigation setup (Stack, Tab, Auth navigators)
+- [x] Screen components (basic structure)
+- [x] Common UI components (Button, Input, Card, etc.)
+- [x] Service layer (Supabase integration)
+- [x] Custom hooks for state management
+- [x] Type definitions
+- [x] Theme and configuration
+- [x] Utility functions (validators, formatters)
+- [x] Barrel exports for clean imports
+
+### 🚧 To Be Implemented
+- [ ] Authentication flows (login, signup, onboarding)
+- [ ] Social feed with transformations
+- [ ] Service booking flow
+- [ ] Image editing capabilities
+- [ ] Real-time chat
+- [ ] Push notifications
+- [ ] Payment integration
+- [ ] Location services
+- [ ] Premium subscription features
+- [ ] Unit and integration tests
+
+## 🔧 Configuration
+
+### Environment Variables
+
+Key environment variables (see `.env.example`):
+
+```env
+# Supabase
+EXPO_PUBLIC_SUPABASE_URL=your-supabase-url
+EXPO_PUBLIC_SUPABASE_ANON_KEY=your-supabase-anon-key
+
+# APIs
+EXPO_PUBLIC_GOOGLE_MAPS_API_KEY=your-google-maps-key
+EXPO_PUBLIC_STRIPE_PUBLISHABLE_KEY=your-stripe-key
+
+# Feature Flags
+EXPO_PUBLIC_ENABLE_PREMIUM_FEATURES=true
+EXPO_PUBLIC_ENABLE_LIVE_CHAT=true
+```
+
+### App Configuration
+
+Main app settings in `app.json`:
+- Bundle identifiers for iOS/Android
+- Permissions for camera, location, etc.
+- Icon and splash screen configuration
+- Expo plugins configuration
+
+## 📚 Architecture Decisions
+
+### State Management
+- **Local State**: React hooks (`useState`, `useReducer`)
+- **Server State**: Custom hooks with Supabase integration
+- **Global State**: Context API for authentication
+
+### Navigation
+- **React Navigation v6** with TypeScript
+- **Stack Navigator** for screen hierarchies
+- **Tab Navigator** for main app sections
+- **Type-safe navigation** with parameter definitions
+
+### Data Layer
+- **Supabase** for backend services
+- **Custom service layer** for API abstraction
+- **Custom hooks** for data fetching and state management
+- **TypeScript** for type safety
+
+### UI/UX
+- **Component-based architecture** with reusable components
+- **Design system** with consistent theming
+- **Responsive design** for different screen sizes
+- **Accessibility** considerations (to be implemented)
+
+## 🤝 Contributing
+
+1. Fork the repository
+2. Create a feature branch (`git checkout -b feature/amazing-feature`)
+3. Commit your changes (`git commit -m 'Add some amazing feature'`)
+4. Push to the branch (`git push origin feature/amazing-feature`)
+5. Open a Pull Request
+
+## 📄 License
+
+This project is licensed under the MIT License - see the LICENSE file for details.
+
+## 🆘 Support
+
+For support and questions:
+- Create an issue in this repository
+- Contact: support@pawspace.com
+- Documentation: [Coming Soon]
 
 ---
 
-Built with ❤️ for PawSpace
+**PawSpace** - Connecting pet owners with amazing service providers! 🐕🐱✨
+=======
+## Environment Variables
+
+See `.env.example` for required environment variables:
+
+- `EXPO_PUBLIC_SUPABASE_URL`: Your Supabase project URL
+- `EXPO_PUBLIC_SUPABASE_ANON_KEY`: Your Supabase anonymous key
+- Other configuration variables
+
+## Scripts
+
+- `npm start`: Start the Expo development server
+- `npm run android`: Run on Android device/emulator
+- `npm run ios`: Run on iOS device/simulator
+- `npm run web`: Run in web browser
+- `npm run lint`: Run ESLint
+- `npm run type-check`: Run TypeScript type checking
+
+## TypeScript Configuration
+
+The project uses strict TypeScript configuration with path aliases:
+- `@/` maps to `src/`
+- `@/components` maps to `src/components`
+- And so on for other directories
+
+## Contributing
+
+1. Follow the existing code structure and naming conventions
+2. Use TypeScript for all new code
+3. Add proper type definitions
+4. Follow the component structure in existing files
+>>>>>>> origin/main
+>>>>>>> origin/main

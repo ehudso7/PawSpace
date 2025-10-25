@@ -1,320 +1,185 @@
 import React from 'react';
-import { Platform, StyleSheet } from 'react-native';
 import { createBottomTabNavigator } from '@react-navigation/bottom-tabs';
+<<<<<<< HEAD
 import { createNativeStackNavigator } from '@react-navigation/native-stack';
-import { useTheme } from 'react-native-paper';
-import Icon from 'react-native-vector-icons/MaterialCommunityIcons';
-import type { 
-  TabParamList, 
-  HomeStackParamList, 
-  BookStackParamList, 
-  CreateStackParamList, 
-  ProfileStackParamList 
-} from '../types/navigation';
+import { Ionicons } from '@expo/vector-icons';
+import { FeedScreen, TransformationDetailScreen } from '@/screens/home';
+import { ServiceListScreen, ProviderProfileScreen, BookingCalendarScreen, BookingConfirmScreen, MyBookingsScreen } from '@/screens/booking';
+import { ImageSelectorScreen, EditorScreen, PreviewScreen } from '@/screens/create';
+import { ProfileScreen, EditProfileScreen, SettingsScreen, SubscriptionScreen } from '@/screens/profile';
+import { TabParamList, HomeStackParamList, BookingStackParamList, CreateStackParamList, ProfileStackParamList } from '@/types/navigation';
+import { theme } from '@/constants/theme';
+=======
+<<<<<<< HEAD
+import { createNativeStackNavigator } from '@react-navigation/native-stack';
+import { TabParamList, HomeStackParamList, BookingStackParamList, CreateStackParamList, ProfileStackParamList } from '@/types/navigation';
+import FeedScreen from '@/screens/home/FeedScreen';
+import TransformationDetailScreen from '@/screens/home/TransformationDetailScreen';
+import ServiceListScreen from '@/screens/booking/ServiceListScreen';
+import ProviderProfileScreen from '@/screens/booking/ProviderProfileScreen';
+import BookingCalendarScreen from '@/screens/booking/BookingCalendarScreen';
+import BookingConfirmScreen from '@/screens/booking/BookingConfirmScreen';
+import MyBookingsScreen from '@/screens/booking/MyBookingsScreen';
+import ImageSelectorScreen from '@/screens/create/ImageSelectorScreen';
+import EditorScreen from '@/screens/create/EditorScreen';
+import PreviewScreen from '@/screens/create/PreviewScreen';
+import ProfileScreen from '@/screens/profile/ProfileScreen';
+import EditProfileScreen from '@/screens/profile/EditProfileScreen';
+import SettingsScreen from '@/screens/profile/SettingsScreen';
+import SubscriptionScreen from '@/screens/profile/SubscriptionScreen';
+>>>>>>> origin/main
 
-// Import screens
-import FeedScreen from '../screens/tabs/FeedScreen';
-import PostDetailScreen from '../screens/tabs/PostDetailScreen';
-import UserProfileScreen from '../screens/tabs/UserProfileScreen';
-import ServiceListScreen from '../screens/tabs/ServiceListScreen';
-import ServiceDetailScreen from '../screens/tabs/ServiceDetailScreen';
-import BookingScreen from '../screens/tabs/BookingScreen';
-import BookingConfirmationScreen from '../screens/tabs/BookingConfirmationScreen';
-import ImageSelectorScreen from '../screens/tabs/ImageSelectorScreen';
-import PostComposerScreen from '../screens/tabs/PostComposerScreen';
-import ProfileScreen from '../screens/tabs/ProfileScreen';
-import EditProfileScreen from '../screens/tabs/EditProfileScreen';
-import SettingsScreen from '../screens/tabs/SettingsScreen';
-import MyBookingsScreen from '../screens/tabs/MyBookingsScreen';
-import MyPetsScreen from '../screens/tabs/MyPetsScreen';
-
-// Create stack navigators for each tab
+const Tab = createBottomTabNavigator<TabParamList>();
 const HomeStack = createNativeStackNavigator<HomeStackParamList>();
-const BookStack = createNativeStackNavigator<BookStackParamList>();
+const BookingStack = createNativeStackNavigator<BookingStackParamList>();
 const CreateStack = createNativeStackNavigator<CreateStackParamList>();
 const ProfileStack = createNativeStackNavigator<ProfileStackParamList>();
-const Tab = createBottomTabNavigator<TabParamList>();
 
-// Home Stack Navigator
+<<<<<<< HEAD
+const HomeNavigator = () => (
+  <HomeStack.Navigator>
+    <HomeStack.Screen name="Feed" component={FeedScreen} options={{ headerShown: false }} />
+    <HomeStack.Screen name="TransformationDetail" component={TransformationDetailScreen} />
+  </HomeStack.Navigator>
+);
+
+const BookingNavigator = () => (
+  <BookingStack.Navigator>
+    <BookingStack.Screen name="ServiceList" component={ServiceListScreen} options={{ headerShown: false }} />
+    <BookingStack.Screen name="ProviderProfile" component={ProviderProfileScreen} />
+    <BookingStack.Screen name="BookingCalendar" component={BookingCalendarScreen} />
+    <BookingStack.Screen name="BookingConfirm" component={BookingConfirmScreen} />
+    <BookingStack.Screen name="MyBookings" component={MyBookingsScreen} />
+  </BookingStack.Navigator>
+);
+
+const CreateNavigator = () => (
+  <CreateStack.Navigator>
+    <CreateStack.Screen name="ImageSelector" component={ImageSelectorScreen} options={{ headerShown: false }} />
+    <CreateStack.Screen name="Editor" component={EditorScreen} />
+    <CreateStack.Screen name="Preview" component={PreviewScreen} />
+  </CreateStack.Navigator>
+);
+
+const ProfileNavigator = () => (
+  <ProfileStack.Navigator>
+    <ProfileStack.Screen name="Profile" component={ProfileScreen} options={{ headerShown: false }} />
+    <ProfileStack.Screen name="EditProfile" component={EditProfileScreen} />
+    <ProfileStack.Screen name="Settings" component={SettingsScreen} />
+    <ProfileStack.Screen name="Subscription" component={SubscriptionScreen} />
+  </ProfileStack.Navigator>
+);
+=======
 const HomeStackNavigator: React.FC = () => {
-  const theme = useTheme();
-  
   return (
-    <HomeStack.Navigator
-      screenOptions={{
-        headerStyle: {
-          backgroundColor: theme.colors.primary,
-        },
-        headerTintColor: '#fff',
-        headerTitleStyle: {
-          fontWeight: 'bold',
-        },
-      }}
-    >
-      <HomeStack.Screen 
-        name="Feed" 
-        component={FeedScreen}
-        options={{
-          title: 'PawSpace',
-          headerLargeTitle: Platform.OS === 'ios',
-        }}
-      />
-      <HomeStack.Screen 
-        name="PostDetail" 
-        component={PostDetailScreen}
-        options={{
-          title: 'Post',
-          headerBackTitle: 'Back',
-        }}
-      />
-      <HomeStack.Screen 
-        name="UserProfile" 
-        component={UserProfileScreen}
-        options={{
-          title: 'Profile',
-          headerBackTitle: 'Back',
-        }}
-      />
+    <HomeStack.Navigator>
+      <HomeStack.Screen name="Feed" component={FeedScreen} options={{ title: 'Feed' }} />
+      <HomeStack.Screen name="TransformationDetail" component={TransformationDetailScreen} options={{ title: 'Transformation' }} />
     </HomeStack.Navigator>
   );
 };
 
-// Book Stack Navigator
-const BookStackNavigator: React.FC = () => {
-  const theme = useTheme();
-  
+const BookingStackNavigator: React.FC = () => {
   return (
-    <BookStack.Navigator
-      screenOptions={{
-        headerStyle: {
-          backgroundColor: theme.colors.primary,
-        },
-        headerTintColor: '#fff',
-        headerTitleStyle: {
-          fontWeight: 'bold',
-        },
-      }}
-    >
-      <BookStack.Screen 
-        name="ServiceList" 
-        component={ServiceListScreen}
-        options={{
-          title: 'Services',
-          headerLargeTitle: Platform.OS === 'ios',
-        }}
-      />
-      <BookStack.Screen 
-        name="ServiceDetail" 
-        component={ServiceDetailScreen}
-        options={{
-          title: 'Service Details',
-          headerBackTitle: 'Back',
-        }}
-      />
-      <BookStack.Screen 
-        name="Booking" 
-        component={BookingScreen}
-        options={{
-          title: 'Book Service',
-          headerBackTitle: 'Back',
-        }}
-      />
-      <BookStack.Screen 
-        name="BookingConfirmation" 
-        component={BookingConfirmationScreen}
-        options={{
-          title: 'Booking Confirmed',
-          headerBackTitle: 'Back',
-          gestureEnabled: false,
-        }}
-      />
-    </BookStack.Navigator>
+    <BookingStack.Navigator>
+      <BookingStack.Screen name="ServiceList" component={ServiceListScreen} options={{ title: 'Services' }} />
+      <BookingStack.Screen name="ProviderProfile" component={ProviderProfileScreen} options={{ title: 'Provider' }} />
+      <BookingStack.Screen name="BookingCalendar" component={BookingCalendarScreen} options={{ title: 'Select Date' }} />
+      <BookingStack.Screen name="BookingConfirm" component={BookingConfirmScreen} options={{ title: 'Confirm Booking' }} />
+      <BookingStack.Screen name="MyBookings" component={MyBookingsScreen} options={{ title: 'My Bookings' }} />
+    </BookingStack.Navigator>
   );
 };
 
-// Create Stack Navigator
 const CreateStackNavigator: React.FC = () => {
-  const theme = useTheme();
-  
   return (
-    <CreateStack.Navigator
-      screenOptions={{
-        headerStyle: {
-          backgroundColor: theme.colors.primary,
-        },
-        headerTintColor: '#fff',
-        headerTitleStyle: {
-          fontWeight: 'bold',
-        },
-      }}
-    >
-      <CreateStack.Screen 
-        name="ImageSelector" 
-        component={ImageSelectorScreen}
-        options={{
-          title: 'Create Post',
-          headerLargeTitle: Platform.OS === 'ios',
-        }}
-      />
-      <CreateStack.Screen 
-        name="PostComposer" 
-        component={PostComposerScreen}
-        options={{
-          title: 'New Post',
-          headerBackTitle: 'Back',
-        }}
-      />
+    <CreateStack.Navigator>
+      <CreateStack.Screen name="ImageSelector" component={ImageSelectorScreen} options={{ title: 'Select Image' }} />
+      <CreateStack.Screen name="Editor" component={EditorScreen} options={{ title: 'Edit' }} />
+      <CreateStack.Screen name="Preview" component={PreviewScreen} options={{ title: 'Preview' }} />
     </CreateStack.Navigator>
   );
 };
 
-// Profile Stack Navigator
 const ProfileStackNavigator: React.FC = () => {
-  const theme = useTheme();
-  
   return (
-    <ProfileStack.Navigator
-      screenOptions={{
-        headerStyle: {
-          backgroundColor: theme.colors.primary,
-        },
-        headerTintColor: '#fff',
-        headerTitleStyle: {
-          fontWeight: 'bold',
-        },
-      }}
-    >
-      <ProfileStack.Screen 
-        name="ProfileMain" 
-        component={ProfileScreen}
-        options={{
-          title: 'My Profile',
-          headerLargeTitle: Platform.OS === 'ios',
-        }}
-      />
-      <ProfileStack.Screen 
-        name="EditProfile" 
-        component={EditProfileScreen}
-        options={{
-          title: 'Edit Profile',
-          headerBackTitle: 'Back',
-        }}
-      />
-      <ProfileStack.Screen 
-        name="Settings" 
-        component={SettingsScreen}
-        options={{
-          title: 'Settings',
-          headerBackTitle: 'Back',
-        }}
-      />
-      <ProfileStack.Screen 
-        name="MyBookings" 
-        component={MyBookingsScreen}
-        options={{
-          title: 'My Bookings',
-          headerBackTitle: 'Back',
-        }}
-      />
-      <ProfileStack.Screen 
-        name="MyPets" 
-        component={MyPetsScreen}
-        options={{
-          title: 'My Pets',
-          headerBackTitle: 'Back',
-        }}
-      />
+    <ProfileStack.Navigator>
+      <ProfileStack.Screen name="Profile" component={ProfileScreen} options={{ title: 'Profile' }} />
+      <ProfileStack.Screen name="EditProfile" component={EditProfileScreen} options={{ title: 'Edit Profile' }} />
+      <ProfileStack.Screen name="Settings" component={SettingsScreen} options={{ title: 'Settings' }} />
+      <ProfileStack.Screen name="Subscription" component={SubscriptionScreen} options={{ title: 'Subscription' }} />
     </ProfileStack.Navigator>
   );
 };
+>>>>>>> origin/main
 
-// Main Tab Navigator
 const TabNavigator: React.FC = () => {
-  const theme = useTheme();
-  
   return (
     <Tab.Navigator
+<<<<<<< HEAD
       screenOptions={({ route }) => ({
-        headerShown: false,
         tabBarIcon: ({ focused, color, size }) => {
-          let iconName: string;
+          let iconName: keyof typeof Ionicons.glyphMap;
 
-          switch (route.name) {
-            case 'HomeTab':
-              iconName = focused ? 'home' : 'home-outline';
-              break;
-            case 'BookTab':
-              iconName = focused ? 'calendar' : 'calendar-outline';
-              break;
-            case 'CreateTab':
-              iconName = focused ? 'plus-circle' : 'plus-circle-outline';
-              break;
-            case 'ProfileTab':
-              iconName = focused ? 'account' : 'account-outline';
-              break;
-            default:
-              iconName = 'help-circle-outline';
+          if (route.name === 'Home') {
+            iconName = focused ? 'home' : 'home-outline';
+          } else if (route.name === 'Booking') {
+            iconName = focused ? 'calendar' : 'calendar-outline';
+          } else if (route.name === 'Create') {
+            iconName = focused ? 'add-circle' : 'add-circle-outline';
+          } else if (route.name === 'Profile') {
+            iconName = focused ? 'person' : 'person-outline';
+          } else {
+            iconName = 'help-outline';
           }
 
-          return <Icon name={iconName} size={size} color={color} />;
+          return <Ionicons name={iconName} size={size} color={color} />;
         },
         tabBarActiveTintColor: theme.colors.primary,
-        tabBarInactiveTintColor: '#8E8E93',
-        tabBarStyle: {
-          backgroundColor: '#FFFFFF',
-          borderTopWidth: StyleSheet.hairlineWidth,
-          borderTopColor: '#E5E5EA',
-          paddingBottom: Platform.OS === 'ios' ? 20 : 5,
-          paddingTop: 5,
-          height: Platform.OS === 'ios' ? 85 : 60,
-          elevation: 8,
-          shadowColor: '#000',
-          shadowOffset: {
-            width: 0,
-            height: -2,
-          },
-          shadowOpacity: 0.1,
-          shadowRadius: 3,
-        },
-        tabBarLabelStyle: {
-          fontSize: 12,
-          fontWeight: '600',
-        },
-        tabBarItemStyle: {
-          paddingVertical: 5,
-        },
+        tabBarInactiveTintColor: theme.colors.gray,
+        headerShown: false,
       })}
     >
-      <Tab.Screen 
-        name="HomeTab" 
-        component={HomeStackNavigator}
-        options={{
-          tabBarLabel: 'Home',
-        }}
-      />
-      <Tab.Screen 
-        name="BookTab" 
-        component={BookStackNavigator}
-        options={{
-          tabBarLabel: 'Book',
-        }}
-      />
-      <Tab.Screen 
-        name="CreateTab" 
-        component={CreateStackNavigator}
-        options={{
-          tabBarLabel: 'Create',
-        }}
-      />
-      <Tab.Screen 
-        name="ProfileTab" 
-        component={ProfileStackNavigator}
-        options={{
-          tabBarLabel: 'Profile',
-        }}
-      />
+      <Tab.Screen name="Home" component={HomeNavigator} />
+      <Tab.Screen name="Booking" component={BookingNavigator} />
+      <Tab.Screen name="Create" component={CreateNavigator} />
+      <Tab.Screen name="Profile" component={ProfileNavigator} />
+=======
+      screenOptions={{
+        headerShown: false,
+      }}
+    >
+      <Tab.Screen name="HomeTab" component={HomeStackNavigator} options={{ title: 'Home' }} />
+      <Tab.Screen name="BookingTab" component={BookingStackNavigator} options={{ title: 'Book' }} />
+      <Tab.Screen name="CreateTab" component={CreateStackNavigator} options={{ title: 'Create' }} />
+      <Tab.Screen name="ProfileTab" component={ProfileStackNavigator} options={{ title: 'Profile' }} />
+>>>>>>> origin/main
     </Tab.Navigator>
   );
 };
 
+<<<<<<< HEAD
 export default TabNavigator;
+=======
+export default TabNavigator;
+=======
+import { TabParamList } from '@/types/navigation';
+import FeedScreen from '@/screens/home/FeedScreen';
+import ServiceListScreen from '@/screens/booking/ServiceListScreen';
+import MyBookingsScreen from '@/screens/booking/MyBookingsScreen';
+import ProfileScreen from '@/screens/profile/ProfileScreen';
+
+const Tab = createBottomTabNavigator<TabParamList>();
+
+export const TabNavigator: React.FC = () => {
+  return (
+    <Tab.Navigator screenOptions={{ headerShown: false }}>
+      <Tab.Screen name="Feed" component={FeedScreen} />
+      <Tab.Screen name="Services" component={ServiceListScreen} />
+      <Tab.Screen name="Bookings" component={MyBookingsScreen} />
+      <Tab.Screen name="Profile" component={ProfileScreen} />
+    </Tab.Navigator>
+  );
+};
+>>>>>>> origin/main
+>>>>>>> origin/main

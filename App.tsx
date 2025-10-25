@@ -1,31 +1,38 @@
+<<<<<<< HEAD
 import React from 'react';
-import { StatusBar } from 'react-native';
-import { Provider as PaperProvider, MD3LightTheme } from 'react-native-paper';
-import AppNavigator from './src/navigation/AppNavigator';
+import { StatusBar } from 'expo-status-bar';
+import { GestureHandlerRootView } from 'react-native-gesture-handler';
+=======
+<<<<<<< HEAD
+import { registerRootComponent } from 'expo';
+import { AppNavigator } from './src/navigation';
 
-// Customize theme colors
-const theme = {
-  ...MD3LightTheme,
-  colors: {
-    ...MD3LightTheme.colors,
-    primary: '#6200EE',
-    secondary: '#03DAC6',
-    error: '#B00020',
-    background: '#FFFFFF',
-    surface: '#FFFFFF',
-    onPrimary: '#FFFFFF',
-    onSecondary: '#000000',
-    onBackground: '#000000',
-    onSurface: '#000000',
-    onError: '#FFFFFF',
-  },
-};
+// Register the main component
+registerRootComponent(AppNavigator);
+=======
+import React from 'react';
+import { StatusBar } from 'expo-status-bar';
+>>>>>>> origin/main
+import { SafeAreaProvider } from 'react-native-safe-area-context';
+import { AppNavigator } from '@/navigation';
 
 export default function App() {
   return (
-    <PaperProvider theme={theme}>
-      <StatusBar barStyle="dark-content" backgroundColor="#FFFFFF" />
-      <AppNavigator />
-    </PaperProvider>
+<<<<<<< HEAD
+    <GestureHandlerRootView style={{ flex: 1 }}>
+      <SafeAreaProvider>
+        <AppNavigator />
+        <StatusBar style="auto" />
+      </SafeAreaProvider>
+    </GestureHandlerRootView>
   );
 }
+=======
+    <SafeAreaProvider>
+      <StatusBar style="auto" />
+      <AppNavigator />
+    </SafeAreaProvider>
+  );
+}
+>>>>>>> origin/main
+>>>>>>> origin/main
