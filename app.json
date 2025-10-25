@@ -5,17 +5,30 @@
     "version": "1.0.0",
     "orientation": "portrait",
     "icon": "./assets/icon.png",
+<<<<<<< HEAD
     "userInterfaceStyle": "automatic",
     "splash": {
       "image": "./assets/splash.png",
       "resizeMode": "contain",
       "backgroundColor": "#6366F1"
+=======
+<<<<<<< HEAD
+    "userInterfaceStyle": "automatic",
+=======
+    "userInterfaceStyle": "light",
+>>>>>>> origin/main
+    "splash": {
+      "image": "./assets/splash.png",
+      "resizeMode": "contain",
+      "backgroundColor": "#ffffff"
+>>>>>>> origin/main
     },
     "assetBundlePatterns": [
       "**/*"
     ],
     "ios": {
       "supportsTablet": true,
+<<<<<<< HEAD
       "bundleIdentifier": "com.pawspace.app",
       "buildNumber": "1",
       "infoPlist": {
@@ -27,10 +40,14 @@
       "config": {
         "usesNonExemptEncryption": false
       }
+=======
+      "bundleIdentifier": "com.pawspace.app"
+>>>>>>> origin/main
     },
     "android": {
       "adaptiveIcon": {
         "foregroundImage": "./assets/adaptive-icon.png",
+<<<<<<< HEAD
         "backgroundColor": "#6366F1"
       },
       "package": "com.pawspace.app",
@@ -47,10 +64,23 @@
       ]
     },
     "web": {
+=======
+<<<<<<< HEAD
+        "backgroundColor": "#ffffff"
+=======
+        "backgroundColor": "#FFFFFF"
+>>>>>>> origin/main
+      },
+      "package": "com.pawspace.app"
+    },
+    "web": {
+<<<<<<< HEAD
+>>>>>>> origin/main
       "favicon": "./assets/favicon.png",
       "bundler": "metro"
     },
     "plugins": [
+<<<<<<< HEAD
       "expo-router",
       [
         "expo-camera",
@@ -93,3 +123,28 @@
     "owner": "your-expo-username"
   }
 }
+=======
+    ],
+    "scheme": "pawspace",
+    "extra": {
+      "eas": {
+        "projectId": "your-project-id"
+      }
+    }
+  }
+}
+=======
+      "favicon": "./assets/favicon.png"
+    },
+    "plugins": [
+      "expo-image-picker"
+    ],
+    "extra": {
+      "eas": {
+        "projectId": "your-project-id-here"
+      }
+    }
+  }
+}
+>>>>>>> origin/main
+>>>>>>> origin/main

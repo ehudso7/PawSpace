@@ -1,3 +1,4 @@
+<<<<<<< HEAD
 import { NavigatorScreenParams } from '@react-navigation/native';
 
 // Root Stack Navigator
@@ -7,12 +8,25 @@ export type RootStackParamList = {
 };
 
 // Auth Stack Navigator
+=======
+<<<<<<< HEAD
+// Navigation types
+export type RootStackParamList = {
+  Auth: undefined;
+  Main: undefined;
+};
+=======
+import { NavigatorScreenParams } from '@react-navigation/native';
+>>>>>>> origin/main
+
+>>>>>>> origin/main
 export type AuthStackParamList = {
   Onboarding: undefined;
   Login: undefined;
   Signup: undefined;
 };
 
+<<<<<<< HEAD
 // Tab Navigator
 export type TabParamList = {
   Home: NavigatorScreenParams<HomeStackParamList>;
@@ -70,10 +84,65 @@ export type CreateStackParamList = {
 // Profile Stack Navigator
 export type ProfileStackParamList = {
   Profile: undefined;
+=======
+export type TabParamList = {
+<<<<<<< HEAD
+  HomeTab: undefined;
+  BookingTab: undefined;
+  CreateTab: undefined;
+  ProfileTab: undefined;
+};
+
+export type HomeStackParamList = {
+  Feed: undefined;
+  TransformationDetail: { id: string };
+};
+
+export type BookingStackParamList = {
+  ServiceList: undefined;
+  ProviderProfile: { providerId: string };
+  BookingCalendar: { serviceId: string; providerId: string };
+  BookingConfirm: { bookingData: any };
+  MyBookings: undefined;
+};
+
+export type CreateStackParamList = {
+  ImageSelector: undefined;
+  Editor: { imageUri: string };
+  Preview: { beforeImage: string; afterImage: string };
+};
+
+export type ProfileStackParamList = {
+  Profile: undefined;
+=======
+  Feed: undefined;
+  Services: undefined;
+  Bookings: undefined;
+  Profile: undefined;
+};
+
+export type RootStackParamList = {
+  Auth: NavigatorScreenParams<AuthStackParamList>;
+  Main: NavigatorScreenParams<TabParamList>;
+  TransformationDetail: { transformationId: string };
+  ProviderProfile: { providerId: string };
+  BookingCalendar: { serviceId: string; providerId: string };
+  BookingConfirm: { 
+    serviceId: string; 
+    providerId: string; 
+    selectedDate: string; 
+    selectedTime: string; 
+  };
+  ImageSelector: undefined;
+  Editor: { images: string[] };
+  Preview: { transformationId: string };
+>>>>>>> origin/main
+>>>>>>> origin/main
   EditProfile: undefined;
   Settings: undefined;
   Subscription: undefined;
 };
+<<<<<<< HEAD
 
 // Screen Props Types
 export type ScreenProps<T extends keyof any, P extends keyof any> = {
@@ -108,3 +177,14 @@ export type ScreenProps<T extends keyof any, P extends keyof any> = {
       : never;
   };
 };
+=======
+<<<<<<< HEAD
+=======
+
+declare global {
+  namespace ReactNavigation {
+    interface RootParamList extends RootStackParamList {}
+  }
+}
+>>>>>>> origin/main
+>>>>>>> origin/main
