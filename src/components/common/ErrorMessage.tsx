@@ -3,6 +3,7 @@ import { View, Text, StyleSheet } from 'react-native';
 
 interface ErrorMessageProps {
   message: string;
+<<<<<<< HEAD
   type?: 'error' | 'warning' | 'info';
 }
 
@@ -10,12 +11,27 @@ const ErrorMessage: React.FC<ErrorMessageProps> = ({ message, type = 'error' }) 
   return (
     <View style={[styles.container, styles[type]]}>
       <Text style={styles.message}>{message}</Text>
+=======
+  onRetry?: () => void;
+}
+
+const ErrorMessage: React.FC<ErrorMessageProps> = ({ message, onRetry }) => {
+  return (
+    <View style={styles.container}>
+      <Text style={styles.message}>{message}</Text>
+      {onRetry && (
+        <Text style={styles.retryText} onPress={onRetry}>
+          Tap to retry
+        </Text>
+      )}
+>>>>>>> origin/main
     </View>
   );
 };
 
 const styles = StyleSheet.create({
   container: {
+<<<<<<< HEAD
     padding: 12,
     borderRadius: 8,
     marginVertical: 8,
@@ -42,3 +58,24 @@ const styles = StyleSheet.create({
 });
 
 export default ErrorMessage;
+=======
+    flex: 1,
+    justifyContent: 'center',
+    alignItems: 'center',
+    padding: 20,
+  },
+  message: {
+    fontSize: 16,
+    color: '#FF3B30',
+    textAlign: 'center',
+    marginBottom: 12,
+  },
+  retryText: {
+    fontSize: 16,
+    color: '#007AFF',
+    textDecorationLine: 'underline',
+  },
+});
+
+export default ErrorMessage;
+>>>>>>> origin/main

@@ -21,7 +21,10 @@ DerivedData
 *.ipa
 *.xcuserstate
 project.xcworkspace
+<<<<<<< HEAD
 ios/.xcode.env.local
+=======
+>>>>>>> origin/main
 
 # Android/IntelliJ
 #
@@ -41,6 +44,15 @@ node_modules/
 npm-debug.log
 yarn-error.log
 
+<<<<<<< HEAD
+=======
+# BUCK
+buck-out/
+\.buckd/
+*.keystore
+!debug.keystore
+
+>>>>>>> origin/main
 # fastlane
 #
 # It is recommended to not store the screenshots in the git repo. Instead, use fastlane to re-generate the
@@ -48,10 +60,17 @@ yarn-error.log
 # For more information about the recommended setup visit:
 # https://docs.fastlane.tools/best-practices/source-control/
 
+<<<<<<< HEAD
 **/fastlane/report.xml
 **/fastlane/Preview.html
 **/fastlane/screenshots
 **/fastlane/test_output
+=======
+*/fastlane/report.xml
+*/fastlane/Preview.html
+*/fastlane/screenshots
+*/fastlane/test_output
+>>>>>>> origin/main
 
 # Bundle artifacts
 *.jsbundle
@@ -63,6 +82,7 @@ yarn-error.log
 .expo/
 dist/
 web-build/
+<<<<<<< HEAD
 expo-env.d.ts
 
 # Environment variables
@@ -80,3 +100,34 @@ expo-env.d.ts
 
 # TypeScript
 *.tsbuildinfo
+=======
+
+# Native
+*.orig.*
+*.jks
+*.p8
+*.p12
+*.key
+*.mobileprovision
+
+# Metro
+.metro-health-check*
+
+# debug
+npm-debug.*
+yarn-debug.*
+yarn-error.*
+
+# macOS
+.DS_Store
+*.pem
+
+# local env files
+.env*.local
+
+# typescript
+*.tsbuildinfo
+
+# Temporary files created by Metro to check the health of the file watcher
+.metro-health-check*
+>>>>>>> origin/main

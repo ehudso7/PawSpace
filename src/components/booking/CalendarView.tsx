@@ -1,3 +1,4 @@
+<<<<<<< HEAD
 import React, { useState } from 'react';
 import { View, Text, StyleSheet, TouchableOpacity } from 'react-native';
 
@@ -15,6 +16,26 @@ const CalendarView: React.FC<CalendarViewProps> = ({ selectedDate, onDateSelect 
       <View style={styles.calendar}>
         <Text style={styles.placeholder}>Calendar component placeholder</Text>
       </View>
+=======
+import React from 'react';
+import { View, Text, StyleSheet } from 'react-native';
+
+interface CalendarViewProps {
+  selectedDate?: Date;
+  onDateSelect: (date: Date) => void;
+  availableDates: Date[];
+}
+
+const CalendarView: React.FC<CalendarViewProps> = ({
+  selectedDate,
+  onDateSelect,
+  availableDates,
+}) => {
+  return (
+    <View style={styles.container}>
+      <Text style={styles.title}>Select Date</Text>
+      {/* Calendar implementation would go here */}
+>>>>>>> origin/main
     </View>
   );
 };
@@ -25,6 +46,7 @@ const styles = StyleSheet.create({
   },
   title: {
     fontSize: 18,
+<<<<<<< HEAD
     fontWeight: '600',
     marginBottom: 16,
     color: '#333',
@@ -44,3 +66,11 @@ const styles = StyleSheet.create({
 });
 
 export default CalendarView;
+=======
+    fontWeight: 'bold',
+    marginBottom: 16,
+  },
+});
+
+export default CalendarView;
+>>>>>>> origin/main

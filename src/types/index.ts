@@ -1,3 +1,4 @@
+<<<<<<< HEAD
 // Re-export all types
 export * from './navigation';
 export * from './database';
@@ -53,3 +54,7 @@ export interface TimeSlot {
   time: string;
   available: boolean;
 }
+=======
+export * from './database';
+export * from './navigation';
+>>>>>>> origin/main

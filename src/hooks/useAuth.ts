@@ -1,4 +1,5 @@
 import { useState, useEffect } from 'react';
+<<<<<<< HEAD
 import { User } from '@supabase/supabase-js';
 import { supabase, authService } from '@/services';
 import type { AuthCredentials, SignupData } from '@/services/auth';
@@ -45,11 +46,44 @@ export const useAuth = () => {
       const error = err as Error;
       setError(error);
       return { user: null, error };
+=======
+import { authService, AuthUser } from '@/services/auth';
+
+export const useAuth = () => {
+  const [user, setUser] = useState<AuthUser | null>(null);
+  const [loading, setLoading] = useState(true);
+
+  useEffect(() => {
+    // Get initial user
+    authService.getCurrentUser().then((user) => {
+      setUser(user);
+      setLoading(false);
+    });
+
+    // Listen for auth changes
+    const { data: { subscription } } = authService.onAuthStateChange((user) => {
+      setUser(user);
+      setLoading(false);
+    });
+
+    return () => subscription.unsubscribe();
+  }, []);
+
+  const signIn = async (email: string, password: string) => {
+    setLoading(true);
+    try {
+      const { data, error } = await authService.signIn({ email, password });
+      if (error) throw error;
+      return { data, error: null };
+    } catch (error) {
+      return { data: null, error };
+>>>>>>> origin/main
     } finally {
       setLoading(false);
     }
   };
 
+<<<<<<< HEAD
   const signUp = async (signupData: SignupData) => {
     setLoading(true);
     setError(null);
@@ -62,6 +96,16 @@ export const useAuth = () => {
       const error = err as Error;
       setError(error);
       return { user: null, error };
+=======
+  const signUp = async (email: string, password: string, fullName: string) => {
+    setLoading(true);
+    try {
+      const { data, error } = await authService.signUp({ email, password, fullName });
+      if (error) throw error;
+      return { data, error: null };
+    } catch (error) {
+      return { data: null, error };
+>>>>>>> origin/main
     } finally {
       setLoading(false);
     }
@@ -69,6 +113,7 @@ export const useAuth = () => {
 
   const signOut = async () => {
     setLoading(true);
+<<<<<<< HEAD
     setError(null);
     try {
       const { error: signOutError } = await authService.signOut();
@@ -78,6 +123,13 @@ export const useAuth = () => {
     } catch (err) {
       const error = err as Error;
       setError(error);
+=======
+    try {
+      const { error } = await authService.signOut();
+      if (error) throw error;
+      return { error: null };
+    } catch (error) {
+>>>>>>> origin/main
       return { error };
     } finally {
       setLoading(false);
@@ -87,6 +139,7 @@ export const useAuth = () => {
   return {
     user,
     loading,
+<<<<<<< HEAD
     error,
     signIn,
     signUp,
@@ -95,3 +148,11 @@ export const useAuth = () => {
 };
 
 export default useAuth;
+=======
+    signIn,
+    signUp,
+    signOut,
+    isAuthenticated: !!user,
+  };
+};
+>>>>>>> origin/main

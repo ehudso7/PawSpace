@@ -1,4 +1,5 @@
 import { createClient } from '@supabase/supabase-js';
+<<<<<<< HEAD
 import { Database } from '@/types/database';
 
 const supabaseUrl = process.env.EXPO_PUBLIC_SUPABASE_URL || '';
@@ -19,3 +20,15 @@ export const supabase = createClient<Database>(supabaseUrl, supabaseAnonKey, {
 });
 
 export default supabase;
+=======
+import Constants from 'expo-constants';
+
+const supabaseUrl = Constants.expoConfig?.extra?.supabaseUrl || process.env.EXPO_PUBLIC_SUPABASE_URL;
+const supabaseAnonKey = Constants.expoConfig?.extra?.supabaseAnonKey || process.env.EXPO_PUBLIC_SUPABASE_ANON_KEY;
+
+if (!supabaseUrl || !supabaseAnonKey) {
+  throw new Error('Missing Supabase environment variables');
+}
+
+export const supabase = createClient(supabaseUrl, supabaseAnonKey);
+>>>>>>> origin/main
