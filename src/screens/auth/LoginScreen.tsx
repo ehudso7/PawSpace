@@ -1,47 +1,61 @@
 import React from 'react';
+<<<<<<< HEAD
 import { View, StyleSheet } from 'react-native';
-import { Button, Text, useTheme } from 'react-native-paper';
-import type { AuthStackScreenProps } from '../../types/navigation';
+import { NativeStackScreenProps } from '@react-navigation/native-stack';
+import { AuthStackParamList } from '@/types/navigation';
 
-export default function LoginScreen({ navigation }: AuthStackScreenProps<'Login'>) {
-  const theme = useTheme();
+type Props = NativeStackScreenProps<AuthStackParamList, 'Login'>;
 
+const LoginScreen: React.FC<Props> = ({ navigation }) => {
   return (
     <View style={styles.container}>
-      <Text variant="headlineMedium" style={styles.title}>Welcome to PawSpace</Text>
-      <Text style={styles.subtitle}>Login to continue</Text>
+      {/* TODO: Implement login form */}
+=======
+import { View, Text, StyleSheet } from 'react-native';
 
-      <Button
-        mode="contained"
-        onPress={() => navigation.replace('Onboarding')}
-        style={styles.primaryButton}
-      >
-        Continue
-      </Button>
-
-      <Button onPress={() => navigation.navigate('Signup')}>
-        Create an account
-      </Button>
+const LoginScreen: React.FC = () => {
+  return (
+    <View style={styles.container}>
+<<<<<<< HEAD
+      <Text style={styles.title}>Login Screen</Text>
+=======
+      <Text style={styles.title}>Login</Text>
+>>>>>>> origin/main
+>>>>>>> origin/main
     </View>
   );
-}
+};
 
 const styles = StyleSheet.create({
   container: {
     flex: 1,
-    alignItems: 'center',
-    justifyContent: 'center',
-    padding: 24,
-  },
-  title: {
-    marginBottom: 8,
-  },
-  subtitle: {
-    marginBottom: 24,
-    opacity: 0.7,
-  },
-  primaryButton: {
-    width: '100%',
-    marginBottom: 8,
+<<<<<<< HEAD
+    backgroundColor: '#fff',
   },
 });
+
+export default LoginScreen;
+=======
+    justifyContent: 'center',
+    alignItems: 'center',
+<<<<<<< HEAD
+=======
+    padding: 20,
+>>>>>>> origin/main
+  },
+  title: {
+    fontSize: 24,
+    fontWeight: 'bold',
+<<<<<<< HEAD
+  },
+});
+
+export default LoginScreen;
+=======
+    marginBottom: 20,
+  },
+});
+
+export default LoginScreen;
+>>>>>>> origin/main
+>>>>>>> origin/main

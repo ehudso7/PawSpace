@@ -1,77 +1,190 @@
-import type { NavigatorScreenParams, RouteProp, CompositeScreenProps } from '@react-navigation/native';
-import type { NativeStackScreenProps } from '@react-navigation/native-stack';
-import type { BottomTabScreenProps } from '@react-navigation/bottom-tabs';
+<<<<<<< HEAD
+import { NavigatorScreenParams } from '@react-navigation/native';
 
-// Auth flow
-export type AuthStackParamList = {
-  Login: undefined;
-  Signup: undefined;
-  Onboarding: undefined;
-};
-
-// Home tab stack
-export type HomeStackParamList = {
-  Feed: undefined;
-  PostDetail: { postId: string };
-};
-
-// Book tab stack
-export type BookStackParamList = {
-  ServiceList: undefined;
-  ServiceDetail: { serviceId: string };
-};
-
-// Create tab stack
-export type CreateStackParamList = {
-  ImageSelector: undefined;
-  CreatePreview: { imageUri?: string } | undefined;
-};
-
-// Profile tab stack
-export type ProfileStackParamList = {
-  Profile: undefined;
-  Settings: undefined;
-};
-
-// Bottom tabs
-export type TabParamList = {
-  HomeStack: NavigatorScreenParams<HomeStackParamList>;
-  BookStack: NavigatorScreenParams<BookStackParamList>;
-  CreateStack: NavigatorScreenParams<CreateStackParamList>;
-  ProfileStack: NavigatorScreenParams<ProfileStackParamList>;
-};
-
-// Optional root stack (useful if app uses a root container stack)
+// Root Stack Navigator
 export type RootStackParamList = {
   Auth: NavigatorScreenParams<AuthStackParamList>;
   Main: NavigatorScreenParams<TabParamList>;
 };
 
-// Screen prop helpers for strong typing
-export type RootStackScreenProps<Screen extends keyof RootStackParamList> =
-  NativeStackScreenProps<RootStackParamList, Screen>;
+// Auth Stack Navigator
+=======
+<<<<<<< HEAD
+// Navigation types
+export type RootStackParamList = {
+  Auth: undefined;
+  Main: undefined;
+};
+=======
+import { NavigatorScreenParams } from '@react-navigation/native';
+>>>>>>> origin/main
 
-export type AuthStackScreenProps<Screen extends keyof AuthStackParamList> =
-  NativeStackScreenProps<AuthStackParamList, Screen>;
+>>>>>>> origin/main
+export type AuthStackParamList = {
+  Onboarding: undefined;
+  Login: undefined;
+  Signup: undefined;
+};
 
-export type HomeStackScreenProps<Screen extends keyof HomeStackParamList> =
-  NativeStackScreenProps<HomeStackParamList, Screen>;
+<<<<<<< HEAD
+// Tab Navigator
+export type TabParamList = {
+  Home: NavigatorScreenParams<HomeStackParamList>;
+  Booking: NavigatorScreenParams<BookingStackParamList>;
+  Create: NavigatorScreenParams<CreateStackParamList>;
+  Profile: NavigatorScreenParams<ProfileStackParamList>;
+};
 
-export type BookStackScreenProps<Screen extends keyof BookStackParamList> =
-  NativeStackScreenProps<BookStackParamList, Screen>;
+// Home Stack Navigator
+export type HomeStackParamList = {
+  Feed: undefined;
+  TransformationDetail: {
+    transformationId: string;
+  };
+};
 
-export type CreateStackScreenProps<Screen extends keyof CreateStackParamList> =
-  NativeStackScreenProps<CreateStackParamList, Screen>;
+// Booking Stack Navigator
+export type BookingStackParamList = {
+  ServiceList: undefined;
+  ProviderProfile: {
+    providerId: string;
+  };
+  BookingCalendar: {
+    serviceId: string;
+    providerId: string;
+  };
+  BookingConfirm: {
+    bookingData: {
+      serviceId: string;
+      providerId: string;
+      date: string;
+      timeSlot: string;
+      totalAmount: number;
+    };
+  };
+  MyBookings: undefined;
+};
 
-export type ProfileStackScreenProps<Screen extends keyof ProfileStackParamList> =
-  NativeStackScreenProps<ProfileStackParamList, Screen>;
+// Create Stack Navigator
+export type CreateStackParamList = {
+  ImageSelector: undefined;
+  Editor: {
+    imageUri: string;
+  };
+  Preview: {
+    transformationData: {
+      imageUri: string;
+      beforeImageUri?: string;
+      caption: string;
+      tags: string[];
+    };
+  };
+};
 
-export type TabScreenProps<Screen extends keyof TabParamList> = CompositeScreenProps<
-  BottomTabScreenProps<TabParamList, Screen>,
-  RootStackScreenProps<'Main'>
->;
+// Profile Stack Navigator
+export type ProfileStackParamList = {
+  Profile: undefined;
+=======
+export type TabParamList = {
+<<<<<<< HEAD
+  HomeTab: undefined;
+  BookingTab: undefined;
+  CreateTab: undefined;
+  ProfileTab: undefined;
+};
 
-export type ScreenRouteProp<
-  TParamList,
-  TRouteName extends keyof TParamList
-> = RouteProp<TParamList, TRouteName>;
+export type HomeStackParamList = {
+  Feed: undefined;
+  TransformationDetail: { id: string };
+};
+
+export type BookingStackParamList = {
+  ServiceList: undefined;
+  ProviderProfile: { providerId: string };
+  BookingCalendar: { serviceId: string; providerId: string };
+  BookingConfirm: { bookingData: any };
+  MyBookings: undefined;
+};
+
+export type CreateStackParamList = {
+  ImageSelector: undefined;
+  Editor: { imageUri: string };
+  Preview: { beforeImage: string; afterImage: string };
+};
+
+export type ProfileStackParamList = {
+  Profile: undefined;
+=======
+  Feed: undefined;
+  Services: undefined;
+  Bookings: undefined;
+  Profile: undefined;
+};
+
+export type RootStackParamList = {
+  Auth: NavigatorScreenParams<AuthStackParamList>;
+  Main: NavigatorScreenParams<TabParamList>;
+  TransformationDetail: { transformationId: string };
+  ProviderProfile: { providerId: string };
+  BookingCalendar: { serviceId: string; providerId: string };
+  BookingConfirm: { 
+    serviceId: string; 
+    providerId: string; 
+    selectedDate: string; 
+    selectedTime: string; 
+  };
+  ImageSelector: undefined;
+  Editor: { images: string[] };
+  Preview: { transformationId: string };
+>>>>>>> origin/main
+>>>>>>> origin/main
+  EditProfile: undefined;
+  Settings: undefined;
+  Subscription: undefined;
+};
+<<<<<<< HEAD
+
+// Screen Props Types
+export type ScreenProps<T extends keyof any, P extends keyof any> = {
+  navigation: any;
+  route: {
+    params: T extends keyof RootStackParamList
+      ? RootStackParamList[T] extends NavigatorScreenParams<infer U>
+        ? P extends keyof U
+          ? U[P]
+          : never
+        : never
+      : T extends keyof AuthStackParamList
+      ? P extends keyof AuthStackParamList
+        ? AuthStackParamList[P]
+        : never
+      : T extends keyof HomeStackParamList
+      ? P extends keyof HomeStackParamList
+        ? HomeStackParamList[P]
+        : never
+      : T extends keyof BookingStackParamList
+      ? P extends keyof BookingStackParamList
+        ? BookingStackParamList[P]
+        : never
+      : T extends keyof CreateStackParamList
+      ? P extends keyof CreateStackParamList
+        ? CreateStackParamList[P]
+        : never
+      : T extends keyof ProfileStackParamList
+      ? P extends keyof ProfileStackParamList
+        ? ProfileStackParamList[P]
+        : never
+      : never;
+  };
+};
+=======
+<<<<<<< HEAD
+=======
+
+declare global {
+  namespace ReactNavigation {
+    interface RootParamList extends RootStackParamList {}
+  }
+}
+>>>>>>> origin/main
+>>>>>>> origin/main

@@ -1,50 +1,61 @@
 import React from 'react';
+<<<<<<< HEAD
 import { View, StyleSheet } from 'react-native';
-import { Button, Text } from 'react-native-paper';
-import type { AuthStackScreenProps } from '../../types/navigation';
-import { supabase } from '../../lib/supabase';
+import { NativeStackScreenProps } from '@react-navigation/native-stack';
+import { AuthStackParamList } from '@/types/navigation';
 
-export default function OnboardingScreen({ navigation }: AuthStackScreenProps<'Onboarding'>) {
-  const handleFinish = async () => {
-    // Placeholder: in a real app you might collect info and then sign in/up.
-    // Here we simply set a fake session by signing in anonymously if configured,
-    // or you can replace with your actual auth flow.
-    try {
-      // This example assumes you have some auth mechanism; for now navigate to main by popping stack.
-      navigation.reset({ index: 0, routes: [{ name: 'Login' }] });
-    } catch (error) {
-      // No-op: keep UX simple for scaffolding
-    }
-  };
+type Props = NativeStackScreenProps<AuthStackParamList, 'Onboarding'>;
 
+const OnboardingScreen: React.FC<Props> = ({ navigation }) => {
   return (
     <View style={styles.container}>
-      <Text variant="headlineMedium" style={styles.title}>You're all set</Text>
-      <Text style={styles.subtitle}>Let’s get you into the app</Text>
+      {/* TODO: Implement onboarding carousel */}
+=======
+import { View, Text, StyleSheet } from 'react-native';
 
-      <Button mode="contained" onPress={handleFinish} style={styles.primaryButton}>
-        Finish onboarding
-      </Button>
+const OnboardingScreen: React.FC = () => {
+  return (
+    <View style={styles.container}>
+<<<<<<< HEAD
+      <Text style={styles.title}>Onboarding Screen</Text>
+=======
+      <Text style={styles.title}>Welcome to PawSpace</Text>
+>>>>>>> origin/main
+>>>>>>> origin/main
     </View>
   );
-}
+};
 
 const styles = StyleSheet.create({
   container: {
     flex: 1,
-    alignItems: 'center',
-    justifyContent: 'center',
-    padding: 24,
-  },
-  title: {
-    marginBottom: 8,
-  },
-  subtitle: {
-    marginBottom: 24,
-    opacity: 0.7,
-  },
-  primaryButton: {
-    width: '100%',
-    marginBottom: 8,
+<<<<<<< HEAD
+    backgroundColor: '#fff',
   },
 });
+
+export default OnboardingScreen;
+=======
+    justifyContent: 'center',
+    alignItems: 'center',
+<<<<<<< HEAD
+=======
+    padding: 20,
+>>>>>>> origin/main
+  },
+  title: {
+    fontSize: 24,
+    fontWeight: 'bold',
+<<<<<<< HEAD
+  },
+});
+
+export default OnboardingScreen;
+=======
+    marginBottom: 20,
+  },
+});
+
+export default OnboardingScreen;
+>>>>>>> origin/main
+>>>>>>> origin/main
