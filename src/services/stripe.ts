@@ -1,4 +1,4 @@
-import { initStripe, presentPaymentSheet, useStripe } from '@stripe/stripe-react-native';
+import { initStripe, presentPaymentSheet as stripePresent, useStripe } from '@stripe/stripe-react-native';
 import { PaymentIntent, PaymentResult, BookingData } from '../types/booking';
 import { ErrorHandler } from '../utils/errorHandler';
 
@@ -58,7 +58,7 @@ export const presentPaymentSheet = async (
   paymentIntent: PaymentIntent
 ): Promise<PaymentResult> => {
   try {
-    const { error } = await presentPaymentSheet({
+    const { error } = await stripePresent({
       paymentIntentClientSecret: paymentIntent.client_secret,
       merchantDisplayName: 'PetCare App',
       returnURL: 'yourapp://stripe-redirect',
