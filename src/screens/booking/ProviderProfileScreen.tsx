@@ -1,12 +1,3 @@
-<<<<<<< HEAD
-import React from 'react';
-import { View, Text, StyleSheet } from 'react-native';
-
-const ProviderProfileScreen: React.FC = () => {
-  return (
-    <View style={styles.container}>
-      <Text style={styles.title}>Provider Profile</Text>
-=======
 import React, { useMemo, useRef, useState } from 'react';
 import { ActivityIndicator, Dimensions, FlatList, Image, ImageBackground, Linking, Pressable, ScrollView, Share, StyleSheet, Text, View } from 'react-native';
 import Animated, { Extrapolation, interpolate, useAnimatedRef, useAnimatedStyle, useScrollViewOffset } from 'react-native-reanimated';
@@ -256,26 +247,11 @@ export const ProviderProfileScreen: React.FC = () => {
           onSelectService={onSelectService}
         />
       )}
->>>>>>> pr-26-branch
     </View>
   );
 };
 
 const styles = StyleSheet.create({
-<<<<<<< HEAD
-  container: {
-    flex: 1,
-    padding: 20,
-  },
-  title: {
-    fontSize: 24,
-    fontWeight: 'bold',
-    marginBottom: 20,
-  },
-});
-
-export default ProviderProfileScreen;
-=======
   container: { flex: 1, backgroundColor: colors.background },
   header: { height: HEADER_MAX_HEIGHT, backgroundColor: colors.card },
   headerOverlay: { position: 'absolute', left: 0, right: 0, top: 0 },
@@ -348,4 +324,3 @@ export default ProviderProfileScreen;
 });
 
 export default ProviderProfileScreen;
->>>>>>> pr-26-branch

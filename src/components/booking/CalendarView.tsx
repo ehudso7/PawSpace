@@ -1,9 +1,12 @@
 import React, { useEffect, useMemo, useState } from 'react';
 import { ActivityIndicator, View } from 'react-native';
-import { Calendar, DateObject, MarkedDates } from 'react-native-calendars';
+import { Calendar } from 'react-native-calendars';
 import { getProviderAvailability } from '../../services/bookings';
 import { AvailabilitySlot } from '../../types/booking';
 import { colors } from '../../theme/colors';
+
+type DateObject = { year: number; month: number; day: number; timestamp: number; dateString: string };
+type MarkedDates = { [key: string]: any };
 
 interface CalendarViewProps {
   providerId: string;

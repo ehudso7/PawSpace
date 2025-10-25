@@ -1,16 +1,3 @@
-import React from 'react';
-import { View, Text, StyleSheet, FlatList } from 'react-native';
-
-const ServiceListScreen: React.FC = () => {
-  return (
-    <View style={styles.container}>
-      <Text style={styles.title}>Pet Services</Text>
-      <FlatList
-        data={[]}
-        renderItem={() => null}
-        keyExtractor={(item, index) => index.toString()}
-        contentContainerStyle={styles.list}
-      />
 import { View, FlatList, RefreshControl, StyleSheet } from 'react-native';
 import { Appbar, Chip, Searchbar, SegmentedButtons, Text, Button, Menu, IconButton } from 'react-native-paper';
 import { useInfiniteServices } from '../../hooks/useServices';
@@ -184,14 +171,6 @@ const styles = StyleSheet.create({
   list: {
     flexGrow: 1,
   },
-});
-
-export default ServiceListScreen;
-  container: { flex: 1, paddingHorizontal: 12 },
-  filtersRow: { marginBottom: 8 },
-  quickFilters: { flexDirection: 'row', alignItems: 'center', justifyContent: 'space-between', marginBottom: 8 },
-  empty: { padding: 24, alignItems: 'center' },
-  errorToast: { position: 'absolute', bottom: 24, left: 24, right: 24, backgroundColor: '#D32F2F', borderRadius: 8, flexDirection: 'row', alignItems: 'center', justifyContent: 'space-between', paddingHorizontal: 12, paddingVertical: 8 },
 });
 
 export default ServiceListScreen;
