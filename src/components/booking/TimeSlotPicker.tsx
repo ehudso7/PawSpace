@@ -1,263 +1,309 @@
-import React from 'react';
-<<<<<<< HEAD
-import { View, Text, TouchableOpacity, StyleSheet, FlatList } from 'react-native';
-import { theme } from '@/constants/theme';
-
-interface TimeSlot {
-  id: string;
-=======
-<<<<<<< HEAD
-import { View, Text, StyleSheet, TouchableOpacity, ScrollView } from 'react-native';
-
-interface TimeSlot {
->>>>>>> origin/main
-  time: string;
-  available: boolean;
-}
+import React, { useEffect, useState } from 'react';
+import {
+  View,
+  Text,
+  StyleSheet,
+  ScrollView,
+  TouchableOpacity,
+  ActivityIndicator,
+} from 'react-native';
+import { TimeSlot } from '../../types/booking.types';
+import { getTimeSlots } from '../../services/bookings.service';
 
 interface TimeSlotPickerProps {
-<<<<<<< HEAD
-  timeSlots: TimeSlot[];
-  selectedSlot?: string;
-  onSlotSelect: (slotId: string) => void;
+  providerId: string;
+  selectedDate: string;
+  serviceDuration: number;
+  selectedSlot?: TimeSlot;
+  onSlotSelect: (slot: TimeSlot) => void;
 }
 
-const TimeSlotPicker: React.FC<TimeSlotPickerProps> = ({
-  timeSlots,
+export const TimeSlotPicker: React.FC<TimeSlotPickerProps> = ({
+  providerId,
+  selectedDate,
+  serviceDuration,
   selectedSlot,
   onSlotSelect,
 }) => {
-  const renderTimeSlot = ({ item }: { item: TimeSlot }) => (
-    <TouchableOpacity
-      style={[
-        styles.timeSlot,
-        !item.available && styles.unavailable,
-        selectedSlot === item.id && styles.selected,
-      ]}
-      onPress={() => item.available && onSlotSelect(item.id)}
-      disabled={!item.available}
-    >
-      <Text
-        style={[
-          styles.timeText,
-          !item.available && styles.unavailableText,
-          selectedSlot === item.id && styles.selectedText,
-        ]}
-      >
-        {item.time}
-      </Text>
-    </TouchableOpacity>
-  );
+  const [slots, setSlots] = useState<TimeSlot[]>([]);
+  const [loading, setLoading] = useState(true);
+  const [error, setError] = useState<string | null>(null);
 
-  return (
-    <View style={styles.container}>
-      <Text style={styles.title}>Available Time Slots</Text>
-      <FlatList
-        data={timeSlots}
-        renderItem={renderTimeSlot}
-        keyExtractor={(item) => item.id}
-        numColumns={3}
-        contentContainerStyle={styles.grid}
-      />
-=======
-  slots: TimeSlot[];
-  selectedTime?: string;
-  onTimeSelect?: (time: string) => void;
-}
+  useEffect(() => {
+    loadTimeSlots();
+  }, [providerId, selectedDate, serviceDuration]);
 
-const TimeSlotPicker: React.FC<TimeSlotPickerProps> = ({ slots, selectedTime, onTimeSelect }) => {
-  return (
-    <View style={styles.container}>
-      <Text style={styles.title}>Select a Time</Text>
-      <ScrollView horizontal showsHorizontalScrollIndicator={false}>
+  const loadTimeSlots = async () => {
+    try {
+      setLoading(true);
+      setError(null);
+      const availableSlots = await getTimeSlots(providerId, selectedDate, serviceDuration);
+      setSlots(availableSlots);
+    } catch (err) {
+      console.error('Error loading time slots:', err);
+      setError('Failed to load available time slots');
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  const formatTime = (isoString: string): string => {
+    const date = new Date(isoString);
+    const hours = date.getHours();
+    const minutes = date.getMinutes();
+    const ampm = hours >= 12 ? 'PM' : 'AM';
+    const displayHours = hours % 12 || 12;
+    return `${displayHours}:${minutes.toString().padStart(2, '0')} ${ampm}`;
+  };
+
+  const groupSlotsByPeriod = () => {
+    const morning: TimeSlot[] = [];
+    const afternoon: TimeSlot[] = [];
+    const evening: TimeSlot[] = [];
+
+    slots.forEach((slot) => {
+      const hour = new Date(slot.start_time).getHours();
+      if (hour < 12) {
+        morning.push(slot);
+      } else if (hour < 17) {
+        afternoon.push(slot);
+      } else {
+        evening.push(slot);
+      }
+    });
+
+    return { morning, afternoon, evening };
+  };
+
+  const renderSlotGroup = (title: string, groupSlots: TimeSlot[]) => {
+    if (groupSlots.length === 0) return null;
+
+    return (
+      <View style={styles.slotGroup}>
+        <Text style={styles.groupTitle}>{title}</Text>
         <View style={styles.slotsContainer}>
-          {slots.map((slot, index) => (
-            <TouchableOpacity
-              key={index}
-              style={[
-                styles.slot,
-                !slot.available && styles.slotDisabled,
-                selectedTime === slot.time && styles.slotSelected,
-              ]}
-              onPress={() => slot.available && onTimeSelect?.(slot.time)}
-              disabled={!slot.available}
-            >
-              <Text
+          {groupSlots.map((slot, index) => {
+            const isSelected =
+              selectedSlot?.start_time === slot.start_time &&
+              selectedSlot?.end_time === slot.end_time;
+            const isDisabled = !slot.is_available;
+
+            return (
+              <TouchableOpacity
+                key={`${slot.start_time}-${index}`}
                 style={[
-                  styles.slotText,
-                  !slot.available && styles.slotTextDisabled,
-                  selectedTime === slot.time && styles.slotTextSelected,
+                  styles.slotButton,
+                  isSelected && styles.slotButtonSelected,
+                  isDisabled && styles.slotButtonDisabled,
                 ]}
+                onPress={() => !isDisabled && onSlotSelect(slot)}
+                disabled={isDisabled}
               >
-                {slot.time}
-              </Text>
-            </TouchableOpacity>
-          ))}
+                <Text
+                  style={[
+                    styles.slotText,
+                    isSelected && styles.slotTextSelected,
+                    isDisabled && styles.slotTextDisabled,
+                  ]}
+                >
+                  {formatTime(slot.start_time)}
+                </Text>
+              </TouchableOpacity>
+            );
+          })}
         </View>
-      </ScrollView>
-=======
-import { View, Text, StyleSheet, TouchableOpacity, FlatList } from 'react-native';
+      </View>
+    );
+  };
 
-interface TimeSlotPickerProps {
-  selectedTime?: string;
-  onTimeSelect: (time: string) => void;
-  availableSlots: string[];
-}
+  if (loading) {
+    return (
+      <View style={styles.loadingContainer}>
+        <ActivityIndicator size="large" color="#6200EE" />
+        <Text style={styles.loadingText}>Loading available times...</Text>
+      </View>
+    );
+  }
 
-const TimeSlotPicker: React.FC<TimeSlotPickerProps> = ({
-  selectedTime,
-  onTimeSelect,
-  availableSlots,
-}) => {
+  if (error) {
+    return (
+      <View style={styles.errorContainer}>
+        <Text style={styles.errorText}>{error}</Text>
+        <TouchableOpacity style={styles.retryButton} onPress={loadTimeSlots}>
+          <Text style={styles.retryButtonText}>Retry</Text>
+        </TouchableOpacity>
+      </View>
+    );
+  }
+
+  if (slots.length === 0) {
+    return (
+      <View style={styles.emptyContainer}>
+        <Text style={styles.emptyText}>No available time slots for this date</Text>
+        <Text style={styles.emptySubtext}>Please select another date</Text>
+      </View>
+    );
+  }
+
+  const { morning, afternoon, evening } = groupSlotsByPeriod();
+
   return (
-    <View style={styles.container}>
-      <Text style={styles.title}>Select Time</Text>
-      <FlatList
-        data={availableSlots}
-        renderItem={({ item }) => (
-          <TouchableOpacity
-            style={[
-              styles.slot,
-              selectedTime === item && styles.selectedSlot,
-            ]}
-            onPress={() => onTimeSelect(item)}
-          >
-            <Text
-              style={[
-                styles.slotText,
-                selectedTime === item && styles.selectedSlotText,
-              ]}
-            >
-              {item}
-            </Text>
-          </TouchableOpacity>
-        )}
-        keyExtractor={(item) => item}
-        numColumns={3}
-        contentContainerStyle={styles.list}
-      />
->>>>>>> origin/main
->>>>>>> origin/main
-    </View>
+    <ScrollView
+      style={styles.container}
+      contentContainerStyle={styles.contentContainer}
+      showsVerticalScrollIndicator={false}
+    >
+      <View style={styles.header}>
+        <Text style={styles.title}>Available Time Slots</Text>
+        <Text style={styles.subtitle}>
+          Select a time for your {serviceDuration}-minute appointment
+        </Text>
+      </View>
+
+      {renderSlotGroup('Morning', morning)}
+      {renderSlotGroup('Afternoon', afternoon)}
+      {renderSlotGroup('Evening', evening)}
+
+      <View style={styles.infoContainer}>
+        <Text style={styles.infoText}>
+          📅 All times are in your local timezone
+        </Text>
+        <Text style={styles.infoText}>
+          ⏱️ Service duration: {serviceDuration} minutes
+        </Text>
+      </View>
+    </ScrollView>
   );
 };
 
 const styles = StyleSheet.create({
   container: {
+    flex: 1,
+    backgroundColor: '#FFFFFF',
+  },
+  contentContainer: {
     padding: 16,
   },
+  header: {
+    marginBottom: 20,
+  },
   title: {
-    fontSize: 18,
-<<<<<<< HEAD
-    fontWeight: '600',
-    color: theme.colors.text,
-    marginBottom: 16,
+    fontSize: 20,
+    fontWeight: 'bold',
+    color: '#000000',
+    marginBottom: 4,
   },
-  grid: {
-    gap: 12,
-  },
-  timeSlot: {
-    flex: 1,
-    backgroundColor: theme.colors.background,
-    borderRadius: 8,
-    paddingVertical: 12,
-    paddingHorizontal: 8,
-    alignItems: 'center',
-    marginHorizontal: 4,
-    marginBottom: 8,
-    borderWidth: 1,
-    borderColor: theme.colors.border,
-  },
-  selected: {
-    backgroundColor: theme.colors.primary,
-    borderColor: theme.colors.primary,
-  },
-  unavailable: {
-    backgroundColor: theme.colors.disabled,
-    borderColor: theme.colors.disabled,
-  },
-  timeText: {
+  subtitle: {
     fontSize: 14,
-    fontWeight: '500',
-    color: theme.colors.text,
+    color: '#666666',
   },
-  selectedText: {
-    color: theme.colors.white,
+  slotGroup: {
+    marginBottom: 24,
   },
-  unavailableText: {
-    color: theme.colors.gray,
-  },
-});
-
-export default TimeSlotPicker;
-=======
-<<<<<<< HEAD
+  groupTitle: {
+    fontSize: 16,
     fontWeight: '600',
-    marginBottom: 16,
-    color: '#333',
+    color: '#000000',
+    marginBottom: 12,
+    textTransform: 'uppercase',
+    letterSpacing: 0.5,
   },
   slotsContainer: {
     flexDirection: 'row',
-    gap: 12,
+    flexWrap: 'wrap',
+    gap: 8,
   },
-  slot: {
+  slotButton: {
+    paddingHorizontal: 16,
     paddingVertical: 12,
-    paddingHorizontal: 20,
     borderRadius: 8,
     borderWidth: 1,
-    borderColor: '#DDD',
-    backgroundColor: '#FFF',
+    borderColor: '#E0E0E0',
+    backgroundColor: '#FFFFFF',
+    minWidth: 100,
+    alignItems: 'center',
   },
-  slotDisabled: {
+  slotButtonSelected: {
+    backgroundColor: '#6200EE',
+    borderColor: '#6200EE',
+  },
+  slotButtonDisabled: {
     backgroundColor: '#F5F5F5',
     borderColor: '#E0E0E0',
-  },
-  slotSelected: {
-    backgroundColor: '#007AFF',
-    borderColor: '#007AFF',
   },
   slotText: {
     fontSize: 14,
     fontWeight: '500',
-    color: '#333',
-  },
-  slotTextDisabled: {
-    color: '#999',
+    color: '#000000',
   },
   slotTextSelected: {
-    color: '#FFF',
-  },
-});
-
-export default TimeSlotPicker;
-=======
+    color: '#FFFFFF',
     fontWeight: 'bold',
+  },
+  slotTextDisabled: {
+    color: '#BDBDBD',
+    textDecorationLine: 'line-through',
+  },
+  loadingContainer: {
+    flex: 1,
+    justifyContent: 'center',
+    alignItems: 'center',
+    padding: 40,
+  },
+  loadingText: {
+    marginTop: 12,
+    fontSize: 14,
+    color: '#666666',
+  },
+  errorContainer: {
+    flex: 1,
+    justifyContent: 'center',
+    alignItems: 'center',
+    padding: 40,
+  },
+  errorText: {
+    fontSize: 16,
+    color: '#D32F2F',
+    textAlign: 'center',
     marginBottom: 16,
   },
-  list: {
-    paddingBottom: 16,
-  },
-  slot: {
-    flex: 1,
-    margin: 4,
-    padding: 12,
-    backgroundColor: '#F0F0F0',
+  retryButton: {
+    backgroundColor: '#6200EE',
+    paddingHorizontal: 24,
+    paddingVertical: 12,
     borderRadius: 8,
-    alignItems: 'center',
   },
-  selectedSlot: {
-    backgroundColor: '#007AFF',
-  },
-  slotText: {
+  retryButtonText: {
+    color: '#FFFFFF',
     fontSize: 14,
-    color: '#333',
-  },
-  selectedSlotText: {
-    color: '#FFF',
     fontWeight: 'bold',
   },
+  emptyContainer: {
+    flex: 1,
+    justifyContent: 'center',
+    alignItems: 'center',
+    padding: 40,
+  },
+  emptyText: {
+    fontSize: 16,
+    color: '#000000',
+    textAlign: 'center',
+    marginBottom: 8,
+  },
+  emptySubtext: {
+    fontSize: 14,
+    color: '#666666',
+    textAlign: 'center',
+  },
+  infoContainer: {
+    marginTop: 24,
+    padding: 16,
+    backgroundColor: '#F5F5F5',
+    borderRadius: 8,
+  },
+  infoText: {
+    fontSize: 12,
+    color: '#666666',
+    marginBottom: 4,
+  },
 });
-
-export default TimeSlotPicker;
->>>>>>> origin/main
->>>>>>> origin/main
