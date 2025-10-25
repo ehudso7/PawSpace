@@ -1,6 +1,11 @@
 import React from 'react';
+<<<<<<< HEAD
+import { View, Text, Image, StyleSheet, TouchableOpacity } from 'react-native';
+import { Card } from '@/components/common';
+=======
 import { View, Text, StyleSheet, Image, TouchableOpacity } from 'react-native';
 import Card from '@/components/common/Card';
+>>>>>>> origin/main
 
 interface ServiceCardProps {
   id: string;
@@ -9,11 +14,18 @@ interface ServiceCardProps {
   price: number;
   duration: number;
   image: string;
+<<<<<<< HEAD
+  onPress?: () => void;
+}
+
+const ServiceCard: React.FC<ServiceCardProps> = ({
+=======
   onPress: () => void;
 }
 
 const ServiceCard: React.FC<ServiceCardProps> = ({
   id,
+>>>>>>> origin/main
   name,
   description,
   price,
@@ -22,8 +34,13 @@ const ServiceCard: React.FC<ServiceCardProps> = ({
   onPress,
 }) => {
   return (
+<<<<<<< HEAD
+    <TouchableOpacity onPress={onPress}>
+      <Card style={styles.card}>
+=======
     <Card style={styles.card}>
       <TouchableOpacity onPress={onPress}>
+>>>>>>> origin/main
         <Image source={{ uri: image }} style={styles.image} />
         <View style={styles.content}>
           <Text style={styles.name}>{name}</Text>
@@ -33,8 +50,13 @@ const ServiceCard: React.FC<ServiceCardProps> = ({
             <Text style={styles.duration}>{duration} min</Text>
           </View>
         </View>
+<<<<<<< HEAD
+      </Card>
+    </TouchableOpacity>
+=======
       </TouchableOpacity>
     </Card>
+>>>>>>> origin/main
   );
 };
 
@@ -44,6 +66,20 @@ const styles = StyleSheet.create({
   },
   image: {
     width: '100%',
+<<<<<<< HEAD
+    height: 150,
+    borderRadius: 8,
+    backgroundColor: '#F0F0F0',
+    marginBottom: 12,
+  },
+  content: {
+    gap: 8,
+  },
+  name: {
+    fontSize: 18,
+    fontWeight: '600',
+    color: '#333',
+=======
     height: 200,
     resizeMode: 'cover',
     borderTopLeftRadius: 12,
@@ -56,29 +92,47 @@ const styles = StyleSheet.create({
     fontSize: 18,
     fontWeight: 'bold',
     marginBottom: 8,
+>>>>>>> origin/main
   },
   description: {
     fontSize: 14,
     color: '#666',
+<<<<<<< HEAD
+=======
     marginBottom: 12,
+>>>>>>> origin/main
   },
   footer: {
     flexDirection: 'row',
     justifyContent: 'space-between',
     alignItems: 'center',
+<<<<<<< HEAD
+    marginTop: 4,
+  },
+  price: {
+    fontSize: 20,
+    fontWeight: '700',
+=======
   },
   price: {
     fontSize: 20,
     fontWeight: 'bold',
+>>>>>>> origin/main
     color: '#007AFF',
   },
   duration: {
     fontSize: 14,
+<<<<<<< HEAD
+    color: '#666',
+=======
     color: '#999',
+>>>>>>> origin/main
   },
 });
 
 export default ServiceCard;
+<<<<<<< HEAD
+=======
 import React, { memo } from 'react';
 import { Image, StyleSheet, View } from 'react-native';
 import { Button, Card, Chip, Text, useTheme, Avatar } from 'react-native-paper';
@@ -167,3 +221,4 @@ const styles = StyleSheet.create({
   badge: {},
   right: { alignItems: 'flex-end', gap: 6 },
 });
+>>>>>>> origin/main

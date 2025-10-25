@@ -4,6 +4,27 @@
     "strict": true,
     "baseUrl": ".",
     "paths": {
+<<<<<<< HEAD
+      "@/*": ["./src/*"],
+      "@/components/*": ["./src/components/*"],
+      "@/screens/*": ["./src/screens/*"],
+      "@/navigation/*": ["./src/navigation/*"],
+      "@/services/*": ["./src/services/*"],
+      "@/hooks/*": ["./src/hooks/*"],
+      "@/types/*": ["./src/types/*"],
+      "@/constants/*": ["./src/constants/*"],
+      "@/utils/*": ["./src/utils/*"]
+    },
+    "skipLibCheck": true,
+    "jsx": "react-native",
+    "esModuleInterop": true,
+    "allowSyntheticDefaultImports": true,
+    "forceConsistentCasingInFileNames": true,
+    "noUnusedLocals": true,
+    "noUnusedParameters": true,
+    "noImplicitReturns": true,
+    "noFallthroughCasesInSwitch": true
+=======
       "@/*": ["src/*"],
       "@/components/*": ["src/components/*"],
       "@/screens/*": ["src/screens/*"],
@@ -22,6 +43,7 @@
     "noEmit": true,
     "skipLibCheck": true,
     "target": "esnext"
+>>>>>>> origin/main
   },
   "include": [
     "**/*.ts",
@@ -32,4 +54,8 @@
   "exclude": [
     "node_modules"
   ]
+<<<<<<< HEAD
 }
+=======
+}
+>>>>>>> origin/main

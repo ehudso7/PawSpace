@@ -5,7 +5,11 @@
     "version": "1.0.0",
     "orientation": "portrait",
     "icon": "./assets/icon.png",
+<<<<<<< HEAD
+    "userInterfaceStyle": "automatic",
+=======
     "userInterfaceStyle": "light",
+>>>>>>> origin/main
     "splash": {
       "image": "./assets/splash.png",
       "resizeMode": "contain",
@@ -21,11 +25,30 @@
     "android": {
       "adaptiveIcon": {
         "foregroundImage": "./assets/adaptive-icon.png",
+<<<<<<< HEAD
+        "backgroundColor": "#ffffff"
+=======
         "backgroundColor": "#FFFFFF"
+>>>>>>> origin/main
       },
       "package": "com.pawspace.app"
     },
     "web": {
+<<<<<<< HEAD
+      "favicon": "./assets/favicon.png",
+      "bundler": "metro"
+    },
+    "plugins": [
+    ],
+    "scheme": "pawspace",
+    "extra": {
+      "eas": {
+        "projectId": "your-project-id"
+      }
+    }
+  }
+}
+=======
       "favicon": "./assets/favicon.png"
     },
     "plugins": [
@@ -38,3 +61,4 @@
     }
   }
 }
+>>>>>>> origin/main

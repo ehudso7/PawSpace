@@ -1,9 +1,16 @@
 import React from 'react';
+<<<<<<< HEAD
+import { View, Text, StyleSheet } from 'react-native';
+=======
 import { View, Text, StyleSheet, FlatList } from 'react-native';
+>>>>>>> origin/main
 
 const ServiceListScreen: React.FC = () => {
   return (
     <View style={styles.container}>
+<<<<<<< HEAD
+      <Text style={styles.title}>Service List Screen</Text>
+=======
       <Text style={styles.title}>Pet Services</Text>
       <FlatList
         data={[]}
@@ -167,6 +174,7 @@ export const ServiceListScreen: React.FC<any> = ({ navigation }) => {
           <Button onPress={() => refetch()}>Retry</Button>
         </View>
       )}
+>>>>>>> origin/main
     </View>
   );
 };
@@ -174,19 +182,29 @@ export const ServiceListScreen: React.FC<any> = ({ navigation }) => {
 const styles = StyleSheet.create({
   container: {
     flex: 1,
+<<<<<<< HEAD
+    justifyContent: 'center',
+    alignItems: 'center',
+=======
     padding: 20,
+>>>>>>> origin/main
   },
   title: {
     fontSize: 24,
     fontWeight: 'bold',
+<<<<<<< HEAD
+=======
     marginBottom: 20,
   },
   list: {
     flexGrow: 1,
+>>>>>>> origin/main
   },
 });
 
 export default ServiceListScreen;
+<<<<<<< HEAD
+=======
   container: { flex: 1, paddingHorizontal: 12 },
   filtersRow: { marginBottom: 8 },
   quickFilters: { flexDirection: 'row', alignItems: 'center', justifyContent: 'space-between', marginBottom: 8 },
@@ -195,3 +213,4 @@ export default ServiceListScreen;
 });
 
 export default ServiceListScreen;
+>>>>>>> origin/main

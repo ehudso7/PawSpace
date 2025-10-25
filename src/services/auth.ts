@@ -1,4 +1,9 @@
 import { supabase } from './supabase';
+<<<<<<< HEAD
+import type { User, Session } from '@supabase/supabase-js';
+
+export interface AuthCredentials {
+=======
 import { User, Session } from '@supabase/supabase-js';
 
 export interface AuthUser extends User {
@@ -15,17 +20,73 @@ export interface SignUpData {
 }
 
 export interface SignInData {
+>>>>>>> origin/main
   email: string;
   password: string;
 }
 
+<<<<<<< HEAD
+export interface SignupData extends AuthCredentials {
+  name: string;
+}
+
+export const authService = {
+  async signIn(credentials: AuthCredentials): Promise<{ user: User | null; session: Session | null; error: Error | null }> {
+    const { data, error } = await supabase.auth.signInWithPassword(credentials);
+    return {
+      user: data.user,
+      session: data.session,
+      error: error as Error | null,
+    };
+  },
+
+  async signUp(signupData: SignupData): Promise<{ user: User | null; session: Session | null; error: Error | null }> {
+    const { email, password, name } = signupData;
+=======
 export const authService = {
   async signUp({ email, password, fullName }: SignUpData) {
+>>>>>>> origin/main
     const { data, error } = await supabase.auth.signUp({
       email,
       password,
       options: {
         data: {
+<<<<<<< HEAD
+          name,
+        },
+      },
+    });
+    return {
+      user: data.user,
+      session: data.session,
+      error: error as Error | null,
+    };
+  },
+
+  async signOut(): Promise<{ error: Error | null }> {
+    const { error } = await supabase.auth.signOut();
+    return { error: error as Error | null };
+  },
+
+  async getSession(): Promise<{ session: Session | null; error: Error | null }> {
+    const { data, error } = await supabase.auth.getSession();
+    return {
+      session: data.session,
+      error: error as Error | null,
+    };
+  },
+
+  async getCurrentUser(): Promise<{ user: User | null; error: Error | null }> {
+    const { data, error } = await supabase.auth.getUser();
+    return {
+      user: data.user,
+      error: error as Error | null,
+    };
+  },
+};
+
+export default authService;
+=======
           full_name: fullName,
         },
       },
@@ -62,3 +123,4 @@ export const authService = {
     });
   },
 };
+>>>>>>> origin/main
