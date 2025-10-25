@@ -1,89 +1,33 @@
-import { AvailabilitySlot, TimeSlot, ProviderProfile, BookingDetails } from '../types/booking';
-
-// Mock Supabase client - replace with actual Supabase client
-const supabase = {
-  from: (table: string) => ({
-    select: (columns?: string) => ({
-      eq: (column: string, value: any) => ({
-        gte: (column: string, value: any) => ({
-          lte: (column: string, value: any) => Promise.resolve({ data: [], error: null })
-        }),
-        single: () => Promise.resolve({ data: null, error: null })
-      }),
-      order: (column: string, options?: any) => Promise.resolve({ data: [], error: null })
-    }),
-    insert: (data: any) => Promise.resolve({ data: null, error: null }),
-    update: (data: any) => ({
-      eq: (column: string, value: any) => Promise.resolve({ data: null, error: null })
-    })
-  })
-};
+import { supabase } from '../lib/supabase';
+import { AvailabilitySlot, TimeSlot, BookingRequest } from '../types/booking';
 
 export class BookingService {
   /**
-   * Get provider's availability for a specific month
+   * Get provider availability for a specific month
    */
   static async getProviderAvailability(
     providerId: string, 
     month: string
   ): Promise<AvailabilitySlot[]> {
     try {
-      // Parse month (format: YYYY-MM)
-      const [year, monthNum] = month.split('-');
-      const startDate = `${year}-${monthNum}-01`;
-      const endDate = `${year}-${monthNum}-31`;
-
-      // Fetch provider's schedule and existing bookings
-      const { data: schedule, error: scheduleError } = await supabase
-        .from('provider_schedules')
+      const { data, error } = await supabase
+        .from('provider_availability')
         .select('*')
-        .eq('provider_id', providerId);
-
-      if (scheduleError) throw scheduleError;
-
-      const { data: bookings, error: bookingsError } = await supabase
-        .from('bookings')
-        .select('date, start_time, end_time, duration')
         .eq('provider_id', providerId)
-        .gte('date', startDate)
-        .lte('date', endDate);
+        .gte('date', `${month}-01`)
+        .lt('date', `${month}-32`)
+        .order('date');
 
-      if (bookingsError) throw bookingsError;
+      if (error) throw error;
 
-      // Generate availability slots for each day of the month
-      const availabilitySlots: AvailabilitySlot[] = [];
-      const daysInMonth = new Date(parseInt(year), parseInt(monthNum), 0).getDate();
+      // Transform data to AvailabilitySlot format
+      const availability: AvailabilitySlot[] = data?.map(item => ({
+        date: item.date,
+        available_slots: item.available_slots || 0,
+        is_available: item.is_available && item.available_slots > 0
+      })) || [];
 
-      for (let day = 1; day <= daysInMonth; day++) {
-        const date = `${year}-${monthNum.padStart(2, '0')}-${day.toString().padStart(2, '0')}`;
-        const dayOfWeek = new Date(date).toLocaleLowerCase().substring(0, 3);
-        
-        // Check if provider works on this day
-        const daySchedule = schedule?.find((s: any) => s.day_of_week === dayOfWeek);
-        
-        if (!daySchedule || !daySchedule.is_available) {
-          availabilitySlots.push({
-            date,
-            available_slots: 0,
-            is_available: false
-          });
-          continue;
-        }
-
-        // Calculate available slots based on business hours and existing bookings
-        const dayBookings = bookings?.filter((b: any) => b.date === date) || [];
-        const totalSlots = this.calculateTotalSlots(daySchedule.start_time, daySchedule.end_time);
-        const bookedSlots = dayBookings.length;
-        const availableSlots = Math.max(0, totalSlots - bookedSlots);
-
-        availabilitySlots.push({
-          date,
-          available_slots: availableSlots,
-          is_available: availableSlots > 0 && new Date(date) >= new Date()
-        });
-      }
-
-      return availabilitySlots;
+      return availability;
     } catch (error) {
       console.error('Error fetching provider availability:', error);
       return [];
@@ -99,53 +43,58 @@ export class BookingService {
     duration: number
   ): Promise<TimeSlot[]> {
     try {
-      const dayOfWeek = new Date(date).toLocaleDateString('en-US', { weekday: 'long' }).toLowerCase();
-
-      // Get provider's schedule for this day
-      const { data: schedule, error: scheduleError } = await supabase
-        .from('provider_schedules')
-        .select('*')
-        .eq('provider_id', providerId)
-        .eq('day_of_week', dayOfWeek)
+      // Get provider's business hours for the day of week
+      const dayOfWeek = new Date(date).toLocaleLowerCase();
+      const { data: providerData } = await supabase
+        .from('providers')
+        .select('business_hours')
+        .eq('id', providerId)
         .single();
 
-      if (scheduleError || !schedule?.is_available) {
+      if (!providerData?.business_hours) {
         return [];
       }
 
-      // Get existing bookings for this date
-      const { data: bookings, error: bookingsError } = await supabase
+      const businessHours = providerData.business_hours[dayOfWeek];
+      if (!businessHours) {
+        return [];
+      }
+
+      // Get existing bookings for the date
+      const { data: bookings } = await supabase
         .from('bookings')
         .select('start_time, end_time')
         .eq('provider_id', providerId)
-        .eq('date', date);
-
-      if (bookingsError) throw bookingsError;
+        .eq('date', date)
+        .eq('status', 'confirmed');
 
       // Generate time slots
-      const timeSlots: TimeSlot[] = [];
-      const startTime = this.parseTime(schedule.start_time);
-      const endTime = this.parseTime(schedule.end_time);
+      const slots: TimeSlot[] = [];
+      const startTime = new Date(`${date}T${businessHours.open}`);
+      const endTime = new Date(`${date}T${businessHours.close}`);
       const slotDuration = 30; // 30-minute intervals
 
-      let currentTime = startTime;
-      while (currentTime + duration <= endTime) {
-        const slotStart = this.formatTime(currentTime);
-        const slotEnd = this.formatTime(currentTime + duration);
+      for (let time = new Date(startTime); time < endTime; time.setMinutes(time.getMinutes() + slotDuration)) {
+        const slotEndTime = new Date(time.getTime() + duration * 60000);
+        
+        // Check if slot extends beyond business hours
+        if (slotEndTime > endTime) break;
 
-        // Check if this slot conflicts with existing bookings
-        const isAvailable = !this.hasConflict(slotStart, slotEnd, bookings || []);
+        // Check for conflicts with existing bookings
+        const isAvailable = !this.hasBookingConflict(
+          time.toISOString().slice(11, 16),
+          slotEndTime.toISOString().slice(11, 16),
+          bookings || []
+        );
 
-        timeSlots.push({
-          start_time: slotStart,
-          end_time: slotEnd,
+        slots.push({
+          start_time: time.toISOString().slice(11, 16),
+          end_time: slotEndTime.toISOString().slice(11, 16),
           is_available: isAvailable
         });
-
-        currentTime += slotDuration;
       }
 
-      return timeSlots;
+      return slots;
     } catch (error) {
       console.error('Error fetching time slots:', error);
       return [];
@@ -153,7 +102,7 @@ export class BookingService {
   }
 
   /**
-   * Check if a specific time slot is available
+   * Check if a time slot is available
    */
   static async checkSlotAvailability(
     providerId: string, 
@@ -162,18 +111,18 @@ export class BookingService {
   ): Promise<boolean> {
     try {
       const date = startTime.split('T')[0];
-      const time = startTime.split('T')[1];
-      
-      const { data: bookings, error } = await supabase
+      const time = startTime.split('T')[1].slice(0, 5);
+      const endTime = new Date(new Date(startTime).getTime() + duration * 60000)
+        .toISOString().slice(11, 16);
+
+      const { data: bookings } = await supabase
         .from('bookings')
         .select('start_time, end_time')
         .eq('provider_id', providerId)
-        .eq('date', date);
+        .eq('date', date)
+        .eq('status', 'confirmed');
 
-      if (error) throw error;
-
-      const endTime = this.addMinutesToTime(time, duration);
-      return !this.hasConflict(time, endTime, bookings || []);
+      return !this.hasBookingConflict(time, endTime, bookings || []);
     } catch (error) {
       console.error('Error checking slot availability:', error);
       return false;
@@ -181,114 +130,47 @@ export class BookingService {
   }
 
   /**
-   * Get provider profile with all details
-   */
-  static async getProviderProfile(providerId: string): Promise<ProviderProfile | null> {
-    try {
-      const { data: provider, error: providerError } = await supabase
-        .from('providers')
-        .select(`
-          *,
-          services (*),
-          portfolio_items (*),
-          reviews (*, user:users(*))
-        `)
-        .eq('id', providerId)
-        .single();
-
-      if (providerError) throw providerError;
-
-      // Get business hours
-      const { data: businessHours, error: hoursError } = await supabase
-        .from('provider_schedules')
-        .select('*')
-        .eq('provider_id', providerId);
-
-      if (hoursError) throw hoursError;
-
-      // Format business hours
-      const formattedHours: any = {};
-      businessHours?.forEach((schedule: any) => {
-        if (schedule.is_available) {
-          formattedHours[schedule.day_of_week] = {
-            open: schedule.start_time,
-            close: schedule.end_time
-          };
-        }
-      });
-
-      return {
-        ...provider,
-        business_hours: formattedHours,
-        service_types: [...new Set(provider.services?.map((s: any) => s.category) || [])]
-      };
-    } catch (error) {
-      console.error('Error fetching provider profile:', error);
-      return null;
-    }
-  }
-
-  /**
    * Create a new booking
    */
-  static async createBooking(bookingDetails: BookingDetails): Promise<boolean> {
+  static async createBooking(booking: BookingRequest): Promise<{ success: boolean; bookingId?: string; error?: string }> {
     try {
       const { data, error } = await supabase
         .from('bookings')
         .insert([{
-          provider_id: bookingDetails.provider_id,
-          service_id: bookingDetails.service_id,
-          date: bookingDetails.date,
-          start_time: bookingDetails.start_time,
-          end_time: bookingDetails.end_time,
-          status: 'pending',
-          created_at: new Date().toISOString()
-        }]);
+          provider_id: booking.provider_id,
+          service_id: booking.service_id,
+          date: booking.date,
+          start_time: booking.start_time,
+          end_time: booking.end_time,
+          notes: booking.notes,
+          status: 'pending'
+        }])
+        .select()
+        .single();
 
       if (error) throw error;
-      return true;
+
+      return { success: true, bookingId: data.id };
     } catch (error) {
       console.error('Error creating booking:', error);
-      return false;
+      return { success: false, error: error.message };
     }
   }
 
-  // Helper methods
-  private static calculateTotalSlots(startTime: string, endTime: string): number {
-    const start = this.parseTime(startTime);
-    const end = this.parseTime(endTime);
-    return Math.floor((end - start) / 30); // 30-minute slots
-  }
-
-  private static parseTime(timeString: string): number {
-    const [hours, minutes] = timeString.split(':').map(Number);
-    return hours * 60 + minutes;
-  }
-
-  private static formatTime(minutes: number): string {
-    const hours = Math.floor(minutes / 60);
-    const mins = minutes % 60;
-    return `${hours.toString().padStart(2, '0')}:${mins.toString().padStart(2, '0')}`;
-  }
-
-  private static addMinutesToTime(time: string, minutes: number): string {
-    const timeInMinutes = this.parseTime(time);
-    return this.formatTime(timeInMinutes + minutes);
-  }
-
-  private static hasConflict(
+  /**
+   * Helper function to check for booking conflicts
+   */
+  private static hasBookingConflict(
     startTime: string, 
     endTime: string, 
-    existingBookings: any[]
+    existingBookings: Array<{ start_time: string; end_time: string }>
   ): boolean {
-    const start = this.parseTime(startTime);
-    const end = this.parseTime(endTime);
-
     return existingBookings.some(booking => {
-      const bookingStart = this.parseTime(booking.start_time);
-      const bookingEnd = this.parseTime(booking.end_time);
+      const bookingStart = booking.start_time;
+      const bookingEnd = booking.end_time;
       
-      return (start < bookingEnd && end > bookingStart);
+      // Check if the new slot overlaps with any existing booking
+      return (startTime < bookingEnd && endTime > bookingStart);
     });
   }
 }

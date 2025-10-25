@@ -1,323 +1,259 @@
-import React, { useRef, useEffect } from 'react';
+import React from 'react';
 import {
   View,
   Text,
-  TouchableOpacity,
   StyleSheet,
+  TouchableOpacity,
+  Modal,
+  ScrollView,
   Dimensions,
   Animated,
-  FlatList,
-  Modal,
-  PanResponder,
+  PanGestureHandler,
+  State,
 } from 'react-native';
+import { Ionicons } from '@expo/vector-icons';
 import { Service } from '../../types/booking';
-import { AnimationUtils } from '../../utils/animations';
 
-const { height: screenHeight } = Dimensions.get('window');
-const SHEET_HEIGHT = screenHeight * 0.7;
+const { height } = Dimensions.get('window');
+const SHEET_HEIGHT = height * 0.7;
 
 interface ServiceSelectorSheetProps {
   visible: boolean;
   services: Service[];
   onClose: () => void;
-  onSelectService: (service: Service) => void;
+  onServiceSelect: (service: Service) => void;
 }
 
-export const ServiceSelectorSheet: React.FC<ServiceSelectorSheetProps> = ({
+const ServiceSelectorSheet: React.FC<ServiceSelectorSheetProps> = ({
   visible,
   services,
   onClose,
-  onSelectService,
+  onServiceSelect,
 }) => {
-  const translateY = useRef(new Animated.Value(SHEET_HEIGHT)).current;
-  const backdropOpacity = useRef(new Animated.Value(0)).current;
+  const translateY = new Animated.Value(SHEET_HEIGHT);
+  const opacity = new Animated.Value(0);
 
-  useEffect(() => {
+  React.useEffect(() => {
     if (visible) {
-      showSheet();
+      Animated.parallel([
+        Animated.timing(translateY, {
+          toValue: 0,
+          duration: 300,
+          useNativeDriver: true,
+        }),
+        Animated.timing(opacity, {
+          toValue: 1,
+          duration: 300,
+          useNativeDriver: true,
+        }),
+      ]).start();
     } else {
-      hideSheet();
+      Animated.parallel([
+        Animated.timing(translateY, {
+          toValue: SHEET_HEIGHT,
+          duration: 300,
+          useNativeDriver: true,
+        }),
+        Animated.timing(opacity, {
+          toValue: 0,
+          duration: 300,
+          useNativeDriver: true,
+        }),
+      ]).start();
     }
   }, [visible]);
 
-  const showSheet = () => {
-    Animated.parallel([
-      AnimationUtils.spring(translateY, 0),
-      AnimationUtils.fadeIn(backdropOpacity, 300),
-    ]).start();
+  const handleServiceSelect = (service: Service) => {
+    onServiceSelect(service);
   };
-
-  const hideSheet = () => {
-    Animated.parallel([
-      AnimationUtils.spring(translateY, SHEET_HEIGHT),
-      AnimationUtils.fadeOut(backdropOpacity, 300),
-    ]).start();
-  };
-
-  const panResponder = useRef(
-    PanResponder.create({
-      onMoveShouldSetPanResponder: (evt, gestureState) => {
-        return Math.abs(gestureState.dy) > 10;
-      },
-      onPanResponderMove: (evt, gestureState) => {
-        if (gestureState.dy > 0) {
-          translateY.setValue(gestureState.dy);
-        }
-      },
-      onPanResponderRelease: (evt, gestureState) => {
-        if (gestureState.dy > 100 || gestureState.vy > 0.5) {
-          onClose();
-        } else {
-          AnimationUtils.spring(translateY, 0).start();
-        }
-      },
-    })
-  ).current;
 
   const formatDuration = (minutes: number) => {
-    const hours = Math.floor(minutes / 60);
-    const mins = minutes % 60;
-    if (hours > 0) {
-      return `${hours}h${mins > 0 ? ` ${mins}m` : ''}`;
+    if (minutes < 60) {
+      return `${minutes} min`;
     }
-    return `${mins}m`;
+    const hours = Math.floor(minutes / 60);
+    const remainingMinutes = minutes % 60;
+    return remainingMinutes > 0 ? `${hours}h ${remainingMinutes}m` : `${hours}h`;
   };
 
-  const renderService = ({ item }: { item: Service }) => (
-    <TouchableOpacity
-      style={styles.serviceItem}
-      onPress={() => onSelectService(item)}
-      activeOpacity={0.7}
-    >
-      <View style={styles.serviceContent}>
-        <View style={styles.serviceHeader}>
-          <Text style={styles.serviceTitle}>{item.title}</Text>
-          <Text style={styles.servicePrice}>${item.price}</Text>
-        </View>
-        <Text style={styles.serviceDescription} numberOfLines={2}>
-          {item.description}
-        </Text>
-        <View style={styles.serviceFooter}>
-          <Text style={styles.serviceDuration}>{formatDuration(item.duration)}</Text>
-          <Text style={styles.serviceCategory}>{item.category}</Text>
-        </View>
-      </View>
-      <View style={styles.selectIndicator}>
-        <Text style={styles.selectText}>Select</Text>
-      </View>
-    </TouchableOpacity>
-  );
+  const formatPrice = (price: number) => {
+    return `$${price}`;
+  };
 
   return (
     <Modal
       visible={visible}
-      transparent={true}
+      transparent
       animationType="none"
       onRequestClose={onClose}
     >
-      <View style={styles.overlay}>
-        <Animated.View
-          style={[
-            styles.backdrop,
-            {
-              opacity: backdropOpacity,
-            },
-          ]}
-        >
-          <TouchableOpacity
-            style={StyleSheet.absoluteFillObject}
-            onPress={onClose}
-            activeOpacity={1}
-          />
-        </Animated.View>
+      <Animated.View style={[styles.overlay, { opacity }]}>
+        <TouchableOpacity
+          style={styles.overlayTouchable}
+          activeOpacity={1}
+          onPress={onClose}
+        />
         
         <Animated.View
           style={[
             styles.sheet,
             {
-              transform: [{ translateY: translateY }],
+              transform: [{ translateY }],
             },
           ]}
-          {...panResponder.panHandlers}
         >
           {/* Handle */}
           <View style={styles.handle} />
           
           {/* Header */}
           <View style={styles.header}>
-            <Text style={styles.headerTitle}>Select a Service</Text>
-            <Text style={styles.headerSubtitle}>
-              Choose the service you'd like to book
-            </Text>
+            <Text style={styles.title}>Select a Service</Text>
+            <TouchableOpacity onPress={onClose} style={styles.closeButton}>
+              <Ionicons name="close" size={24} color="#666" />
+            </TouchableOpacity>
           </View>
 
           {/* Services List */}
-          <FlatList
-            data={services}
-            keyExtractor={item => item.id}
-            renderItem={renderService}
-            style={styles.servicesList}
-            showsVerticalScrollIndicator={false}
-            contentContainerStyle={styles.servicesContent}
-          />
-
-          {/* Close Button */}
-          <TouchableOpacity style={styles.closeButton} onPress={onClose}>
-            <Text style={styles.closeButtonText}>Cancel</Text>
-          </TouchableOpacity>
+          <ScrollView style={styles.content} showsVerticalScrollIndicator={false}>
+            {services.map((service) => (
+              <TouchableOpacity
+                key={service.id}
+                style={styles.serviceItem}
+                onPress={() => handleServiceSelect(service)}
+              >
+                <View style={styles.serviceInfo}>
+                  <Text style={styles.serviceTitle}>{service.title}</Text>
+                  <Text style={styles.serviceDescription}>{service.description}</Text>
+                  
+                  <View style={styles.serviceDetails}>
+                    <View style={styles.serviceDetail}>
+                      <Ionicons name="time-outline" size={16} color="#666" />
+                      <Text style={styles.serviceDetailText}>
+                        {formatDuration(service.duration)}
+                      </Text>
+                    </View>
+                    
+                    <View style={styles.serviceDetail}>
+                      <Ionicons name="pricetag-outline" size={16} color="#666" />
+                      <Text style={styles.serviceDetailText}>
+                        {formatPrice(service.price)}
+                      </Text>
+                    </View>
+                    
+                    <View style={styles.serviceDetail}>
+                      <Ionicons name="grid-outline" size={16} color="#666" />
+                      <Text style={styles.serviceDetailText}>
+                        {service.category}
+                      </Text>
+                    </View>
+                  </View>
+                </View>
+                
+                <View style={styles.serviceAction}>
+                  <Ionicons name="chevron-forward" size={20} color="#007AFF" />
+                </View>
+              </TouchableOpacity>
+            ))}
+          </ScrollView>
         </Animated.View>
-      </View>
+      </Animated.View>
     </Modal>
   );
 };
 
 const styles = StyleSheet.create({
   overlay: {
-    position: 'absolute',
-    top: 0,
-    left: 0,
-    right: 0,
-    bottom: 0,
-    zIndex: 1000,
-  },
-  backdrop: {
-    ...StyleSheet.absoluteFillObject,
+    flex: 1,
     backgroundColor: 'rgba(0, 0, 0, 0.5)',
+    justifyContent: 'flex-end',
+  },
+  overlayTouchable: {
+    flex: 1,
   },
   sheet: {
-    position: 'absolute',
-    bottom: 0,
-    left: 0,
-    right: 0,
-    height: SHEET_HEIGHT,
-    backgroundColor: '#ffffff',
+    backgroundColor: '#fff',
     borderTopLeftRadius: 20,
     borderTopRightRadius: 20,
-    paddingTop: 12,
-    elevation: 10,
+    height: SHEET_HEIGHT,
     shadowColor: '#000',
     shadowOffset: {
       width: 0,
-      height: -4,
+      height: -2,
     },
     shadowOpacity: 0.25,
-    shadowRadius: 10,
+    shadowRadius: 3.84,
+    elevation: 5,
   },
   handle: {
     width: 40,
     height: 4,
-    backgroundColor: '#e0e0e0',
+    backgroundColor: '#ddd',
     borderRadius: 2,
     alignSelf: 'center',
-    marginBottom: 20,
+    marginTop: 12,
+    marginBottom: 8,
   },
   header: {
+    flexDirection: 'row',
+    justifyContent: 'space-between',
+    alignItems: 'center',
     paddingHorizontal: 20,
-    paddingBottom: 20,
+    paddingVertical: 16,
     borderBottomWidth: 1,
     borderBottomColor: '#f0f0f0',
   },
-  headerTitle: {
-    fontSize: 24,
-    fontWeight: '700',
-    color: '#333333',
-    marginBottom: 4,
+  title: {
+    fontSize: 20,
+    fontWeight: 'bold',
+    color: '#333',
   },
-  headerSubtitle: {
-    fontSize: 16,
-    color: '#666666',
+  closeButton: {
+    padding: 4,
   },
-  servicesList: {
+  content: {
     flex: 1,
-  },
-  servicesContent: {
-    padding: 20,
+    paddingHorizontal: 20,
   },
   serviceItem: {
-    backgroundColor: '#f8f9fa',
-    borderRadius: 16,
-    padding: 20,
-    marginBottom: 16,
     flexDirection: 'row',
     alignItems: 'center',
-    elevation: 2,
-    shadowColor: '#000',
-    shadowOffset: {
-      width: 0,
-      height: 2,
-    },
-    shadowOpacity: 0.1,
-    shadowRadius: 3.84,
+    paddingVertical: 16,
+    borderBottomWidth: 1,
+    borderBottomColor: '#f0f0f0',
   },
-  serviceContent: {
+  serviceInfo: {
     flex: 1,
-  },
-  serviceHeader: {
-    flexDirection: 'row',
-    justifyContent: 'space-between',
-    alignItems: 'flex-start',
-    marginBottom: 8,
   },
   serviceTitle: {
     fontSize: 18,
     fontWeight: '600',
-    color: '#333333',
-    flex: 1,
-    marginRight: 12,
-  },
-  servicePrice: {
-    fontSize: 20,
-    fontWeight: '700',
-    color: '#2196F3',
+    color: '#333',
+    marginBottom: 4,
   },
   serviceDescription: {
     fontSize: 14,
-    color: '#666666',
-    lineHeight: 20,
+    color: '#666',
     marginBottom: 12,
+    lineHeight: 20,
   },
-  serviceFooter: {
+  serviceDetails: {
     flexDirection: 'row',
-    justifyContent: 'space-between',
+    flexWrap: 'wrap',
+  },
+  serviceDetail: {
+    flexDirection: 'row',
     alignItems: 'center',
+    marginRight: 16,
+    marginBottom: 4,
   },
-  serviceDuration: {
-    fontSize: 14,
-    fontWeight: '500',
-    color: '#666666',
-    backgroundColor: '#e3f2fd',
-    paddingHorizontal: 8,
-    paddingVertical: 4,
-    borderRadius: 12,
-  },
-  serviceCategory: {
+  serviceDetailText: {
     fontSize: 12,
-    fontWeight: '500',
-    color: '#999999',
-    textTransform: 'uppercase',
+    color: '#666',
+    marginLeft: 4,
   },
-  selectIndicator: {
-    backgroundColor: '#2196F3',
-    paddingHorizontal: 16,
-    paddingVertical: 8,
-    borderRadius: 20,
-    marginLeft: 12,
-  },
-  selectText: {
-    fontSize: 14,
-    fontWeight: '600',
-    color: '#ffffff',
-  },
-  closeButton: {
-    margin: 20,
-    backgroundColor: '#f0f0f0',
-    borderRadius: 12,
-    paddingVertical: 16,
-    alignItems: 'center',
-  },
-  closeButtonText: {
-    fontSize: 16,
-    fontWeight: '600',
-    color: '#666666',
+  serviceAction: {
+    padding: 8,
   },
 });
+
+export default ServiceSelectorSheet;
