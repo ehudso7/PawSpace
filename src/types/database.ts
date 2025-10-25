@@ -1,22 +1,635 @@
-// Placeholder types for Supabase tables
-export type Tables = {
-  profiles: {
-    Row: {
-      id: string;
-      username: string | null;
-      avatar_url: string | null;
-      created_at: string;
+<<<<<<< HEAD
+// Supabase Database Types
+export interface Database {
+  public: {
+    Tables: {
+      users: {
+        Row: {
+          id: string;
+          email: string;
+          name: string;
+          avatar: string | null;
+          phone: string | null;
+          bio: string | null;
+          location: string | null;
+          is_premium: boolean;
+          created_at: string;
+          updated_at: string;
+        };
+        Insert: {
+          id?: string;
+          email: string;
+          name: string;
+          avatar?: string | null;
+          phone?: string | null;
+          bio?: string | null;
+          location?: string | null;
+          is_premium?: boolean;
+          created_at?: string;
+          updated_at?: string;
+        };
+        Update: {
+          id?: string;
+          email?: string;
+          name?: string;
+          avatar?: string | null;
+          phone?: string | null;
+          bio?: string | null;
+          location?: string | null;
+          is_premium?: boolean;
+          created_at?: string;
+          updated_at?: string;
+        };
+      };
+      providers: {
+        Row: {
+          id: string;
+          user_id: string;
+          name: string;
+          title: string;
+          description: string;
+          avatar: string;
+          cover_image: string | null;
+          location: string;
+          rating: number;
+          review_count: number;
+          starting_price: number;
+          is_verified: boolean;
+=======
+<<<<<<< HEAD
+// Supabase Database Types
+// This file should be generated from your Supabase schema
+// For now, we'll create a placeholder structure
+
+export type Json =
+  | string
+  | number
+  | boolean
+  | null
+  | { [key: string]: Json | undefined }
+  | Json[];
+
+export interface Database {
+  public: {
+    Tables: {
+      profiles: {
+        Row: {
+          id: string;
+          user_id: string;
+          name: string;
+          avatar_url: string | null;
+          bio: string | null;
+          is_provider: boolean;
+>>>>>>> origin/main
+          created_at: string;
+          updated_at: string;
+        };
+        Insert: {
+          id?: string;
+          user_id: string;
+          name: string;
+<<<<<<< HEAD
+          title: string;
+          description: string;
+          avatar: string;
+          cover_image?: string | null;
+          location: string;
+          rating?: number;
+          review_count?: number;
+          starting_price: number;
+          is_verified?: boolean;
+=======
+          avatar_url?: string | null;
+          bio?: string | null;
+          is_provider?: boolean;
+>>>>>>> origin/main
+          created_at?: string;
+          updated_at?: string;
+        };
+        Update: {
+          id?: string;
+          user_id?: string;
+          name?: string;
+<<<<<<< HEAD
+          title?: string;
+          description?: string;
+          avatar?: string;
+          cover_image?: string | null;
+          location?: string;
+          rating?: number;
+          review_count?: number;
+          starting_price?: number;
+          is_verified?: boolean;
+=======
+          avatar_url?: string | null;
+          bio?: string | null;
+          is_provider?: boolean;
+>>>>>>> origin/main
+          created_at?: string;
+          updated_at?: string;
+        };
+      };
+      services: {
+        Row: {
+          id: string;
+          provider_id: string;
+<<<<<<< HEAD
+          title: string;
+          description: string;
+          category: string;
+          price: number;
+          duration: number;
+          image_url: string;
+          rating: number;
+          is_active: boolean;
+          created_at: string;
+          updated_at: string;
+=======
+          name: string;
+          description: string;
+          price: number;
+          duration: number;
+          image_url: string | null;
+          created_at: string;
+>>>>>>> origin/main
+        };
+        Insert: {
+          id?: string;
+          provider_id: string;
+<<<<<<< HEAD
+          title: string;
+          description: string;
+          category: string;
+          price: number;
+          duration: number;
+          image_url: string;
+          rating?: number;
+          is_active?: boolean;
+          created_at?: string;
+          updated_at?: string;
+=======
+          name: string;
+          description: string;
+          price: number;
+          duration: number;
+          image_url?: string | null;
+          created_at?: string;
+>>>>>>> origin/main
+        };
+        Update: {
+          id?: string;
+          provider_id?: string;
+<<<<<<< HEAD
+          title?: string;
+          description?: string;
+          category?: string;
+          price?: number;
+          duration?: number;
+          image_url?: string;
+          rating?: number;
+          is_active?: boolean;
+          created_at?: string;
+          updated_at?: string;
+=======
+          name?: string;
+          description?: string;
+          price?: number;
+          duration?: number;
+          image_url?: string | null;
+          created_at?: string;
+>>>>>>> origin/main
+        };
+      };
+      bookings: {
+        Row: {
+          id: string;
+          user_id: string;
+<<<<<<< HEAD
+          service_id: string;
+          provider_id: string;
+          date: string;
+          time_slot: string;
+          status: string;
+          notes: string | null;
+          total_amount: number;
+          payment_status: string;
+          created_at: string;
+          updated_at: string;
+=======
+          provider_id: string;
+          service_id: string;
+          date: string;
+          time: string;
+          status: string;
+          created_at: string;
+>>>>>>> origin/main
+        };
+        Insert: {
+          id?: string;
+          user_id: string;
+<<<<<<< HEAD
+          service_id: string;
+          provider_id: string;
+          date: string;
+          time_slot: string;
+          status?: string;
+          notes?: string | null;
+          total_amount: number;
+          payment_status?: string;
+          created_at?: string;
+          updated_at?: string;
+=======
+          provider_id: string;
+          service_id: string;
+          date: string;
+          time: string;
+          status?: string;
+          created_at?: string;
+>>>>>>> origin/main
+        };
+        Update: {
+          id?: string;
+          user_id?: string;
+<<<<<<< HEAD
+          service_id?: string;
+          provider_id?: string;
+          date?: string;
+          time_slot?: string;
+          status?: string;
+          notes?: string | null;
+          total_amount?: number;
+          payment_status?: string;
+          created_at?: string;
+          updated_at?: string;
+=======
+          provider_id?: string;
+          service_id?: string;
+          date?: string;
+          time?: string;
+          status?: string;
+          created_at?: string;
+>>>>>>> origin/main
+        };
+      };
+      transformations: {
+        Row: {
+          id: string;
+          user_id: string;
+<<<<<<< HEAD
+          image_url: string;
+          before_image_url: string | null;
+          caption: string;
+          tags: string[];
+          likes_count: number;
+          comments_count: number;
+          created_at: string;
+          updated_at: string;
+        };
+        Insert: {
+          id?: string;
+          user_id: string;
+          image_url: string;
+          before_image_url?: string | null;
+          caption: string;
+          tags?: string[];
+          likes_count?: number;
+          comments_count?: number;
+          created_at?: string;
+          updated_at?: string;
+        };
+        Update: {
+          id?: string;
+          user_id?: string;
+          image_url?: string;
+          before_image_url?: string | null;
+          caption?: string;
+          tags?: string[];
+          likes_count?: number;
+          comments_count?: number;
+          created_at?: string;
+          updated_at?: string;
+        };
+      };
+      transformation_likes: {
+        Row: {
+          id: string;
+          transformation_id: string;
+          user_id: string;
+=======
+          before_image: string;
+          after_image: string;
+          description: string | null;
+          likes: number;
+>>>>>>> origin/main
+          created_at: string;
+        };
+        Insert: {
+          id?: string;
+<<<<<<< HEAD
+          transformation_id: string;
+          user_id: string;
+=======
+          user_id: string;
+          before_image: string;
+          after_image: string;
+          description?: string | null;
+          likes?: number;
+>>>>>>> origin/main
+          created_at?: string;
+        };
+        Update: {
+          id?: string;
+<<<<<<< HEAD
+          transformation_id?: string;
+          user_id?: string;
+          created_at?: string;
+        };
+      };
+      transformation_comments: {
+        Row: {
+          id: string;
+          transformation_id: string;
+          user_id: string;
+          content: string;
+          created_at: string;
+          updated_at: string;
+        };
+        Insert: {
+          id?: string;
+          transformation_id: string;
+          user_id: string;
+          content: string;
+          created_at?: string;
+          updated_at?: string;
+        };
+        Update: {
+          id?: string;
+          transformation_id?: string;
+          user_id?: string;
+          content?: string;
+          created_at?: string;
+          updated_at?: string;
+        };
+      };
+      reviews: {
+        Row: {
+          id: string;
+          booking_id: string;
+          user_id: string;
+          provider_id: string;
+          rating: number;
+          comment: string | null;
+          images: string[] | null;
+          created_at: string;
+          updated_at: string;
+        };
+        Insert: {
+          id?: string;
+          booking_id: string;
+          user_id: string;
+          provider_id: string;
+          rating: number;
+          comment?: string | null;
+          images?: string[] | null;
+          created_at?: string;
+          updated_at?: string;
+        };
+        Update: {
+          id?: string;
+          booking_id?: string;
+          user_id?: string;
+          provider_id?: string;
+          rating?: number;
+          comment?: string | null;
+          images?: string[] | null;
+          created_at?: string;
+          updated_at?: string;
+        };
+      };
+      pets: {
+        Row: {
+          id: string;
+          user_id: string;
+          name: string;
+          species: string;
+          breed: string | null;
+          age: number | null;
+          weight: number | null;
+          color: string | null;
+          avatar: string | null;
+          medical_notes: string | null;
+          behavior_notes: string | null;
+          created_at: string;
+          updated_at: string;
+        };
+        Insert: {
+          id?: string;
+          user_id: string;
+          name: string;
+          species: string;
+          breed?: string | null;
+          age?: number | null;
+          weight?: number | null;
+          color?: string | null;
+          avatar?: string | null;
+          medical_notes?: string | null;
+          behavior_notes?: string | null;
+          created_at?: string;
+          updated_at?: string;
+        };
+        Update: {
+          id?: string;
+          user_id?: string;
+          name?: string;
+          species?: string;
+          breed?: string | null;
+          age?: number | null;
+          weight?: number | null;
+          color?: string | null;
+          avatar?: string | null;
+          medical_notes?: string | null;
+          behavior_notes?: string | null;
+          created_at?: string;
+          updated_at?: string;
+        };
+      };
+      subscriptions: {
+        Row: {
+          id: string;
+          user_id: string;
+          plan: string;
+          status: string;
+          start_date: string;
+          end_date: string;
+          auto_renew: boolean;
+          created_at: string;
+          updated_at: string;
+        };
+        Insert: {
+          id?: string;
+          user_id: string;
+          plan: string;
+          status?: string;
+          start_date: string;
+          end_date: string;
+          auto_renew?: boolean;
+          created_at?: string;
+          updated_at?: string;
+        };
+        Update: {
+          id?: string;
+          user_id?: string;
+          plan?: string;
+          status?: string;
+          start_date?: string;
+          end_date?: string;
+          auto_renew?: boolean;
+          created_at?: string;
+          updated_at?: string;
+        };
+      };
+=======
+          user_id?: string;
+          before_image?: string;
+          after_image?: string;
+          description?: string | null;
+          likes?: number;
+          created_at?: string;
+        };
+      };
+>>>>>>> origin/main
+    };
+    Views: {
+      [_ in never]: never;
+    };
+    Functions: {
+      [_ in never]: never;
+    };
+    Enums: {
+<<<<<<< HEAD
+      service_category: 'grooming' | 'training' | 'veterinary' | 'boarding' | 'walking' | 'sitting' | 'photography' | 'other';
+      booking_status: 'pending' | 'confirmed' | 'in_progress' | 'completed' | 'cancelled' | 'no_show';
+      payment_status: 'pending' | 'paid' | 'failed' | 'refunded';
+      pet_species: 'dog' | 'cat' | 'bird' | 'rabbit' | 'other';
+      subscription_plan: 'free' | 'premium' | 'pro';
+      subscription_status: 'active' | 'cancelled' | 'expired' | 'past_due';
     };
   };
-  bookings: {
-    Row: {
-      id: string;
-      user_id: string;
-      provider_id: string;
-      service_id: string;
-      start_time: string;
-      end_time: string;
-      status: 'pending' | 'confirmed' | 'cancelled' | 'completed';
+}
+=======
+      [_ in never]: never;
     };
   };
-};
+}
+=======
+export interface User {
+  id: string;
+  email: string;
+  full_name: string;
+  avatar_url?: string;
+  phone?: string;
+  created_at: string;
+  updated_at: string;
+}
+
+export interface Provider {
+  id: string;
+  user_id: string;
+  business_name: string;
+  description: string;
+  rating: number;
+  review_count: number;
+  specialties: string[];
+  location: {
+    address: string;
+    city: string;
+    state: string;
+    zip_code: string;
+    latitude: number;
+    longitude: number;
+  };
+  availability: {
+    monday: TimeSlot[];
+    tuesday: TimeSlot[];
+    wednesday: TimeSlot[];
+    thursday: TimeSlot[];
+    friday: TimeSlot[];
+    saturday: TimeSlot[];
+    sunday: TimeSlot[];
+  };
+  created_at: string;
+  updated_at: string;
+}
+
+export interface TimeSlot {
+  start_time: string;
+  end_time: string;
+  available: boolean;
+}
+
+export interface Service {
+  id: string;
+  provider_id: string;
+  name: string;
+  description: string;
+  price: number;
+  duration: number; // in minutes
+  category: string;
+  image_url?: string;
+  is_active: boolean;
+  created_at: string;
+  updated_at: string;
+}
+
+export interface Booking {
+  id: string;
+  user_id: string;
+  service_id: string;
+  provider_id: string;
+  scheduled_date: string;
+  scheduled_time: string;
+  status: 'pending' | 'confirmed' | 'in_progress' | 'completed' | 'cancelled';
+  notes?: string;
+  total_amount: number;
+  created_at: string;
+  updated_at: string;
+}
+
+export interface Transformation {
+  id: string;
+  user_id: string;
+  provider_id: string;
+  title: string;
+  description: string;
+  before_image_url: string;
+  after_image_url: string;
+  category: string;
+  tags: string[];
+  likes: number;
+  is_public: boolean;
+  created_at: string;
+  updated_at: string;
+}
+
+export interface Review {
+  id: string;
+  user_id: string;
+  provider_id: string;
+  booking_id: string;
+  rating: number;
+  comment: string;
+  created_at: string;
+  updated_at: string;
+}
+
+export interface Notification {
+  id: string;
+  user_id: string;
+  title: string;
+  message: string;
+  type: 'booking' | 'transformation' | 'review' | 'general';
+  is_read: boolean;
+  created_at: string;
+}
+>>>>>>> origin/main
+>>>>>>> origin/main
