@@ -1,22 +1,27 @@
 import React from 'react';
+<<<<<<< HEAD
 import { View, StyleSheet } from 'react-native';
-import { Text, Button } from 'react-native-paper';
-import { ProfileStackScreenProps } from '../../types/navigation';
+import { NativeStackScreenProps } from '@react-navigation/native-stack';
+import { ProfileStackParamList } from '@/types/navigation';
 
-type Props = ProfileStackScreenProps<'EditProfile'>;
+type Props = NativeStackScreenProps<ProfileStackParamList, 'EditProfile'>;
 
 const EditProfileScreen: React.FC<Props> = ({ navigation }) => {
   return (
     <View style={styles.container}>
-      <Text variant="headlineMedium">Edit Profile</Text>
-      <Text variant="bodyLarge">Edit your profile information here</Text>
-      <Button 
-        mode="contained" 
-        onPress={() => navigation.goBack()}
-        style={styles.button}
-      >
-        Save Changes
-      </Button>
+      {/* TODO: Implement profile editing form */}
+=======
+import { View, Text, StyleSheet } from 'react-native';
+
+const EditProfileScreen: React.FC = () => {
+  return (
+    <View style={styles.container}>
+<<<<<<< HEAD
+      <Text style={styles.title}>Edit Profile Screen</Text>
+=======
+      <Text style={styles.title}>Edit Profile</Text>
+>>>>>>> origin/main
+>>>>>>> origin/main
     </View>
   );
 };
@@ -24,12 +29,33 @@ const EditProfileScreen: React.FC<Props> = ({ navigation }) => {
 const styles = StyleSheet.create({
   container: {
     flex: 1,
-    padding: 20,
-    backgroundColor: '#ffffff',
-  },
-  button: {
-    marginTop: 20,
+<<<<<<< HEAD
+    backgroundColor: '#fff',
   },
 });
 
 export default EditProfileScreen;
+=======
+<<<<<<< HEAD
+    justifyContent: 'center',
+    alignItems: 'center',
+=======
+    padding: 20,
+>>>>>>> origin/main
+  },
+  title: {
+    fontSize: 24,
+    fontWeight: 'bold',
+<<<<<<< HEAD
+  },
+});
+
+export default EditProfileScreen;
+=======
+    marginBottom: 20,
+  },
+});
+
+export default EditProfileScreen;
+>>>>>>> origin/main
+>>>>>>> origin/main

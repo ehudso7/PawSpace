@@ -1,35 +1,27 @@
 import React from 'react';
+<<<<<<< HEAD
 import { View, StyleSheet } from 'react-native';
-import { Text, Button } from 'react-native-paper';
-import { CreateStackScreenProps } from '../../types/navigation';
+import { NativeStackScreenProps } from '@react-navigation/native-stack';
+import { CreateStackParamList } from '@/types/navigation';
 
-type Props = CreateStackScreenProps<'ImageSelectorScreen'>;
+type Props = NativeStackScreenProps<CreateStackParamList, 'ImageSelector'>;
 
 const ImageSelectorScreen: React.FC<Props> = ({ navigation }) => {
   return (
     <View style={styles.container}>
-      <Text variant="headlineMedium">Create Content</Text>
-      <Text variant="bodyLarge" style={styles.subtitle}>
-        Choose what you'd like to create
-      </Text>
-      <Button 
-        mode="contained" 
-        onPress={() => navigation.navigate('PostEditor', { 
-          selectedImages: ['image1.jpg', 'image2.jpg'] 
-        })}
-        style={styles.button}
-      >
-        Create Post
-      </Button>
-      <Button 
-        mode="outlined" 
-        onPress={() => navigation.navigate('ServiceEditor', { 
-          isEdit: false 
-        })}
-        style={styles.button}
-      >
-        Create Service
-      </Button>
+      {/* TODO: Implement image picker with camera and gallery options */}
+=======
+import { View, Text, StyleSheet } from 'react-native';
+
+const ImageSelectorScreen: React.FC = () => {
+  return (
+    <View style={styles.container}>
+<<<<<<< HEAD
+      <Text style={styles.title}>Image Selector Screen</Text>
+=======
+      <Text style={styles.title}>Select Images</Text>
+>>>>>>> origin/main
+>>>>>>> origin/main
     </View>
   );
 };
@@ -37,17 +29,33 @@ const ImageSelectorScreen: React.FC<Props> = ({ navigation }) => {
 const styles = StyleSheet.create({
   container: {
     flex: 1,
-    padding: 20,
-    backgroundColor: '#ffffff',
-    justifyContent: 'center',
-  },
-  subtitle: {
-    marginVertical: 20,
-    textAlign: 'center',
-  },
-  button: {
-    marginVertical: 10,
+<<<<<<< HEAD
+    backgroundColor: '#fff',
   },
 });
 
 export default ImageSelectorScreen;
+=======
+<<<<<<< HEAD
+    justifyContent: 'center',
+    alignItems: 'center',
+=======
+    padding: 20,
+>>>>>>> origin/main
+  },
+  title: {
+    fontSize: 24,
+    fontWeight: 'bold',
+<<<<<<< HEAD
+  },
+});
+
+export default ImageSelectorScreen;
+=======
+    marginBottom: 20,
+  },
+});
+
+export default ImageSelectorScreen;
+>>>>>>> origin/main
+>>>>>>> origin/main

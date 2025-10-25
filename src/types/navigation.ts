@@ -1,158 +1,190 @@
+<<<<<<< HEAD
 import { NavigatorScreenParams } from '@react-navigation/native';
 
-// Root Stack Navigator Types
+// Root Stack Navigator
 export type RootStackParamList = {
   Auth: NavigatorScreenParams<AuthStackParamList>;
   Main: NavigatorScreenParams<TabParamList>;
 };
 
-// Auth Stack Navigator Types
+// Auth Stack Navigator
+=======
+<<<<<<< HEAD
+// Navigation types
+export type RootStackParamList = {
+  Auth: undefined;
+  Main: undefined;
+};
+=======
+import { NavigatorScreenParams } from '@react-navigation/native';
+>>>>>>> origin/main
+
+>>>>>>> origin/main
 export type AuthStackParamList = {
+  Onboarding: undefined;
   Login: undefined;
   Signup: undefined;
-  Onboarding: undefined;
 };
 
-// Tab Navigator Types
+<<<<<<< HEAD
+// Tab Navigator
 export type TabParamList = {
-  HomeStack: NavigatorScreenParams<HomeStackParamList>;
-  BookStack: NavigatorScreenParams<BookStackParamList>;
-  CreateStack: NavigatorScreenParams<CreateStackParamList>;
-  ProfileStack: NavigatorScreenParams<ProfileStackParamList>;
+  Home: NavigatorScreenParams<HomeStackParamList>;
+  Booking: NavigatorScreenParams<BookingStackParamList>;
+  Create: NavigatorScreenParams<CreateStackParamList>;
+  Profile: NavigatorScreenParams<ProfileStackParamList>;
 };
 
-// Home Stack Types
+// Home Stack Navigator
 export type HomeStackParamList = {
-  FeedScreen: undefined;
-  PostDetail: {
-    postId: string;
-    userId: string;
-  };
-  UserProfile: {
-    userId: string;
+  Feed: undefined;
+  TransformationDetail: {
+    transformationId: string;
   };
 };
 
-// Book Stack Types
-export type BookStackParamList = {
-  ServiceListScreen: undefined;
-  ServiceDetail: {
-    serviceId: string;
-    serviceName: string;
-  };
-  BookingForm: {
-    serviceId: string;
-    serviceName: string;
+// Booking Stack Navigator
+export type BookingStackParamList = {
+  ServiceList: undefined;
+  ProviderProfile: {
     providerId: string;
   };
-  BookingConfirmation: {
-    bookingId: string;
+  BookingCalendar: {
+    serviceId: string;
+    providerId: string;
   };
+  BookingConfirm: {
+    bookingData: {
+      serviceId: string;
+      providerId: string;
+      date: string;
+      timeSlot: string;
+      totalAmount: number;
+    };
+  };
+  MyBookings: undefined;
 };
 
-// Create Stack Types
+// Create Stack Navigator
 export type CreateStackParamList = {
-  ImageSelectorScreen: undefined;
-  PostEditor: {
-    selectedImages: string[];
+  ImageSelector: undefined;
+  Editor: {
+    imageUri: string;
   };
-  ServiceEditor: {
-    serviceId?: string;
-    isEdit?: boolean;
+  Preview: {
+    transformationData: {
+      imageUri: string;
+      beforeImageUri?: string;
+      caption: string;
+      tags: string[];
+    };
   };
 };
 
-// Profile Stack Types
+// Profile Stack Navigator
 export type ProfileStackParamList = {
-  ProfileScreen: undefined;
+  Profile: undefined;
+=======
+export type TabParamList = {
+<<<<<<< HEAD
+  HomeTab: undefined;
+  BookingTab: undefined;
+  CreateTab: undefined;
+  ProfileTab: undefined;
+};
+
+export type HomeStackParamList = {
+  Feed: undefined;
+  TransformationDetail: { id: string };
+};
+
+export type BookingStackParamList = {
+  ServiceList: undefined;
+  ProviderProfile: { providerId: string };
+  BookingCalendar: { serviceId: string; providerId: string };
+  BookingConfirm: { bookingData: any };
+  MyBookings: undefined;
+};
+
+export type CreateStackParamList = {
+  ImageSelector: undefined;
+  Editor: { imageUri: string };
+  Preview: { beforeImage: string; afterImage: string };
+};
+
+export type ProfileStackParamList = {
+  Profile: undefined;
+=======
+  Feed: undefined;
+  Services: undefined;
+  Bookings: undefined;
+  Profile: undefined;
+};
+
+export type RootStackParamList = {
+  Auth: NavigatorScreenParams<AuthStackParamList>;
+  Main: NavigatorScreenParams<TabParamList>;
+  TransformationDetail: { transformationId: string };
+  ProviderProfile: { providerId: string };
+  BookingCalendar: { serviceId: string; providerId: string };
+  BookingConfirm: { 
+    serviceId: string; 
+    providerId: string; 
+    selectedDate: string; 
+    selectedTime: string; 
+  };
+  ImageSelector: undefined;
+  Editor: { images: string[] };
+  Preview: { transformationId: string };
+>>>>>>> origin/main
+>>>>>>> origin/main
   EditProfile: undefined;
   Settings: undefined;
-  MyBookings: undefined;
-  MyServices: undefined;
-  Notifications: undefined;
+  Subscription: undefined;
 };
+<<<<<<< HEAD
 
-// Navigation Props Types
-export type RootStackScreenProps<T extends keyof RootStackParamList> = {
+// Screen Props Types
+export type ScreenProps<T extends keyof any, P extends keyof any> = {
   navigation: any;
-  route: { params: RootStackParamList[T] };
-};
-
-export type AuthStackScreenProps<T extends keyof AuthStackParamList> = {
-  navigation: any;
-  route: { params: AuthStackParamList[T] };
-};
-
-export type TabScreenProps<T extends keyof TabParamList> = {
-  navigation: any;
-  route: { params: TabParamList[T] };
-};
-
-export type HomeStackScreenProps<T extends keyof HomeStackParamList> = {
-  navigation: any;
-  route: { params: HomeStackParamList[T] };
-};
-
-export type BookStackScreenProps<T extends keyof BookStackParamList> = {
-  navigation: any;
-  route: { params: BookStackParamList[T] };
-};
-
-export type CreateStackScreenProps<T extends keyof CreateStackParamList> = {
-  navigation: any;
-  route: { params: CreateStackParamList[T] };
-};
-
-export type ProfileStackScreenProps<T extends keyof ProfileStackParamList> = {
-  navigation: any;
-  route: { params: ProfileStackParamList[T] };
-};
-
-// Deep Linking Types
-export type LinkingConfig = {
-  screens: {
-    Auth: {
-      screens: {
-        Login: 'login';
-        Signup: 'signup';
-        Onboarding: 'onboarding';
-      };
-    };
-    Main: {
-      screens: {
-        HomeStack: {
-          screens: {
-            FeedScreen: 'home';
-            PostDetail: 'post/:postId';
-            UserProfile: 'user/:userId';
-          };
-        };
-        BookStack: {
-          screens: {
-            ServiceListScreen: 'services';
-            ServiceDetail: 'service/:serviceId';
-            BookingForm: 'book/:serviceId';
-            BookingConfirmation: 'booking/:bookingId';
-          };
-        };
-        CreateStack: {
-          screens: {
-            ImageSelectorScreen: 'create';
-            PostEditor: 'create/post';
-            ServiceEditor: 'create/service';
-          };
-        };
-        ProfileStack: {
-          screens: {
-            ProfileScreen: 'profile';
-            EditProfile: 'profile/edit';
-            Settings: 'settings';
-            MyBookings: 'bookings';
-            MyServices: 'my-services';
-            Notifications: 'notifications';
-          };
-        };
-      };
-    };
+  route: {
+    params: T extends keyof RootStackParamList
+      ? RootStackParamList[T] extends NavigatorScreenParams<infer U>
+        ? P extends keyof U
+          ? U[P]
+          : never
+        : never
+      : T extends keyof AuthStackParamList
+      ? P extends keyof AuthStackParamList
+        ? AuthStackParamList[P]
+        : never
+      : T extends keyof HomeStackParamList
+      ? P extends keyof HomeStackParamList
+        ? HomeStackParamList[P]
+        : never
+      : T extends keyof BookingStackParamList
+      ? P extends keyof BookingStackParamList
+        ? BookingStackParamList[P]
+        : never
+      : T extends keyof CreateStackParamList
+      ? P extends keyof CreateStackParamList
+        ? CreateStackParamList[P]
+        : never
+      : T extends keyof ProfileStackParamList
+      ? P extends keyof ProfileStackParamList
+        ? ProfileStackParamList[P]
+        : never
+      : never;
   };
 };
+=======
+<<<<<<< HEAD
+=======
+
+declare global {
+  namespace ReactNavigation {
+    interface RootParamList extends RootStackParamList {}
+  }
+}
+>>>>>>> origin/main
+>>>>>>> origin/main

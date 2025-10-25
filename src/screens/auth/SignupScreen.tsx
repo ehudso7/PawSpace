@@ -1,26 +1,27 @@
 import React from 'react';
+<<<<<<< HEAD
 import { View, StyleSheet } from 'react-native';
-import { Text, Button } from 'react-native-paper';
-import { AuthStackScreenProps } from '../../types/navigation';
+import { NativeStackScreenProps } from '@react-navigation/native-stack';
+import { AuthStackParamList } from '@/types/navigation';
 
-type Props = AuthStackScreenProps<'Signup'>;
+type Props = NativeStackScreenProps<AuthStackParamList, 'Signup'>;
 
 const SignupScreen: React.FC<Props> = ({ navigation }) => {
   return (
     <View style={styles.container}>
-      <Text variant="headlineMedium" style={styles.title}>
-        Create Account
-      </Text>
-      <Text variant="bodyLarge" style={styles.subtitle}>
-        Join the PawSpace community
-      </Text>
-      <Button 
-        mode="contained" 
-        onPress={() => navigation.navigate('Login')}
-        style={styles.button}
-      >
-        Back to Login
-      </Button>
+      {/* TODO: Implement signup form */}
+=======
+import { View, Text, StyleSheet } from 'react-native';
+
+const SignupScreen: React.FC = () => {
+  return (
+    <View style={styles.container}>
+<<<<<<< HEAD
+      <Text style={styles.title}>Signup Screen</Text>
+=======
+      <Text style={styles.title}>Sign Up</Text>
+>>>>>>> origin/main
+>>>>>>> origin/main
     </View>
   );
 };
@@ -28,22 +29,33 @@ const SignupScreen: React.FC<Props> = ({ navigation }) => {
 const styles = StyleSheet.create({
   container: {
     flex: 1,
-    justifyContent: 'center',
-    alignItems: 'center',
-    padding: 20,
-  },
-  title: {
-    marginBottom: 10,
-    textAlign: 'center',
-  },
-  subtitle: {
-    marginBottom: 30,
-    textAlign: 'center',
-    opacity: 0.7,
-  },
-  button: {
-    marginTop: 20,
+<<<<<<< HEAD
+    backgroundColor: '#fff',
   },
 });
 
 export default SignupScreen;
+=======
+    justifyContent: 'center',
+    alignItems: 'center',
+<<<<<<< HEAD
+=======
+    padding: 20,
+>>>>>>> origin/main
+  },
+  title: {
+    fontSize: 24,
+    fontWeight: 'bold',
+<<<<<<< HEAD
+  },
+});
+
+export default SignupScreen;
+=======
+    marginBottom: 20,
+  },
+});
+
+export default SignupScreen;
+>>>>>>> origin/main
+>>>>>>> origin/main
