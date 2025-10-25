@@ -1,0 +1,11 @@
+{
+  "name": "stripe",
+  "version": "1.0.0",
+  "scripts": {
+    "deploy": "supabase functions deploy create-subscription && supabase functions deploy cancel-subscription && supabase functions deploy subscription-status && supabase functions deploy create-booking-payment && supabase functions deploy onboard-provider && supabase functions deploy webhook",
+    "test": "jest",
+    "test:watch": "jest --watch",
+    "type-check": "tsc --noEmit",
+    "lint": "eslint src/"
+  }
+}
