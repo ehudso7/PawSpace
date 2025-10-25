@@ -1,0 +1,27 @@
+{
+  "name": "pawspace",
+  "version": "1.0.0",
+  "main": "index.js",
+  "scripts": {
+    "start": "expo start",
+    "android": "expo start --android",
+    "ios": "expo start --ios",
+    "web": "expo start --web"
+  },
+  "dependencies": {
+    "@react-native-async-storage/async-storage": "^1.19.0",
+    "@supabase/supabase-js": "^2.38.0",
+    "react": "18.2.0",
+    "react-native": "0.72.6",
+    "react-native-paper": "^5.10.0",
+    "expo": "~49.0.0",
+    "expo-file-system": "~15.4.0",
+    "base64-arraybuffer": "^1.0.2"
+  },
+  "devDependencies": {
+    "@types/react": "~18.2.14",
+    "@types/react-native": "~0.72.2",
+    "typescript": "^5.1.3"
+  },
+  "private": true
+}
