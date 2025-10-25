@@ -1,0 +1,45 @@
+{
+  "expo": {
+    "name": "PawSpace",
+    "slug": "pawspace",
+    "version": "1.0.0",
+    "orientation": "portrait",
+    "icon": "./assets/icon.png",
+    "userInterfaceStyle": "light",
+    "splash": {
+      "image": "./assets/splash.png",
+      "resizeMode": "contain",
+      "backgroundColor": "#ffffff"
+    },
+    "assetBundlePatterns": [
+      "**/*"
+    ],
+    "ios": {
+      "supportsTablet": true
+    },
+    "android": {
+      "adaptiveIcon": {
+        "foregroundImage": "./assets/adaptive-icon.png",
+        "backgroundColor": "#FFFFFF"
+      }
+    },
+    "web": {
+      "favicon": "./assets/favicon.png"
+    },
+    "plugins": [
+      [
+        "expo-camera",
+        {
+          "cameraPermission": "Allow PawSpace to access your camera to take before/after photos."
+        }
+      ],
+      [
+        "expo-media-library",
+        {
+          "photosPermission": "Allow PawSpace to access your photos to save transformation videos.",
+          "savePhotosPermission": "Allow PawSpace to save transformation videos to your photo library."
+        }
+      ]
+    ]
+  }
+}
