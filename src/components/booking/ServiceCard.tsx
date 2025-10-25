@@ -1,301 +1,330 @@
 import React from 'react';
-import {
-  View,
-  Text,
-  Image,
-  TouchableOpacity,
-  StyleSheet,
-  ScrollView,
-  Dimensions,
-} from 'react-native';
-import { Card, Button, Chip, Avatar } from 'react-native-paper';
+<<<<<<< HEAD
+import { View, Text, Image, TouchableOpacity, StyleSheet } from 'react-native';
 import { Ionicons } from '@expo/vector-icons';
-import { Service } from '../../types/booking';
-import { formatDistance } from '../../utils/distance';
+import { Card } from '@/components/common';
+import { theme } from '@/constants/theme';
+import { Service } from '@/types';
 
 interface ServiceCardProps {
   service: Service;
   onPress: () => void;
-  onBookPress: () => void;
 }
 
-const { width } = Dimensions.get('window');
-const IMAGE_WIDTH = width - 32; // Account for card margins
-const IMAGE_HEIGHT = 200;
-
-export function ServiceCard({ service, onPress, onBookPress }: ServiceCardProps) {
-  const {
-    title,
-    provider,
-    service_type,
-    price,
-    duration,
-    images,
-    rating,
-    distance,
-  } = service;
-
-  const formatDuration = (minutes: number): string => {
-    if (minutes < 60) {
-      return `${minutes}min`;
-    }
-    const hours = Math.floor(minutes / 60);
-    const remainingMinutes = minutes % 60;
-    return remainingMinutes > 0 ? `${hours}h ${remainingMinutes}min` : `${hours}h`;
-  };
-
-  const getServiceTypeColor = (type: string): string => {
-    switch (type) {
-      case 'grooming':
-        return '#E3F2FD';
-      case 'walking':
-        return '#E8F5E8';
-      case 'vet_care':
-        return '#FFF3E0';
-      case 'training':
-        return '#F3E5F5';
-      default:
-        return '#F5F5F5';
-    }
-  };
-
-  const getServiceTypeLabel = (type: string): string => {
-    switch (type) {
-      case 'grooming':
-        return 'Grooming';
-      case 'walking':
-        return 'Walking';
-      case 'vet_care':
-        return 'Vet Care';
-      case 'training':
-        return 'Training';
-      default:
-        return type;
-    }
-  };
-
-  const renderStars = (rating: number) => {
-    const stars = [];
-    const fullStars = Math.floor(rating);
-    const hasHalfStar = rating % 1 !== 0;
-
-    for (let i = 0; i < fullStars; i++) {
-      stars.push(
-        <Ionicons key={i} name="star" size={14} color="#FFD700" />
-      );
-    }
-
-    if (hasHalfStar) {
-      stars.push(
-        <Ionicons key="half" name="star-half" size={14} color="#FFD700" />
-      );
-    }
-
-    const emptyStars = 5 - Math.ceil(rating);
-    for (let i = 0; i < emptyStars; i++) {
-      stars.push(
-        <Ionicons key={`empty-${i}`} name="star-outline" size={14} color="#FFD700" />
-      );
-    }
-
-    return stars;
-  };
-
+const ServiceCard: React.FC<ServiceCardProps> = ({ service, onPress }) => {
   return (
-    <Card style={styles.card} elevation={2}>
-      <TouchableOpacity onPress={onPress} activeOpacity={0.7}>
-        {/* Image Carousel */}
-        {images.length > 0 && (
-          <ScrollView
-            horizontal
-            pagingEnabled
-            showsHorizontalScrollIndicator={false}
-            style={styles.imageContainer}
-          >
-            {images.map((image, index) => (
-              <Image
-                key={index}
-                source={{ uri: image }}
-                style={styles.image}
-                resizeMode="cover"
-              />
-            ))}
-          </ScrollView>
-        )}
-
-        <Card.Content style={styles.content}>
-          {/* Header with service type badge */}
-          <View style={styles.header}>
-            <Chip
-              style={[
-                styles.serviceTypeBadge,
-                { backgroundColor: getServiceTypeColor(service_type) },
-              ]}
-              textStyle={styles.serviceTypeText}
-            >
-              {getServiceTypeLabel(service_type)}
-            </Chip>
-            {distance !== undefined && (
-              <Text style={styles.distance}>{formatDistance(distance)}</Text>
-            )}
+    <Card style={styles.card}>
+      <TouchableOpacity onPress={onPress}>
+        <View style={styles.imageContainer}>
+          <Image source={{ uri: service.imageUrl }} style={styles.image} />
+          <View style={styles.duration}>
+            <Ionicons name="time-outline" size={14} color={theme.colors.white} />
+            <Text style={styles.durationText}>{service.duration}min</Text>
           </View>
-
-          {/* Service Title */}
-          <Text style={styles.title} numberOfLines={2}>
-            {title}
+        </View>
+        
+        <View style={styles.content}>
+          <Text style={styles.title}>{service.title}</Text>
+          <Text style={styles.description} numberOfLines={2}>
+            {service.description}
           </Text>
-
-          {/* Provider Info */}
-          <View style={styles.providerRow}>
-            <Avatar.Image
-              size={32}
-              source={{ uri: provider.avatar || 'https://via.placeholder.com/150' }}
-              style={styles.avatar}
-            />
-            <View style={styles.providerInfo}>
-              <View style={styles.providerNameRow}>
-                <Text style={styles.providerName}>{provider.name}</Text>
-                {provider.verified && (
-                  <Ionicons name="checkmark-circle" size={16} color="#4CAF50" />
-                )}
-              </View>
-              <View style={styles.ratingRow}>
-                <View style={styles.stars}>
-                  {renderStars(rating)}
-                </View>
-                <Text style={styles.ratingText}>
-                  {rating.toFixed(1)} ({provider.total_reviews})
-                </Text>
-              </View>
+          
+          <View style={styles.footer}>
+            <Text style={styles.price}>${service.price}</Text>
+            <View style={styles.rating}>
+              <Ionicons name="star" size={14} color={theme.colors.warning} />
+              <Text style={styles.ratingText}>{service.rating}</Text>
             </View>
           </View>
-
-          {/* Price and Duration */}
-          <View style={styles.priceRow}>
-            <View style={styles.priceInfo}>
-              <Text style={styles.price}>${price}</Text>
-              <Text style={styles.duration}>• {formatDuration(duration)}</Text>
-            </View>
-            <Button
-              mode="contained"
-              onPress={onBookPress}
-              style={styles.bookButton}
-              contentStyle={styles.bookButtonContent}
-              labelStyle={styles.bookButtonLabel}
-            >
-              Book Now
-            </Button>
-          </View>
-        </Card.Content>
+        </View>
       </TouchableOpacity>
     </Card>
-  );
+=======
+<<<<<<< HEAD
+import { View, Text, Image, StyleSheet, TouchableOpacity } from 'react-native';
+import { Card } from '@/components/common';
+=======
+import { View, Text, StyleSheet, Image, TouchableOpacity } from 'react-native';
+import Card from '@/components/common/Card';
+>>>>>>> origin/main
+
+interface ServiceCardProps {
+  id: string;
+  name: string;
+  description: string;
+  price: number;
+  duration: number;
+  image: string;
+<<<<<<< HEAD
+  onPress?: () => void;
 }
+
+const ServiceCard: React.FC<ServiceCardProps> = ({
+=======
+  onPress: () => void;
+}
+
+const ServiceCard: React.FC<ServiceCardProps> = ({
+  id,
+>>>>>>> origin/main
+  name,
+  description,
+  price,
+  duration,
+  image,
+  onPress,
+}) => {
+  return (
+<<<<<<< HEAD
+    <TouchableOpacity onPress={onPress}>
+      <Card style={styles.card}>
+=======
+    <Card style={styles.card}>
+      <TouchableOpacity onPress={onPress}>
+>>>>>>> origin/main
+        <Image source={{ uri: image }} style={styles.image} />
+        <View style={styles.content}>
+          <Text style={styles.name}>{name}</Text>
+          <Text style={styles.description}>{description}</Text>
+          <View style={styles.footer}>
+            <Text style={styles.price}>${price}</Text>
+            <Text style={styles.duration}>{duration} min</Text>
+          </View>
+        </View>
+<<<<<<< HEAD
+      </Card>
+    </TouchableOpacity>
+=======
+      </TouchableOpacity>
+    </Card>
+>>>>>>> origin/main
+>>>>>>> origin/main
+  );
+};
 
 const styles = StyleSheet.create({
   card: {
-    marginHorizontal: 16,
-    marginVertical: 8,
-    borderRadius: 12,
-    backgroundColor: '#FFFFFF',
+    marginBottom: 16,
+<<<<<<< HEAD
+    padding: 0,
+    overflow: 'hidden',
   },
   imageContainer: {
-    height: IMAGE_HEIGHT,
+    position: 'relative',
   },
   image: {
-    width: IMAGE_WIDTH,
-    height: IMAGE_HEIGHT,
+    width: '100%',
+    height: 150,
+    resizeMode: 'cover',
+  },
+  duration: {
+    position: 'absolute',
+    top: 8,
+    right: 8,
+    backgroundColor: 'rgba(0, 0, 0, 0.7)',
+    borderRadius: 12,
+    paddingHorizontal: 8,
+    paddingVertical: 4,
+    flexDirection: 'row',
+    alignItems: 'center',
+  },
+  durationText: {
+    color: theme.colors.white,
+    fontSize: 12,
+    marginLeft: 2,
+=======
+  },
+  image: {
+    width: '100%',
+<<<<<<< HEAD
+    height: 150,
+    borderRadius: 8,
+    backgroundColor: '#F0F0F0',
+    marginBottom: 12,
+  },
+  content: {
+    gap: 8,
+  },
+  name: {
+    fontSize: 18,
+    fontWeight: '600',
+    color: '#333',
+=======
+    height: 200,
+    resizeMode: 'cover',
+    borderTopLeftRadius: 12,
+    borderTopRightRadius: 12,
+>>>>>>> origin/main
   },
   content: {
     padding: 16,
   },
-  header: {
-    flexDirection: 'row',
-    justifyContent: 'space-between',
-    alignItems: 'center',
-    marginBottom: 8,
-  },
-  serviceTypeBadge: {
-    height: 28,
-  },
-  serviceTypeText: {
-    fontSize: 12,
-    fontWeight: '600',
-  },
-  distance: {
-    fontSize: 12,
-    color: '#666',
-    fontWeight: '500',
-  },
+<<<<<<< HEAD
   title: {
     fontSize: 18,
-    fontWeight: 'bold',
-    color: '#333',
-    marginBottom: 12,
-    lineHeight: 24,
-  },
-  providerRow: {
-    flexDirection: 'row',
-    alignItems: 'center',
-    marginBottom: 12,
-  },
-  avatar: {
-    marginRight: 12,
-  },
-  providerInfo: {
-    flex: 1,
-  },
-  providerNameRow: {
-    flexDirection: 'row',
-    alignItems: 'center',
-    marginBottom: 4,
-  },
-  providerName: {
-    fontSize: 14,
     fontWeight: '600',
-    color: '#333',
-    marginRight: 6,
+    color: theme.colors.text,
+    marginBottom: 8,
   },
-  ratingRow: {
-    flexDirection: 'row',
-    alignItems: 'center',
+  description: {
+    fontSize: 14,
+    color: theme.colors.gray,
+    lineHeight: 20,
+    marginBottom: 12,
+=======
+  name: {
+    fontSize: 18,
+    fontWeight: 'bold',
+    marginBottom: 8,
+>>>>>>> origin/main
   },
-  stars: {
-    flexDirection: 'row',
-    marginRight: 6,
-  },
-  ratingText: {
-    fontSize: 12,
+  description: {
+    fontSize: 14,
     color: '#666',
+<<<<<<< HEAD
+=======
+    marginBottom: 12,
+>>>>>>> origin/main
+>>>>>>> origin/main
   },
-  priceRow: {
+  footer: {
     flexDirection: 'row',
     justifyContent: 'space-between',
     alignItems: 'center',
+<<<<<<< HEAD
+=======
+<<<<<<< HEAD
+    marginTop: 4,
+>>>>>>> origin/main
   },
-  priceInfo: {
+  price: {
+    fontSize: 20,
+    fontWeight: '700',
+<<<<<<< HEAD
+    color: theme.colors.primary,
+  },
+  rating: {
     flexDirection: 'row',
-    alignItems: 'baseline',
+    alignItems: 'center',
+  },
+  ratingText: {
+    marginLeft: 4,
+    fontSize: 14,
+    fontWeight: '500',
+    color: theme.colors.text,
+  },
+});
+
+export default ServiceCard;
+=======
+=======
   },
   price: {
     fontSize: 20,
     fontWeight: 'bold',
-    color: '#2196F3',
+>>>>>>> origin/main
+    color: '#007AFF',
   },
   duration: {
     fontSize: 14,
+<<<<<<< HEAD
     color: '#666',
-    marginLeft: 8,
-  },
-  bookButton: {
-    borderRadius: 20,
-  },
-  bookButtonContent: {
-    paddingHorizontal: 16,
-    paddingVertical: 4,
-  },
-  bookButtonLabel: {
-    fontSize: 14,
-    fontWeight: '600',
+=======
+    color: '#999',
+>>>>>>> origin/main
   },
 });
+
+export default ServiceCard;
+<<<<<<< HEAD
+=======
+import React, { memo } from 'react';
+import { Image, StyleSheet, View } from 'react-native';
+import { Button, Card, Chip, Text, useTheme, Avatar } from 'react-native-paper';
+import { Service } from '../../types/service';
+import { SERVICE_TYPE_LABEL } from '../../constants/services';
+import { formatMiles, haversineDistanceMiles } from '../../utils/geo';
+import Carousel from 'react-native-reanimated-carousel';
+import Animated, { FadeIn, FadeOut, LinearTransition } from 'react-native-reanimated';
+
+interface Props {
+  service: Service;
+  userLocation?: { latitude: number; longitude: number } | null;
+  onPress?: (service: Service) => void;
+  onBook?: (service: Service) => void;
+}
+
+const RatingStars: React.FC<{ rating: number }> = ({ rating }) => {
+  const full = Math.floor(rating);
+  const half = rating - full >= 0.5;
+  const arr = Array.from({ length: 5 }, (_, i) => (i < full ? '★' : i === full && half ? '☆' : '☆'));
+  return (
+    <Text accessibilityLabel={`Rating ${rating.toFixed(1)} out of 5`}>{arr.join(' ')} {rating.toFixed(1)}</Text>
+  );
+};
+
+export const ServiceCard: React.FC<Props> = memo(({ service, userLocation, onPress, onBook }) => {
+  const theme = useTheme();
+  const distance = userLocation ? haversineDistanceMiles(userLocation, service.location) : undefined;
+
+  return (
+    <Animated.View
+      entering={FadeIn}
+      exiting={FadeOut}
+      layout={LinearTransition}
+      style={{ marginBottom: 12 }}
+    >
+      <Card onPress={() => onPress?.(service)}>
+        {/* Carousel */}
+        <View style={{ height: 180 }}>
+          <Carousel
+            width={styles.carousel.width as number}
+            height={180}
+            autoPlay
+            data={service.images}
+            renderItem={({ item }) => (
+              <Image source={{ uri: item }} style={styles.image} resizeMode="cover" />)
+            }
+          />
+        </View>
+
+        <Card.Content style={styles.contentRow}>
+          <Avatar.Image size={48} source={{ uri: service.provider.avatarUrl }} />
+          <View style={styles.info}>
+            <Text variant="titleMedium" style={styles.title} numberOfLines={1}>{service.title}</Text>
+            <Text variant="bodyMedium" numberOfLines={1}>{service.provider.name}</Text>
+            <RatingStars rating={service.rating} />
+            <View style={styles.badgeRow}>
+              <Chip compact style={styles.badge}>
+                {SERVICE_TYPE_LABEL[service.service_type]}
+              </Chip>
+              {!!distance && (
+                <Chip compact style={styles.badge} icon="map-marker-distance">
+                  {formatMiles(distance)}
+                </Chip>
+              )}
+              <Chip compact style={styles.badge} icon="clock-outline">{service.duration} min</Chip>
+            </View>
+          </View>
+          <View style={styles.right}>
+            <Text variant="titleMedium">${service.price}</Text>
+            <Button mode="contained" onPress={() => onBook?.(service)}>Book Now</Button>
+          </View>
+        </Card.Content>
+      </Card>
+    </Animated.View>
+  );
+});
+
+const styles = StyleSheet.create({
+  carousel: { width: 360 },
+  image: { width: '100%', height: '100%' },
+  contentRow: { flexDirection: 'row', alignItems: 'center', gap: 12, paddingTop: 12 },
+  info: { flex: 1 },
+  title: { fontWeight: 'bold' },
+  badgeRow: { flexDirection: 'row', flexWrap: 'wrap', gap: 6, marginTop: 6 },
+  badge: {},
+  right: { alignItems: 'flex-end', gap: 6 },
+});
+>>>>>>> origin/main
+>>>>>>> origin/main

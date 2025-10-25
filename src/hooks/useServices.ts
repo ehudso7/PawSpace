@@ -1,57 +1,42 @@
-import { useQuery, useInfiniteQuery } from '@tanstack/react-query';
-import { getServices, getServiceById, searchServices } from '../services/bookings';
-import { ServiceFilters, UserLocation } from '../types/booking';
+import { useInfiniteQuery, useQuery } from '@tanstack/react-query';
+import { getServiceById, getServices, searchServices } from '../services/bookings';
+import { Service, ServiceFilters } from '../types/service';
 
-const SERVICES_QUERY_KEY = 'services';
-const SERVICE_QUERY_KEY = 'service';
-const SEARCH_QUERY_KEY = 'search';
-
-/**
- * Hook for fetching services with infinite scroll pagination
- */
-export function useServices(
-  filters: ServiceFilters = {},
-  userLocation?: UserLocation,
-  enabled: boolean = true
-) {
-  return useInfiniteQuery({
-    queryKey: [SERVICES_QUERY_KEY, filters, userLocation],
-    queryFn: ({ pageParam = 1 }) =>
-      getServices(filters, userLocation, pageParam, 10),
-    getNextPageParam: (lastPage) =>
-      lastPage.pagination.has_more ? lastPage.pagination.page + 1 : undefined,
-    enabled,
-    staleTime: 5 * 60 * 1000, // 5 minutes
-    cacheTime: 10 * 60 * 1000, // 10 minutes
+export function useServiceById(id?: string) {
+  return useQuery<Service, Error>({
+    queryKey: ['service', id],
+    queryFn: () => {
+      if (!id) throw new Error('No service id');
+      return getServiceById(id);
+    },
+    enabled: Boolean(id),
   });
 }
 
-/**
- * Hook for fetching a single service by ID
- */
-export function useService(id: string, enabled: boolean = true) {
-  return useQuery({
-    queryKey: [SERVICE_QUERY_KEY, id],
-    queryFn: () => getServiceById(id),
-    enabled: enabled && !!id,
-    staleTime: 10 * 60 * 1000, // 10 minutes
-    cacheTime: 30 * 60 * 1000, // 30 minutes
+export function useSearchServices(query: string) {
+  return useQuery<Service[], Error>({
+    queryKey: ['services', 'search', query],
+    queryFn: () => searchServices(query),
+    enabled: query.trim().length > 0,
+    staleTime: 1000 * 60 * 5,
   });
 }
 
-/**
- * Hook for searching services with debouncing
- */
-export function useSearchServices(
-  query: string,
-  userLocation?: UserLocation,
-  enabled: boolean = true
-) {
-  return useQuery({
-    queryKey: [SEARCH_QUERY_KEY, query, userLocation],
-    queryFn: () => searchServices(query, userLocation),
-    enabled: enabled && query.length >= 2,
-    staleTime: 2 * 60 * 1000, // 2 minutes
-    cacheTime: 5 * 60 * 1000, // 5 minutes
+export function useInfiniteServices(filters: ServiceFilters, pageSize = 12) {
+  return useInfiniteQuery<Service[], Error, Service[], any, [string, ServiceFilters, number]>({
+    queryKey: ['services', 'list', filters, pageSize],
+    queryFn: async ({ pageParam = 0 }) => {
+      const all = await getServices(filters);
+      const start = pageParam * pageSize;
+      const end = start + pageSize;
+      return all.slice(start, end);
+    },
+    getNextPageParam: (lastPage, allPages) => {
+      if (!lastPage || lastPage.length < pageSize) return undefined;
+      return allPages.length; // next page index
+    },
+    initialPageParam: 0,
+    staleTime: 1000 * 30,
+    gcTime: 1000 * 60 * 15,
   });
 }
