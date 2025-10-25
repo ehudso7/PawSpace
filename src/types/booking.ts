@@ -1,90 +1,70 @@
-export interface Location {
-  addressLine1?: string;
-  addressLine2?: string;
-  city?: string;
-  state?: string;
-  postalCode?: string;
-  country?: string;
-  lat?: number;
-  lng?: number;
-}
-
-export interface Service {
+export interface TimeSlot {
   id: string;
-  title: string;
-  description?: string;
-  durationMinutes: number;
-  priceCents: number;
-  currency: string;
-  category?: string;
-}
-
-export interface TransformationItem {
-  id: string;
-  beforeImageUrl: string;
-  afterImageUrl: string;
-  caption?: string;
-}
-
-export interface BusinessDayWindow {
-  open: string; // HH:mm in provider tz
-  close: string; // HH:mm in provider tz
-}
-
-export interface BusinessHours {
-  monday?: BusinessDayWindow;
-  tuesday?: BusinessDayWindow;
-  wednesday?: BusinessDayWindow;
-  thursday?: BusinessDayWindow;
-  friday?: BusinessDayWindow;
-  saturday?: BusinessDayWindow;
-  sunday?: BusinessDayWindow;
+  start_time: string;
+  end_time: string;
+  is_available: boolean;
 }
 
 export interface ProviderProfile {
   id: string;
-  full_name: string;
-  avatar_url?: string;
-  cover_photo_url?: string;
-  bio: string;
-  location: Location;
-  email?: string;
-  phone?: string;
-  website?: string;
+  name: string;
+  avatar?: string;
   rating: number;
   total_reviews: number;
-  total_bookings: number;
-  services: Service[];
-  business_hours: BusinessHours;
-  portfolio_items: TransformationItem[];
-  reviews?: Review[];
+  verified: boolean;
+  bio?: string;
+  phone?: string;
+  email?: string;
 }
 
-export interface AvailabilitySlot {
-  date: string; // YYYY-MM-DD in provider tz
-  available_slots: number;
-  is_available: boolean;
-}
-
-export interface TimeSlot {
-  start_time: string; // ISO string in provider tz
-  end_time: string;   // ISO string in provider tz
-  is_available: boolean;
-}
-
-export interface BookingServiceRecap {
-  serviceId: string;
-  serviceTitle: string;
-  durationMinutes: number;
-  priceCents: number;
-  currency: string;
-}
-
-export interface Review {
+export interface Service {
   id: string;
-  rating: number; // 1-5
-  comment: string;
-  created_at: string; // ISO
-  reviewer_name?: string;
-  reviewer_avatar_url?: string;
+  provider_id: string;
+  provider: ProviderProfile;
+  title: string;
+  description: string;
+  service_type: 'grooming' | 'walking' | 'vet_care' | 'training';
+  price: number;
+  duration: number; // minutes
+  location: {
+    address: string;
+    latitude: number;
+    longitude: number;
+  };
+  images: string[];
+  rating: number;
+  total_bookings: number;
+  availability_slots: TimeSlot[];
+  created_at: string;
+  distance?: number; // calculated distance from user
 }
+
+export interface ServiceFilters {
+  service_type?: string;
+  min_price?: number;
+  max_price?: number;
+  max_distance?: number;
+  availability_date?: string;
+  sort_by?: 'distance' | 'price' | 'rating' | 'popularity';
+  search_query?: string;
+}
+
+export interface PaginatedResponse<T> {
+  data: T[];
+  pagination: {
+    page: number;
+    limit: number;
+    total: number;
+    has_more: boolean;
+  };
+}
+
+export interface UserLocation {
+  latitude: number;
+  longitude: number;
+  address?: string;
+}
+
+export type ServiceType = 'all' | 'grooming' | 'walking' | 'vet_care' | 'training';
+export type SortOption = 'distance' | 'price' | 'rating' | 'popularity';
+export type AvailabilityFilter = 'anytime' | 'today' | 'this_week';

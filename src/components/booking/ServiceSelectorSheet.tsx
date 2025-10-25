@@ -1,125 +1,258 @@
-import React, { useMemo, useRef, useState } from 'react';
-import { View, Text, FlatList, Pressable, StyleSheet } from 'react-native';
-import BottomSheet, { BottomSheetBackdrop } from '@gorhom/bottom-sheet';
+import React from 'react';
+import {
+  View,
+  Text,
+  StyleSheet,
+  TouchableOpacity,
+  Modal,
+  ScrollView,
+  Dimensions,
+  Animated,
+  PanGestureHandler,
+  State,
+} from 'react-native';
+import { Ionicons } from '@expo/vector-icons';
 import { Service } from '../../types/booking';
-import { colors } from '../../theme/colors';
+
+const { height } = Dimensions.get('window');
+const SHEET_HEIGHT = height * 0.7;
 
 interface ServiceSelectorSheetProps {
+  visible: boolean;
   services: Service[];
   onClose: () => void;
-  onSelectService: (service: Service) => void;
+  onServiceSelect: (service: Service) => void;
 }
 
-export const ServiceSelectorSheet: React.FC<ServiceSelectorSheetProps> = ({ services, onClose, onSelectService }) => {
-  const sheetRef = useRef<BottomSheet>(null);
-  const snapPoints = useMemo(() => ['45%', '85%'], []);
-  const [selectedId, setSelectedId] = useState<string | null>(null);
+const ServiceSelectorSheet: React.FC<ServiceSelectorSheetProps> = ({
+  visible,
+  services,
+  onClose,
+  onServiceSelect,
+}) => {
+  const translateY = new Animated.Value(SHEET_HEIGHT);
+  const opacity = new Animated.Value(0);
 
-  const renderItem = ({ item }: { item: Service }) => {
-    const selected = selectedId === item.id;
-    return (
-      <Pressable
-        onPress={() => setSelectedId(item.id)}
-        style={[styles.item, { borderColor: selected ? colors.primary : colors.border, backgroundColor: selected ? colors.surfaceAlt : colors.surface }]}
-      >
-        <View style={{ flex: 1 }}>
-          <Text style={styles.title}>{item.title}</Text>
-          {!!item.description && <Text style={styles.desc}>{item.description}</Text>}
-          <Text style={styles.meta}>{Math.round(item.durationMinutes)} min</Text>
-        </View>
-        <Text style={styles.price}>
-          {new Intl.NumberFormat(undefined, { style: 'currency', currency: item.currency || 'USD' }).format((item.priceCents || 0) / 100)}
-        </Text>
-      </Pressable>
-    );
+  React.useEffect(() => {
+    if (visible) {
+      Animated.parallel([
+        Animated.timing(translateY, {
+          toValue: 0,
+          duration: 300,
+          useNativeDriver: true,
+        }),
+        Animated.timing(opacity, {
+          toValue: 1,
+          duration: 300,
+          useNativeDriver: true,
+        }),
+      ]).start();
+    } else {
+      Animated.parallel([
+        Animated.timing(translateY, {
+          toValue: SHEET_HEIGHT,
+          duration: 300,
+          useNativeDriver: true,
+        }),
+        Animated.timing(opacity, {
+          toValue: 0,
+          duration: 300,
+          useNativeDriver: true,
+        }),
+      ]).start();
+    }
+  }, [visible]);
+
+  const handleServiceSelect = (service: Service) => {
+    onServiceSelect(service);
+  };
+
+  const formatDuration = (minutes: number) => {
+    if (minutes < 60) {
+      return `${minutes} min`;
+    }
+    const hours = Math.floor(minutes / 60);
+    const remainingMinutes = minutes % 60;
+    return remainingMinutes > 0 ? `${hours}h ${remainingMinutes}m` : `${hours}h`;
+  };
+
+  const formatPrice = (price: number) => {
+    return `$${price}`;
   };
 
   return (
-    <BottomSheet
-      ref={sheetRef}
-      index={1}
-      snapPoints={snapPoints}
-      enablePanDownToClose
-      onClose={onClose}
-      backdropComponent={(props) => (
-        <BottomSheetBackdrop {...props} appearsOnIndex={0} disappearsOnIndex={-1} pressBehavior="close" />
-      )}
-      backgroundStyle={{ backgroundColor: colors.card }}
-      handleIndicatorStyle={{ backgroundColor: colors.textMuted }}
+    <Modal
+      visible={visible}
+      transparent
+      animationType="none"
+      onRequestClose={onClose}
     >
-      <View style={{ flex: 1 }}>
-        <FlatList
-          data={services}
-          keyExtractor={(s) => s.id}
-          renderItem={renderItem}
-          ItemSeparatorComponent={() => <View style={{ height: 10 }} />}
-          contentContainerStyle={{ padding: 16 }}
-          ListFooterComponent={
-            <View style={{ height: 16 }} />
-          }
+      <Animated.View style={[styles.overlay, { opacity }]}>
+        <TouchableOpacity
+          style={styles.overlayTouchable}
+          activeOpacity={1}
+          onPress={onClose}
         />
-        <View style={styles.footer}>
-          <Pressable onPress={onClose} style={[styles.footerBtn, { backgroundColor: colors.surface }]}>
-            <Text style={{ color: colors.text }}>Cancel</Text>
-          </Pressable>
-          <Pressable
-            onPress={() => {
-              const service = services.find((s) => s.id === selectedId);
-              if (service) onSelectService(service);
-            }}
-            style={[styles.footerBtn, { backgroundColor: colors.primary, opacity: selectedId ? 1 : 0.6 }]}
-            disabled={!selectedId}
-          >
-            <Text style={{ color: '#fff' }}>Continue</Text>
-          </Pressable>
-        </View>
-      </View>
-    </BottomSheet>
+        
+        <Animated.View
+          style={[
+            styles.sheet,
+            {
+              transform: [{ translateY }],
+            },
+          ]}
+        >
+          {/* Handle */}
+          <View style={styles.handle} />
+          
+          {/* Header */}
+          <View style={styles.header}>
+            <Text style={styles.title}>Select a Service</Text>
+            <TouchableOpacity onPress={onClose} style={styles.closeButton}>
+              <Ionicons name="close" size={24} color="#666" />
+            </TouchableOpacity>
+          </View>
+
+          {/* Services List */}
+          <ScrollView style={styles.content} showsVerticalScrollIndicator={false}>
+            {services.map((service) => (
+              <TouchableOpacity
+                key={service.id}
+                style={styles.serviceItem}
+                onPress={() => handleServiceSelect(service)}
+              >
+                <View style={styles.serviceInfo}>
+                  <Text style={styles.serviceTitle}>{service.title}</Text>
+                  <Text style={styles.serviceDescription}>{service.description}</Text>
+                  
+                  <View style={styles.serviceDetails}>
+                    <View style={styles.serviceDetail}>
+                      <Ionicons name="time-outline" size={16} color="#666" />
+                      <Text style={styles.serviceDetailText}>
+                        {formatDuration(service.duration)}
+                      </Text>
+                    </View>
+                    
+                    <View style={styles.serviceDetail}>
+                      <Ionicons name="pricetag-outline" size={16} color="#666" />
+                      <Text style={styles.serviceDetailText}>
+                        {formatPrice(service.price)}
+                      </Text>
+                    </View>
+                    
+                    <View style={styles.serviceDetail}>
+                      <Ionicons name="grid-outline" size={16} color="#666" />
+                      <Text style={styles.serviceDetailText}>
+                        {service.category}
+                      </Text>
+                    </View>
+                  </View>
+                </View>
+                
+                <View style={styles.serviceAction}>
+                  <Ionicons name="chevron-forward" size={20} color="#007AFF" />
+                </View>
+              </TouchableOpacity>
+            ))}
+          </ScrollView>
+        </Animated.View>
+      </Animated.View>
+    </Modal>
   );
 };
 
 const styles = StyleSheet.create({
-  item: {
-    borderWidth: 1,
-    borderRadius: 12,
-    padding: 14,
+  overlay: {
+    flex: 1,
+    backgroundColor: 'rgba(0, 0, 0, 0.5)',
+    justifyContent: 'flex-end',
+  },
+  overlayTouchable: {
+    flex: 1,
+  },
+  sheet: {
+    backgroundColor: '#fff',
+    borderTopLeftRadius: 20,
+    borderTopRightRadius: 20,
+    height: SHEET_HEIGHT,
+    shadowColor: '#000',
+    shadowOffset: {
+      width: 0,
+      height: -2,
+    },
+    shadowOpacity: 0.25,
+    shadowRadius: 3.84,
+    elevation: 5,
+  },
+  handle: {
+    width: 40,
+    height: 4,
+    backgroundColor: '#ddd',
+    borderRadius: 2,
+    alignSelf: 'center',
+    marginTop: 12,
+    marginBottom: 8,
+  },
+  header: {
     flexDirection: 'row',
+    justifyContent: 'space-between',
     alignItems: 'center',
-    gap: 12,
+    paddingHorizontal: 20,
+    paddingVertical: 16,
+    borderBottomWidth: 1,
+    borderBottomColor: '#f0f0f0',
   },
   title: {
-    color: '#fff',
-    fontSize: 16,
-    fontWeight: '600',
+    fontSize: 20,
+    fontWeight: 'bold',
+    color: '#333',
   },
-  desc: {
-    color: colors.textMuted,
-    marginTop: 4,
+  closeButton: {
+    padding: 4,
   },
-  meta: {
-    color: colors.textMuted,
-    marginTop: 4,
-    fontSize: 12,
-  },
-  price: {
-    color: '#fff',
-    fontWeight: '600',
-    marginLeft: 12,
-  },
-  footer: {
-    flexDirection: 'row',
-    gap: 12,
-    padding: 16,
-    borderTopWidth: 1,
-    borderTopColor: colors.border,
-    backgroundColor: colors.card,
-  },
-  footerBtn: {
+  content: {
     flex: 1,
+    paddingHorizontal: 20,
+  },
+  serviceItem: {
+    flexDirection: 'row',
     alignItems: 'center',
-    justifyContent: 'center',
-    paddingVertical: 12,
-    borderRadius: 10,
+    paddingVertical: 16,
+    borderBottomWidth: 1,
+    borderBottomColor: '#f0f0f0',
+  },
+  serviceInfo: {
+    flex: 1,
+  },
+  serviceTitle: {
+    fontSize: 18,
+    fontWeight: '600',
+    color: '#333',
+    marginBottom: 4,
+  },
+  serviceDescription: {
+    fontSize: 14,
+    color: '#666',
+    marginBottom: 12,
+    lineHeight: 20,
+  },
+  serviceDetails: {
+    flexDirection: 'row',
+    flexWrap: 'wrap',
+  },
+  serviceDetail: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    marginRight: 16,
+    marginBottom: 4,
+  },
+  serviceDetailText: {
+    fontSize: 12,
+    color: '#666',
+    marginLeft: 4,
+  },
+  serviceAction: {
+    padding: 8,
   },
 });
 

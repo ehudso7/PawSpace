@@ -1,95 +1,114 @@
-import { BusinessHours } from "../types/booking";
+import { BusinessHours, DayOfWeek } from '../types/booking';
 
-/**
- * Utilities for working with dates/times without external deps.
- * NOTE: We keep everything as ISO strings in provider timezone when displayed,
- * and convert to UTC when checking conflicts with stored bookings.
- */
-
-export function toISODate(date: Date): string {
-  const year = date.getFullYear();
-  const month = String(date.getMonth() + 1).padStart(2, "0");
-  const day = String(date.getDate()).padStart(2, "0");
-  return `${year}-${month}-${day}`;
+export function formatYmd(date: Date, timeZone?: string): string {
+  if (!timeZone) {
+    const y = date.getUTCFullYear();
+    const m = String(date.getUTCMonth() + 1).padStart(2, '0');
+    const d = String(date.getUTCDate()).padStart(2, '0');
+    return `${y}-${m}-${d}`;
+  }
+  const parts = new Intl.DateTimeFormat('en-CA', { timeZone, year: 'numeric', month: '2-digit', day: '2-digit' }).formatToParts(date);
+  const y = parts.find(p => p.type === 'year')?.value ?? '0000';
+  const m = parts.find(p => p.type === 'month')?.value ?? '01';
+  const d = parts.find(p => p.type === 'day')?.value ?? '01';
+  return `${y}-${m}-${d}`;
 }
 
-export function toTimeStringHHmm(date: Date): string {
-  const h = String(date.getHours()).padStart(2, "0");
-  const m = String(date.getMinutes()).padStart(2, "0");
-  return `${h}:${m}`;
+export function isPastYmd(ymd: string, timeZone?: string): boolean {
+  const now = new Date();
+  const todayYmd = formatYmd(now, timeZone);
+  return ymd < todayYmd;
+}
+
+export function parseYmd(ymd: string): { year: number; month: number; day: number } {
+  const [year, month, day] = ymd.split('-').map(n => parseInt(n, 10));
+  return { year, month, day };
+}
+
+function getTimeZoneOffset(date: Date, timeZone: string): number {
+  const locale = date.toLocaleString('en-US', { timeZone });
+  const asLocal = new Date(locale);
+  return asLocal.getTime() - date.getTime();
+}
+
+export function zonedDateTimeToUtc(ymd: string, hhmm: string, timeZone: string): Date {
+  const { year, month, day } = parseYmd(ymd);
+  const [hour, minute] = hhmm.split(':').map(v => parseInt(v, 10));
+  const naiveUtc = new Date(Date.UTC(year, month - 1, day, hour, minute, 0, 0));
+  const offset = getTimeZoneOffset(naiveUtc, timeZone);
+  return new Date(naiveUtc.getTime() - offset);
+}
+
+export function utcToZonedIso(date: Date, timeZone: string): string {
+  const parts = new Intl.DateTimeFormat('en-CA', {
+    timeZone,
+    year: 'numeric',
+    month: '2-digit',
+    day: '2-digit',
+    hour: '2-digit',
+    minute: '2-digit',
+    second: '2-digit',
+    hour12: false,
+  }).formatToParts(date);
+  const y = parts.find(p => p.type === 'year')?.value ?? '0000';
+  const m = parts.find(p => p.type === 'month')?.value ?? '01';
+  const d = parts.find(p => p.type === 'day')?.value ?? '01';
+  const h = parts.find(p => p.type === 'hour')?.value ?? '00';
+  const min = parts.find(p => p.type === 'minute')?.value ?? '00';
+  const s = parts.find(p => p.type === 'second')?.value ?? '00';
+  return `${y}-${m}-${d}T${h}:${min}:${s}`;
 }
 
 export function addMinutes(date: Date, minutes: number): Date {
   return new Date(date.getTime() + minutes * 60 * 1000);
 }
 
-export function isSameDay(a: Date, b: Date): boolean {
-  return (
-    a.getFullYear() === b.getFullYear() &&
-    a.getMonth() === b.getMonth() &&
-    a.getDate() === b.getDate()
-  );
-}
-
-export function isPastDate(date: Date): boolean {
-  const now = new Date();
-  const endOfDay = new Date(date);
-  endOfDay.setHours(23, 59, 59, 999);
-  return endOfDay.getTime() < now.getTime();
-}
-
-export function combineDateAndTime(dateISO: string, timeHHmm: string): Date {
-  // Use local timezone of the JS runtime; assume provider tz mapping handled externally
-  const [year, month, day] = dateISO.split("-").map((s) => parseInt(s, 10));
-  const [h, m] = timeHHmm.split(":").map((s) => parseInt(s, 10));
-  return new Date(year, month - 1, day, h, m, 0, 0);
-}
-
-export function minutesBetween(a: Date, b: Date): number {
+export function diffMinutes(a: Date, b: Date): number {
   return Math.round((b.getTime() - a.getTime()) / 60000);
 }
 
-export function getDayKey(date: Date): keyof BusinessHours {
-  const day = date.getDay(); // 0 Sun - 6 Sat
-  return ["sunday", "monday", "tuesday", "wednesday", "thursday", "friday", "saturday"][
-    day
-  ] as keyof BusinessHours;
+export function getDayOfWeekFromYmd(ymd: string): DayOfWeek {
+  const { year, month, day } = parseYmd(ymd);
+  const d = new Date(Date.UTC(year, month - 1, day));
+  const idx = d.getUTCDay();
+  return ['sunday', 'monday', 'tuesday', 'wednesday', 'thursday', 'friday', 'saturday'][idx] as DayOfWeek;
 }
 
-export function getBusinessWindowForDate(businessHours: BusinessHours, date: Date) {
-  const key = getDayKey(date);
-  return businessHours[key];
+export function getBusinessHoursForDate(ymd: string, businessHours: BusinessHours): { open?: string; close?: string; timeZone: string } {
+  const dow = getDayOfWeekFromYmd(ymd);
+  const tz = businessHours.timezone || 'UTC';
+  const dayBH = businessHours[dow];
+  return { open: dayBH?.open, close: dayBH?.close, timeZone: tz };
 }
 
-export function eachMinuteOfInterval(start: Date, end: Date, stepMinutes: number): Date[] {
-  if (stepMinutes <= 0) return [];
-  const result: Date[] = [];
-  let cursor = new Date(start);
-  while (cursor < end) {
-    result.push(new Date(cursor));
-    cursor = addMinutes(cursor, stepMinutes);
+export function generateCandidateStarts(
+  ymd: string,
+  businessHours: BusinessHours,
+  slotIntervalMinutes: number
+): Array<{ startUtc: Date; endUtc: Date; localLabel: string }> {
+  const { open, close, timeZone } = getBusinessHoursForDate(ymd, businessHours);
+  if (!open || !close) return [];
+
+  const startUtc = zonedDateTimeToUtc(ymd, open, timeZone);
+  const endUtc = zonedDateTimeToUtc(ymd, close, timeZone);
+
+  const out: Array<{ startUtc: Date; endUtc: Date; localLabel: string }> = [];
+  let cursor = new Date(startUtc);
+  while (cursor < endUtc) {
+    const end = addMinutes(cursor, slotIntervalMinutes);
+    if (end > endUtc) break;
+    const localLabel = new Intl.DateTimeFormat(undefined, {
+      timeZone,
+      hour: 'numeric',
+      minute: '2-digit',
+      hour12: true,
+    }).format(cursor);
+    out.push({ startUtc: new Date(cursor), endUtc: end, localLabel });
+    cursor = addMinutes(cursor, slotIntervalMinutes);
   }
-  return result;
+  return out;
 }
 
-export function clampToBusinessHours(dateISO: string, businessHours: BusinessHours): { start: Date; end: Date } | null {
-  const date = new Date(dateISO + "T00:00:00");
-  const window = getBusinessWindowForDate(businessHours, date);
-  if (!window) return null;
-  const start = combineDateAndTime(toISODate(date), window.open);
-  const end = combineDateAndTime(toISODate(date), window.close);
-  if (end <= start) return null;
-  return { start, end };
-}
-
-export function formatDisplayTime(date: Date): string {
-  const h = date.getHours();
-  const m = date.getMinutes();
-  const suffix = h >= 12 ? "PM" : "AM";
-  const hh = h % 12 === 0 ? 12 : h % 12;
-  return `${hh}:${String(m).padStart(2, "0")} ${suffix}`;
-}
-
-export function toISO(date: Date): string {
-  return date.toISOString();
+export function rangesOverlap(aStart: Date, aEnd: Date, bStart: Date, bEnd: Date): boolean {
+  return aStart < bEnd && bStart < aEnd;
 }
