@@ -1,14 +1,61 @@
 import React from 'react';
-import { View, Text } from 'react-native';
-import type { NativeStackScreenProps } from '@react-navigation/native-stack';
-import type { AuthStackParamList } from '@/navigation/AuthNavigator';
+<<<<<<< HEAD
+import { View, StyleSheet } from 'react-native';
+import { NativeStackScreenProps } from '@react-navigation/native-stack';
+import { AuthStackParamList } from '@/types/navigation';
 
-export type OnboardingScreenProps = NativeStackScreenProps<AuthStackParamList, 'Onboarding'>;
+type Props = NativeStackScreenProps<AuthStackParamList, 'Onboarding'>;
 
-export const OnboardingScreen: React.FC<OnboardingScreenProps> = () => {
+const OnboardingScreen: React.FC<Props> = ({ navigation }) => {
   return (
-    <View style={{ flex: 1, alignItems: 'center', justifyContent: 'center' }}>
-      <Text>Onboarding Screen</Text>
+    <View style={styles.container}>
+      {/* TODO: Implement onboarding carousel */}
+=======
+import { View, Text, StyleSheet } from 'react-native';
+
+const OnboardingScreen: React.FC = () => {
+  return (
+    <View style={styles.container}>
+<<<<<<< HEAD
+      <Text style={styles.title}>Onboarding Screen</Text>
+=======
+      <Text style={styles.title}>Welcome to PawSpace</Text>
+>>>>>>> origin/main
+>>>>>>> origin/main
     </View>
   );
 };
+
+const styles = StyleSheet.create({
+  container: {
+    flex: 1,
+<<<<<<< HEAD
+    backgroundColor: '#fff',
+  },
+});
+
+export default OnboardingScreen;
+=======
+    justifyContent: 'center',
+    alignItems: 'center',
+<<<<<<< HEAD
+=======
+    padding: 20,
+>>>>>>> origin/main
+  },
+  title: {
+    fontSize: 24,
+    fontWeight: 'bold',
+<<<<<<< HEAD
+  },
+});
+
+export default OnboardingScreen;
+=======
+    marginBottom: 20,
+  },
+});
+
+export default OnboardingScreen;
+>>>>>>> origin/main
+>>>>>>> origin/main

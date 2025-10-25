@@ -1,14 +1,74 @@
 import React from 'react';
-import { View, Text } from 'react-native';
-import type { BottomTabScreenProps } from '@react-navigation/bottom-tabs';
-import type { TabParamList } from '@/navigation/TabNavigator';
+<<<<<<< HEAD
+import { View, StyleSheet } from 'react-native';
+import { NativeStackScreenProps } from '@react-navigation/native-stack';
+import { HomeStackParamList } from '@/types/navigation';
 
-export type FeedScreenProps = BottomTabScreenProps<TabParamList, 'Feed'>;
+type Props = NativeStackScreenProps<HomeStackParamList, 'Feed'>;
 
-export const FeedScreen: React.FC<FeedScreenProps> = () => {
+const FeedScreen: React.FC<Props> = ({ navigation }) => {
   return (
-    <View style={{ flex: 1, alignItems: 'center', justifyContent: 'center' }}>
-      <Text>Feed Screen</Text>
+    <View style={styles.container}>
+      {/* TODO: Implement pet transformation feed */}
+=======
+<<<<<<< HEAD
+import { View, Text, StyleSheet } from 'react-native';
+=======
+import { View, Text, StyleSheet, FlatList } from 'react-native';
+>>>>>>> origin/main
+
+const FeedScreen: React.FC = () => {
+  return (
+    <View style={styles.container}>
+<<<<<<< HEAD
+      <Text style={styles.title}>Feed Screen</Text>
+=======
+      <Text style={styles.title}>Pet Transformations Feed</Text>
+      <FlatList
+        data={[]}
+        renderItem={() => null}
+        keyExtractor={(item, index) => index.toString()}
+        contentContainerStyle={styles.list}
+      />
+>>>>>>> origin/main
+>>>>>>> origin/main
     </View>
   );
 };
+
+const styles = StyleSheet.create({
+  container: {
+    flex: 1,
+<<<<<<< HEAD
+    backgroundColor: '#fff',
+  },
+});
+
+export default FeedScreen;
+=======
+<<<<<<< HEAD
+    justifyContent: 'center',
+    alignItems: 'center',
+=======
+    padding: 20,
+>>>>>>> origin/main
+  },
+  title: {
+    fontSize: 24,
+    fontWeight: 'bold',
+<<<<<<< HEAD
+  },
+});
+
+export default FeedScreen;
+=======
+    marginBottom: 20,
+  },
+  list: {
+    flexGrow: 1,
+  },
+});
+
+export default FeedScreen;
+>>>>>>> origin/main
+>>>>>>> origin/main

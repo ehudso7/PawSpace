@@ -1,3 +1,13 @@
-export * from './AppNavigator';
-export * from './AuthNavigator';
-export * from './TabNavigator';
+export { default as AppNavigator } from './AppNavigator';
+<<<<<<< HEAD
+export { default as AuthNavigator } from './AuthNavigator';
+export { default as TabNavigator } from './TabNavigator';
+=======
+<<<<<<< HEAD
+export { default as AuthNavigator } from './AuthNavigator';
+export { default as TabNavigator } from './TabNavigator';
+=======
+export { AuthNavigator } from './AuthNavigator';
+export { TabNavigator } from './TabNavigator';
+>>>>>>> origin/main
+>>>>>>> origin/main

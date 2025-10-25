@@ -1,4 +1,12 @@
-export * from './ProfileScreen';
-export * from './EditProfileScreen';
-export * from './SettingsScreen';
-export * from './SubscriptionScreen';
+export { default as ProfileScreen } from './ProfileScreen';
+export { default as EditProfileScreen } from './EditProfileScreen';
+export { default as SettingsScreen } from './SettingsScreen';
+<<<<<<< HEAD
+export { default as SubscriptionScreen } from './SubscriptionScreen';
+=======
+<<<<<<< HEAD
+export { default as SubscriptionScreen } from './SubscriptionScreen';
+=======
+export { default as SubscriptionScreen } from './SubscriptionScreen';
+>>>>>>> origin/main
+>>>>>>> origin/main

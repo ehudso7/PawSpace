@@ -1,14 +1,61 @@
 import React from 'react';
-import { View, Text } from 'react-native';
-import type { NativeStackScreenProps } from '@react-navigation/native-stack';
-import type { AuthStackParamList } from '@/navigation/AuthNavigator';
+<<<<<<< HEAD
+import { View, StyleSheet } from 'react-native';
+import { NativeStackScreenProps } from '@react-navigation/native-stack';
+import { AuthStackParamList } from '@/types/navigation';
 
-export type LoginScreenProps = NativeStackScreenProps<AuthStackParamList, 'Login'>;
+type Props = NativeStackScreenProps<AuthStackParamList, 'Login'>;
 
-export const LoginScreen: React.FC<LoginScreenProps> = () => {
+const LoginScreen: React.FC<Props> = ({ navigation }) => {
   return (
-    <View style={{ flex: 1, alignItems: 'center', justifyContent: 'center' }}>
-      <Text>Login Screen</Text>
+    <View style={styles.container}>
+      {/* TODO: Implement login form */}
+=======
+import { View, Text, StyleSheet } from 'react-native';
+
+const LoginScreen: React.FC = () => {
+  return (
+    <View style={styles.container}>
+<<<<<<< HEAD
+      <Text style={styles.title}>Login Screen</Text>
+=======
+      <Text style={styles.title}>Login</Text>
+>>>>>>> origin/main
+>>>>>>> origin/main
     </View>
   );
 };
+
+const styles = StyleSheet.create({
+  container: {
+    flex: 1,
+<<<<<<< HEAD
+    backgroundColor: '#fff',
+  },
+});
+
+export default LoginScreen;
+=======
+    justifyContent: 'center',
+    alignItems: 'center',
+<<<<<<< HEAD
+=======
+    padding: 20,
+>>>>>>> origin/main
+  },
+  title: {
+    fontSize: 24,
+    fontWeight: 'bold',
+<<<<<<< HEAD
+  },
+});
+
+export default LoginScreen;
+=======
+    marginBottom: 20,
+  },
+});
+
+export default LoginScreen;
+>>>>>>> origin/main
+>>>>>>> origin/main
