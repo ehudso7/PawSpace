@@ -68,7 +68,7 @@ export const CalendarView: React.FC<CalendarViewProps> = ({ providerId, selected
     <View>
       <Calendar
         current={selectedDate || undefined}
-        onDayPress={(d) => onSelectDate(d.dateString)}
+        onDayPress={(d: DateObject) => onSelectDate(d.dateString)}
         onMonthChange={handleMonthChange}
         markingType="multi-dot"
         markedDates={markedDates}
