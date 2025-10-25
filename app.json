@@ -1,0 +1,37 @@
+{
+  "expo": {
+    "name": "PetCare",
+    "slug": "petcare",
+    "scheme": "petcare",
+    "version": "1.0.0",
+    "orientation": "portrait",
+    "icon": "./assets/icon.png",
+    "userInterfaceStyle": "automatic",
+    "splash": {
+      "image": "./assets/splash.png",
+      "resizeMode": "contain",
+      "backgroundColor": "#ffffff"
+    },
+    "assetBundlePatterns": ["**/*"],
+    "ios": { "supportsTablet": true },
+    "android": {
+      "adaptiveIcon": {
+        "foregroundImage": "./assets/adaptive-icon.png",
+        "backgroundColor": "#ffffff"
+      },
+      "permissions": ["NOTIFICATIONS"]
+    },
+    "plugins": [
+      ["sentry-expo", { "organization": "your-org", "project": "petcare" }],
+      "expo-notifications",
+      ["react-native-maps", { "config": { "googleMapsApiKey": "YOUR_GOOGLE_MAPS_API_KEY" } }]
+    ],
+    "extra": {
+      "eas": { "projectId": "YOUR_EAS_PROJECT_ID" },
+      "supabaseUrl": "https://YOUR_PROJECT.supabase.co",
+      "supabaseAnonKey": "YOUR_SUPABASE_ANON_KEY",
+      "sentryDsn": "YOUR_SENTRY_DSN",
+      "appVersion": "1.0.0"
+    }
+  }
+}
