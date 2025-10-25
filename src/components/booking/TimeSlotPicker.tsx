@@ -1,79 +1,90 @@
-import React from 'react';
-import { View, Text, StyleSheet, TouchableOpacity, FlatList } from 'react-native';
+import React, { useEffect, useMemo, useState } from 'react';
+import { ActivityIndicator, FlatList, Pressable, Text, View } from 'react-native';
+import { getTimeSlots } from '../../services/bookings';
+import { TimeSlot } from '../../types/booking';
+import { colors } from '../../theme/colors';
+import { formatDisplayTime } from '../../utils/time';
 
 interface TimeSlotPickerProps {
-  selectedTime?: string;
-  onTimeSelect: (time: string) => void;
-  availableSlots: string[];
+  providerId: string;
+  date: string | null; // YYYY-MM-DD
+  serviceDuration: number; // minutes
+  onSelect: (slot: TimeSlot) => void;
+  selectedSlot?: TimeSlot | null;
 }
 
-const TimeSlotPicker: React.FC<TimeSlotPickerProps> = ({
-  selectedTime,
-  onTimeSelect,
-  availableSlots,
-}) => {
+export const TimeSlotPicker: React.FC<TimeSlotPickerProps> = ({ providerId, date, serviceDuration, onSelect, selectedSlot }) => {
+  const [loading, setLoading] = useState(false);
+  const [slots, setSlots] = useState<TimeSlot[]>([]);
+
+  useEffect(() => {
+    let active = true;
+    if (!date) {
+      setSlots([]);
+      return;
+    }
+    setLoading(true);
+    getTimeSlots(providerId, date, serviceDuration)
+      .then((s) => active && setSlots(s))
+      .finally(() => active && setLoading(false));
+    return () => {
+      active = false;
+    };
+  }, [providerId, date, serviceDuration]);
+
+  const renderItem = ({ item }: { item: TimeSlot }) => {
+    const start = new Date(item.start_time);
+    const end = new Date(item.end_time);
+    const label = `${formatDisplayTime(start)} - ${formatDisplayTime(end)}`;
+    const selected = selectedSlot?.start_time === item.start_time;
+    const disabled = !item.is_available;
+
+    return (
+      <Pressable
+        onPress={() => !disabled && onSelect(item)}
+        disabled={disabled}
+        style={{
+          paddingVertical: 10,
+          paddingHorizontal: 14,
+          borderRadius: 10,
+          margin: 6,
+          backgroundColor: selected ? colors.primary : colors.surface,
+          borderWidth: 1,
+          borderColor: selected ? colors.primaryDark : colors.border,
+          opacity: disabled ? 0.5 : 1,
+        }}
+      >
+        <Text style={{ color: '#fff' }}>{label}</Text>
+      </Pressable>
+    );
+  };
+
+  if (!date) {
+    return (
+      <View style={{ padding: 16 }}>
+        <Text style={{ color: colors.textMuted }}>Select a date to view availability</Text>
+      </View>
+    );
+  }
+
   return (
-    <View style={styles.container}>
-      <Text style={styles.title}>Select Time</Text>
-      <FlatList
-        data={availableSlots}
-        renderItem={({ item }) => (
-          <TouchableOpacity
-            style={[
-              styles.slot,
-              selectedTime === item && styles.selectedSlot,
-            ]}
-            onPress={() => onTimeSelect(item)}
-          >
-            <Text
-              style={[
-                styles.slotText,
-                selectedTime === item && styles.selectedSlotText,
-              ]}
-            >
-              {item}
-            </Text>
-          </TouchableOpacity>
-        )}
-        keyExtractor={(item) => item}
-        numColumns={3}
-        contentContainerStyle={styles.list}
-      />
+    <View style={{ minHeight: 96 }}>
+      {loading ? (
+        <View style={{ paddingVertical: 8 }}>
+          <ActivityIndicator color={colors.primary} />
+        </View>
+      ) : (
+        <FlatList
+          data={slots}
+          keyExtractor={(item) => item.start_time}
+          renderItem={renderItem}
+          horizontal
+          showsHorizontalScrollIndicator={false}
+          contentContainerStyle={{ paddingHorizontal: 8, paddingBottom: 8 }}
+        />
+      )}
     </View>
   );
 };
-
-const styles = StyleSheet.create({
-  container: {
-    padding: 16,
-  },
-  title: {
-    fontSize: 18,
-    fontWeight: 'bold',
-    marginBottom: 16,
-  },
-  list: {
-    paddingBottom: 16,
-  },
-  slot: {
-    flex: 1,
-    margin: 4,
-    padding: 12,
-    backgroundColor: '#F0F0F0',
-    borderRadius: 8,
-    alignItems: 'center',
-  },
-  selectedSlot: {
-    backgroundColor: '#007AFF',
-  },
-  slotText: {
-    fontSize: 14,
-    color: '#333',
-  },
-  selectedSlotText: {
-    color: '#FFF',
-    fontWeight: 'bold',
-  },
-});
 
 export default TimeSlotPicker;
