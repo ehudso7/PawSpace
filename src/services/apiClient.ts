@@ -1,12 +1,17 @@
 import { API_BASE_URL } from '../config';
+import { supabase } from '@/services/supabase';
 
 interface RequestOptions extends RequestInit {
   authToken?: string;
 }
 
 async function getAuthToken(): Promise<string | undefined> {
-  // TODO: Replace with your app's auth token retrieval
-  return undefined;
+  try {
+    const { data } = await supabase.auth.getSession();
+    return data.session?.access_token;
+  } catch (_e) {
+    return undefined;
+  }
 }
 
 export async function apiGet<T>(path: string, options: RequestOptions = {}): Promise<T> {

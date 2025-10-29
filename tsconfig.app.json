@@ -1,0 +1,37 @@
+{
+  "extends": "./tsconfig.json",
+  "include": [
+    "App.tsx",
+    "src/navigation/AppNavigator.tsx",
+    "src/navigation/TabNavigator.tsx",
+    "src/navigation/AuthNavigator.tsx",
+    "src/screens/home/FeedScreen.tsx",
+    "src/screens/home/TransformationDetailScreen.tsx",
+    "src/screens/profile/ProfileScreen.tsx",
+    "src/screens/profile/EditProfileScreen.tsx",
+    "src/screens/profile/SettingsScreen.tsx",
+    "src/screens/profile/SubscriptionScreen.tsx",
+    "src/services/auth.ts",
+    "src/services/supabase.ts",
+    "src/services/apiClient.ts",
+    "src/types/**/*.ts",
+    ".expo/types/**/*.ts",
+    "expo-env.d.ts"
+  ],
+  "exclude": [
+    "node_modules",
+    "conflict_backups",
+    "examples",
+    "App.example.tsx",
+    "EXAMPLE_USAGE.tsx",
+    "useAuth.examples.tsx",
+    "src/__tests__",
+    "src/components",
+    "src/screens/booking",
+    "src/screens/create",
+    "src/screens/book",
+    "src/screens/tabs",
+    "src/navigation/RootNavigator.tsx",
+    "src/navigation/BookingStack.tsx"
+  ]
+}

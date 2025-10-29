@@ -1,60 +1,41 @@
-import {StackNavigationProp} from '@react-navigation/stack';
-import {RouteProp} from '@react-navigation/native';
-import {Service, ProviderProfile, Booking} from './booking';
-
 export type RootStackParamList = {
   Main: undefined;
-  Home: undefined;
+  Auth: undefined;
+};
+
+export type HomeStackParamList = {
+  Feed: undefined;
+  TransformationDetail: { transformationId: string };
+};
+
+export type BookingStackParamList = {
   ServiceList: undefined;
-  ServiceDetail: {service: Service; provider: ProviderProfile};
-  BookingConfirm: {
-    service: Service;
-    provider: ProviderProfile;
-    appointmentTime: string;
-  };
-  BookingSuccess: {booking: Booking};
+  ProviderProfile: { providerId: string };
+  BookingCalendar: { providerId: string; service?: unknown };
+  BookingConfirm: { bookingId?: string };
   MyBookings: undefined;
-  BookingDetail: {bookingId: string};
+};
+
+export type CreateStackParamList = {
+  ImageSelector: undefined;
+  Editor: { imageUri?: string };
+  Preview: { transformationData: unknown };
+};
+
+export type ProfileStackParamList = {
+  Profile: undefined;
+  EditProfile: undefined;
+  Settings: undefined;
+  Subscription: undefined;
+};
+
+export type AuthStackParamList = {
+  Onboarding: undefined;
+  Login: undefined;
+  Signup: undefined;
 };
 
 export type TabParamList = {
-  HomeTab: undefined;
-  ServicesTab: undefined;
-  BookingsTab: undefined;
-  ProfileTab: undefined;
+  Home: undefined;
+  Profile: undefined;
 };
-
-export type BookingConfirmScreenNavigationProp = StackNavigationProp<
-  RootStackParamList,
-  'BookingConfirm'
->;
-
-export type BookingConfirmScreenRouteProp = RouteProp<
-  RootStackParamList,
-  'BookingConfirm'
->;
-
-export type BookingSuccessScreenNavigationProp = StackNavigationProp<
-  RootStackParamList,
-  'BookingSuccess'
->;
-
-export type BookingSuccessScreenRouteProp = RouteProp<
-  RootStackParamList,
-  'BookingSuccess'
->;
-
-export type MyBookingsScreenNavigationProp = StackNavigationProp<
-  RootStackParamList,
-  'MyBookings'
->;
-
-export type BookingDetailScreenNavigationProp = StackNavigationProp<
-  RootStackParamList,
-  'BookingDetail'
->;
-
-export type BookingDetailScreenRouteProp = RouteProp<
-  RootStackParamList,
-  'BookingDetail'
->;
