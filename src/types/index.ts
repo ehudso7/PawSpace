@@ -1,6 +1,7 @@
 // Re-export all types
 export * from './navigation';
 export * from './database';
+export * from './booking.types';
 
 // Common types
 export interface User {
@@ -41,16 +42,41 @@ export interface CreateTransformationData {
   category?: string;
 }
 
+// Publishing and Platform Types
+export type Platform = 'pawspace' | 'instagram' | 'tiktok' | 'twitter';
+
+export interface PublishingOptions {
+  platforms: Platform[];
+  schedule?: Date;
+  caption?: string;
+  hashtags?: string[];
+}
+
+// Video Player Types
+export interface VideoPlayerState {
+  isPlaying: boolean;
+  currentTime: number;
+  duration: number;
+  volume: number;
+  isMuted: boolean;
+  playbackRate: number;
+}
+
+// Transition Types
+export type TransitionType = 'fade' | 'slide' | 'zoom' | 'rotate' | 'none';
+
 // Service Types
 export interface Service {
   id: string;
   providerId: string;
   title: string;
+  name: string;
   description: string;
   price: number;
   duration: number;
   imageUrl: string;
   category: string;
+  type: 'grooming' | 'walking' | 'sitting' | 'training' | 'veterinary' | 'boarding';
   isAvailable: boolean;
   rating?: number;
   createdAt: string;
@@ -65,6 +91,7 @@ export interface Provider {
   title: string;
   description: string;
   avatar: string;
+  avatar_url?: string;
   coverImage?: string;
   location: string;
   rating: number;
@@ -73,6 +100,15 @@ export interface Provider {
   services?: Service[];
   createdAt: string;
   updatedAt: string;
+}
+
+export interface ProviderProfile extends Provider {
+  specialties: string[];
+  experience: number;
+  languages: string[];
+  availability: string;
+  portfolio: string[];
+  certifications: string[];
 }
 
 // Booking Types
@@ -85,9 +121,11 @@ export interface Booking {
   provider?: Provider;
   date: string;
   time: string;
+  appointment_time: string;
   status: BookingStatus;
   notes?: string;
   totalPrice: number;
+  total_price: number;
   createdAt: string;
   updatedAt: string;
 }

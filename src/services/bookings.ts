@@ -5,7 +5,7 @@ import {
   Pet,
   Service,
   ProviderProfile,
-} from '../types/booking';
+} from '../types/booking.types';
 
 const API_BASE_URL = 'https://your-api-url.com'; // Replace with your actual API URL
 
@@ -238,4 +238,13 @@ class BookingService {
   }
 }
 
-export default new BookingService();
+const bookingService = new BookingService();
+
+export const createBooking = bookingService.createBooking.bind(bookingService);
+export const getBookings = bookingService.getBookings.bind(bookingService);
+export const getBookingById = bookingService.getBookingById.bind(bookingService);
+export const updateBooking = bookingService.updateBooking.bind(bookingService);
+export const cancelBooking = bookingService.cancelBooking.bind(bookingService);
+export const getBookingsByStatus = bookingService.getBookingsByStatus.bind(bookingService);
+
+export default bookingService;

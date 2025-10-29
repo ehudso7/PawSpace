@@ -18,12 +18,12 @@ const Input: React.FC<InputProps> = ({
   return (
     <View style={[styles.container, containerStyle]}>
       {label && <Text style={styles.label}>{label}</Text>}
-      <TextInput
-        style={[
-          styles.input,
-          error && styles.inputError,
-          style,
-        ]}
+            <TextInput
+              style={[
+                styles.input,
+                error ? styles.inputError : undefined,
+                style,
+              ]}
         placeholderTextColor={theme.colors.gray}
         {...props}
       />

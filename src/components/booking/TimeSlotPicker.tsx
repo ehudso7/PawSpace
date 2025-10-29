@@ -307,3 +307,5 @@ const styles = StyleSheet.create({
     marginBottom: 4,
   },
 });
+
+export default TimeSlotPicker;

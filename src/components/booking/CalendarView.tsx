@@ -227,3 +227,5 @@ const styles = StyleSheet.create({
     color: '#666666',
   },
 });
+
+export default CalendarView;

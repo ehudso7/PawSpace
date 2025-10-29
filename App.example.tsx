@@ -12,12 +12,12 @@
 import React, { useEffect, useState } from 'react';
 import { NavigationContainer } from '@react-navigation/native';
 import { createNativeStackNavigator } from '@react-navigation/native-stack';
-import { ActivityIndicator, View } from 'react-native';
+import { ActivityIndicator, View, Text, Button } from 'react-native';
 
 // Import auth screens
-import { OnboardingScreen, hasCompletedOnboarding } from './src/screens/auth/OnboardingScreen';
-import { LoginScreen } from './src/screens/auth/LoginScreen';
-import { SignupScreen } from './src/screens/auth/SignupScreen';
+import OnboardingScreen from './src/screens/auth/OnboardingScreen';
+import LoginScreen from './src/screens/auth/LoginScreen';
+import SignupScreen from './src/screens/auth/SignupScreen';
 
 // Import auth hook
 import { useAuth } from './src/hooks/useAuth';
@@ -77,8 +77,8 @@ const HomeScreen = () => {
   
   return (
     <View style={{ flex: 1, justifyContent: 'center', alignItems: 'center' }}>
-      <Text>Welcome, {user?.profile.full_name}!</Text>
-      <Text>Type: {user?.user_type}</Text>
+      <Text>Welcome, {user?.name}!</Text>
+      <Text>Email: {user?.email}</Text>
       <Button title="Sign Out" onPress={signOut} />
     </View>
   );
@@ -89,13 +89,15 @@ const HomeScreen = () => {
  * Handles routing between auth and app stacks based on auth state
  */
 const RootNavigator = () => {
-  const { user, loading } = useAuth();
+  const { user, isLoading } = useAuth();
   const [showOnboarding, setShowOnboarding] = useState(false);
   const [checkingOnboarding, setCheckingOnboarding] = useState(true);
 
   useEffect(() => {
     const checkOnboarding = async () => {
-      const completed = await hasCompletedOnboarding();
+      // Check if user has completed onboarding
+      // This would typically check AsyncStorage or a user preference
+      const completed = false; // Replace with actual check
       setShowOnboarding(!completed);
       setCheckingOnboarding(false);
     };
@@ -104,7 +106,7 @@ const RootNavigator = () => {
   }, []);
 
   // Show loading screen while checking auth state
-  if (loading || checkingOnboarding) {
+  if (isLoading || checkingOnboarding) {
     return (
       <View style={{ flex: 1, justifyContent: 'center', alignItems: 'center' }}>
         <ActivityIndicator size="large" color="#6200ee" />

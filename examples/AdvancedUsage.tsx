@@ -6,10 +6,10 @@
 
 import React, { useState, useCallback } from 'react';
 import { View, Alert, Platform } from 'react-native';
-import { ProviderProfileScreen } from './src/screens/booking/ProviderProfileScreen';
-import { BookingCalendarScreen } from './src/screens/booking/BookingCalendarScreen';
-import { Service, BookingDetails } from './src/types/booking.types';
-import { createBooking } from './src/services/bookings.service';
+import ProviderProfileScreen from '../src/screens/booking/ProviderProfileScreen';
+import BookingCalendarScreen from '../src/screens/booking/BookingCalendarScreen';
+import { Service, BookingDetails, CreateBookingData } from '../src/types/booking.types';
+import { createBooking } from '../src/services/bookings';
 
 // Example 1: Navigation Integration (React Navigation)
 // ====================================================
@@ -84,11 +84,11 @@ export const BookingCalendarWithNavigation: React.FC<NavigationProps> = ({
 // Example 2: State Management Integration (Redux/Zustand)
 // =======================================================
 
-interface BookingState {
-  selectedProvider: string | null;
-  selectedService: Service | null;
-  bookingDetails: BookingDetails | null;
-}
+// interface _BookingState {
+//   selectedProvider: string | null;
+//   selectedService: Service | null;
+//   bookingDetails: BookingDetails | null;
+// }
 
 // Zustand store example
 /*
@@ -241,7 +241,7 @@ interface UseBookingFlowReturn {
   reset: () => void;
 }
 
-export const useBookingFlow = (providerId: string): UseBookingFlowReturn => {
+export const useBookingFlow = (_providerId: string): UseBookingFlowReturn => {
   const [currentStep, setCurrentStep] = useState<'profile' | 'calendar' | 'confirmation'>('profile');
   const [selectedService, setSelectedService] = useState<Service | null>(null);
   const [bookingDetails, setBookingDetails] = useState<BookingDetails | null>(null);
@@ -257,7 +257,21 @@ export const useBookingFlow = (providerId: string): UseBookingFlowReturn => {
 
   const confirmBooking = useCallback(async (details: BookingDetails) => {
     try {
-      const result = await createBooking(details);
+      const bookingData: CreateBookingData = {
+        serviceId: details.service_id,
+        providerId: details.provider_id,
+        petId: 'pet-1', // This should come from the booking flow
+        date: details.date,
+        time: details.start_time,
+        location: {
+          address: '123 Main St',
+          city: 'City',
+          state: 'State',
+          zip_code: '12345',
+        },
+        notes: 'Booking from AdvancedUsage example',
+      };
+      const result = await createBooking(bookingData);
       setBookingDetails(details);
       setCurrentStep('confirmation');
       

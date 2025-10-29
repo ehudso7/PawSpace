@@ -14,6 +14,9 @@ export interface Service {
   duration: number; // in minutes
   price: number;
   category: string;
+  providerId: string;
+  createdAt: string;
+  updatedAt: string;
 }
 
 export interface TransformationItem {
@@ -47,13 +50,19 @@ export interface BusinessHours {
 
 export interface ProviderProfile {
   id: string;
-  full_name: string;
+  userId: string;
+  name: string;
+  title: string;
+  description: string;
+  avatar: string;
   avatar_url?: string;
-  cover_photo_url?: string;
-  bio: string;
-  location: Location;
+  coverImage?: string;
+  location: string;
   rating: number;
-  total_reviews: number;
+  reviewCount: number;
+  startingPrice: number;
+  createdAt: string;
+  updatedAt: string;
   total_bookings: number;
   services: Service[];
   business_hours: BusinessHours;
@@ -63,6 +72,18 @@ export interface ProviderProfile {
   response_time?: string; // e.g., "Usually responds within 1 hour"
   phone?: string;
   email?: string;
+}
+
+export interface Pet {
+  id: string;
+  name: string;
+  species: string;
+  breed: string;
+  age: number;
+  weight: number;
+  ownerId: string;
+  createdAt: string;
+  updatedAt: string;
 }
 
 export interface AvailabilitySlot {
@@ -86,4 +107,30 @@ export interface BookingDetails {
   service_title: string;
   service_duration: number;
   service_price: number;
+}
+
+export interface BookingData {
+  service: Service;
+  provider: ProviderProfile;
+  pet: Pet;
+  date: string;
+  time: string;
+  location: Location;
+  notes?: string;
+}
+
+export interface CreateBookingData {
+  serviceId: string;
+  providerId: string;
+  petId: string;
+  date: string;
+  time: string;
+  location: Location;
+  notes?: string;
+}
+
+export interface PaymentResult {
+  success: boolean;
+  paymentIntent?: string;
+  error?: string;
 }
