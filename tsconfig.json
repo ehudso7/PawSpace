@@ -2,57 +2,8 @@
   "extends": "expo/tsconfig.base",
   "compilerOptions": {
     "strict": true,
-<<<<<<< HEAD
-    "noUnusedLocals": true,
-    "noUnusedParameters": true,
-    "noImplicitReturns": true,
-    "noFallthroughCasesInSwitch": true,
-    "noUncheckedIndexedAccess": true,
-    "exactOptionalPropertyTypes": true,
     "baseUrl": ".",
     "paths": {
-      "@/*": ["./src/*"],
-      "@/components": ["./src/components"],
-      "@/components/*": ["./src/components/*"],
-      "@/screens": ["./src/screens"],
-      "@/screens/*": ["./src/screens/*"],
-      "@/navigation": ["./src/navigation"],
-      "@/navigation/*": ["./src/navigation/*"],
-      "@/services": ["./src/services"],
-      "@/services/*": ["./src/services/*"],
-      "@/hooks": ["./src/hooks"],
-      "@/hooks/*": ["./src/hooks/*"],
-      "@/types": ["./src/types"],
-      "@/types/*": ["./src/types/*"],
-      "@/constants": ["./src/constants"],
-      "@/constants/*": ["./src/constants/*"],
-      "@/utils": ["./src/utils"],
-      "@/utils/*": ["./src/utils/*"]
-    }
-=======
-    "baseUrl": ".",
-    "paths": {
-<<<<<<< HEAD
-      "@/*": ["./src/*"],
-      "@/components/*": ["./src/components/*"],
-      "@/screens/*": ["./src/screens/*"],
-      "@/navigation/*": ["./src/navigation/*"],
-      "@/services/*": ["./src/services/*"],
-      "@/hooks/*": ["./src/hooks/*"],
-      "@/types/*": ["./src/types/*"],
-      "@/constants/*": ["./src/constants/*"],
-      "@/utils/*": ["./src/utils/*"]
-    },
-    "skipLibCheck": true,
-    "jsx": "react-native",
-    "esModuleInterop": true,
-    "allowSyntheticDefaultImports": true,
-    "forceConsistentCasingInFileNames": true,
-    "noUnusedLocals": true,
-    "noUnusedParameters": true,
-    "noImplicitReturns": true,
-    "noFallthroughCasesInSwitch": true
-=======
       "@/*": ["src/*"],
       "@/components/*": ["src/components/*"],
       "@/screens/*": ["src/screens/*"],
@@ -71,8 +22,6 @@
     "noEmit": true,
     "skipLibCheck": true,
     "target": "esnext"
->>>>>>> origin/main
->>>>>>> origin/main
   },
   "include": [
     "**/*.ts",
@@ -83,12 +32,4 @@
   "exclude": [
     "node_modules"
   ]
-<<<<<<< HEAD
 }
-=======
-<<<<<<< HEAD
-}
-=======
-}
->>>>>>> origin/main
->>>>>>> origin/main

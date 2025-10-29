@@ -1,28 +1,9 @@
 import React from 'react';
-<<<<<<< HEAD
-import { View, StyleSheet } from 'react-native';
-import { NativeStackScreenProps } from '@react-navigation/native-stack';
-import { BookingStackParamList } from '@/types/navigation';
-
-type Props = NativeStackScreenProps<BookingStackParamList, 'ServiceList'>;
-
-const ServiceListScreen: React.FC<Props> = ({ navigation }) => {
-  return (
-    <View style={styles.container}>
-      {/* TODO: Implement service list with filters */}
-=======
-<<<<<<< HEAD
-import { View, Text, StyleSheet } from 'react-native';
-=======
 import { View, Text, StyleSheet, FlatList } from 'react-native';
->>>>>>> origin/main
 
 const ServiceListScreen: React.FC = () => {
   return (
     <View style={styles.container}>
-<<<<<<< HEAD
-      <Text style={styles.title}>Service List Screen</Text>
-=======
       <Text style={styles.title}>Pet Services</Text>
       <FlatList
         data={[]}
@@ -186,8 +167,6 @@ export const ServiceListScreen: React.FC<any> = ({ navigation }) => {
           <Button onPress={() => refetch()}>Retry</Button>
         </View>
       )}
->>>>>>> origin/main
->>>>>>> origin/main
     </View>
   );
 };
@@ -195,36 +174,19 @@ export const ServiceListScreen: React.FC<any> = ({ navigation }) => {
 const styles = StyleSheet.create({
   container: {
     flex: 1,
-<<<<<<< HEAD
-    backgroundColor: '#fff',
-  },
-});
-
-export default ServiceListScreen;
-=======
-<<<<<<< HEAD
-    justifyContent: 'center',
-    alignItems: 'center',
-=======
     padding: 20,
->>>>>>> origin/main
   },
   title: {
     fontSize: 24,
     fontWeight: 'bold',
-<<<<<<< HEAD
-=======
     marginBottom: 20,
   },
   list: {
     flexGrow: 1,
->>>>>>> origin/main
   },
 });
 
 export default ServiceListScreen;
-<<<<<<< HEAD
-=======
   container: { flex: 1, paddingHorizontal: 12 },
   filtersRow: { marginBottom: 8 },
   quickFilters: { flexDirection: 'row', alignItems: 'center', justifyContent: 'space-between', marginBottom: 8 },
@@ -233,5 +195,3 @@ export default ServiceListScreen;
 });
 
 export default ServiceListScreen;
->>>>>>> origin/main
->>>>>>> origin/main
