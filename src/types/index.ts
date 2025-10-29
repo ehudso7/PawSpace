@@ -1,19 +1,13 @@
-<<<<<<< HEAD
-// User Types
-=======
-<<<<<<< HEAD
-// Re-export all types
-export * from './navigation';
+// Re-export all types from sub-modules
 export * from './database';
+export * from './navigation';
 
-// Common types
->>>>>>> origin/main
+// User Types
 export interface User {
   id: string;
   email: string;
   name: string;
   avatar?: string;
-<<<<<<< HEAD
   phone?: string;
   bio?: string;
   location?: string;
@@ -33,9 +27,12 @@ export interface Transformation {
   user: User;
   imageUrl: string;
   beforeImageUrl?: string;
+  afterImageUrl?: string;
   caption: string;
+  description?: string;
   tags: string[];
   likesCount: number;
+  likes: number; // alias for compatibility
   isLiked: boolean;
   commentsCount: number;
   createdAt: string;
@@ -45,7 +42,9 @@ export interface Transformation {
 export interface CreateTransformationData {
   imageUrl: string;
   beforeImageUrl?: string;
+  afterImageUrl?: string;
   caption: string;
+  description?: string;
   tags: string[];
 }
 
@@ -65,6 +64,7 @@ export interface Provider {
   name: string;
   title: string;
   description: string;
+  bio: string;
   avatar: string;
   coverImage?: string;
   location: string;
@@ -76,29 +76,20 @@ export interface Provider {
   availability: Availability[];
   createdAt: string;
   updatedAt: string;
-=======
-  createdAt: string;
-}
-
-export interface Provider extends User {
-  bio: string;
-  rating: number;
-  reviewCount: number;
-  services: Service[];
->>>>>>> origin/main
 }
 
 export interface Service {
   id: string;
   providerId: string;
-<<<<<<< HEAD
   provider?: Provider;
   title: string;
+  name: string; // alias for compatibility
   description: string;
   category: ServiceCategory;
   price: number;
   duration: number; // in minutes
   imageUrl: string;
+  image: string; // alias for compatibility
   rating: number;
   isActive: boolean;
   createdAt: string;
@@ -124,6 +115,11 @@ export interface Availability {
   isActive: boolean;
 }
 
+export interface TimeSlot {
+  time: string;
+  available: boolean;
+}
+
 // Booking Types
 export interface Booking {
   id: string;
@@ -134,6 +130,7 @@ export interface Booking {
   providerId: string;
   provider: Provider;
   date: string;
+  time: string; // added for compatibility
   timeSlot: string;
   status: BookingStatus;
   notes?: string;
@@ -291,10 +288,16 @@ export interface ProfileForm {
 // Filter Types
 export interface ServiceFilters {
   category?: ServiceCategory;
+  service_type?: string;
   location?: string;
   priceRange?: [number, number];
+  min_price?: number;
+  max_price?: number;
   rating?: number;
   availability?: string; // date string
+  availability_date?: string;
+  max_distance?: number;
+  sort_by?: 'distance' | 'price' | 'rating' | 'popularity';
 }
 
 export interface TransformationFilters {
@@ -302,41 +305,3 @@ export interface TransformationFilters {
   userId?: string;
   dateRange?: [string, string];
 }
-=======
-  name: string;
-  description: string;
-  price: number;
-  duration: number;
-  image: string;
-}
-
-export interface Booking {
-  id: string;
-  userId: string;
-  providerId: string;
-  serviceId: string;
-  date: string;
-  time: string;
-  status: 'pending' | 'confirmed' | 'completed' | 'cancelled';
-  createdAt: string;
-}
-
-export interface Transformation {
-  id: string;
-  userId: string;
-  beforeImage: string;
-  afterImage: string;
-  description?: string;
-  likes: number;
-  createdAt: string;
-}
-
-export interface TimeSlot {
-  time: string;
-  available: boolean;
-}
-=======
-export * from './database';
-export * from './navigation';
->>>>>>> origin/main
->>>>>>> origin/main

@@ -1,42 +1,15 @@
 import React from 'react';
-<<<<<<< HEAD
-import { View, StyleSheet } from 'react-native';
+import { View, FlatList, RefreshControl, StyleSheet } from 'react-native';
+import { Appbar, Chip, Searchbar, SegmentedButtons, Text, Button, Menu } from 'react-native-paper';
 import { NativeStackScreenProps } from '@react-navigation/native-stack';
 import { BookingStackParamList } from '@/types/navigation';
-
-type Props = NativeStackScreenProps<BookingStackParamList, 'ServiceList'>;
-
-const ServiceListScreen: React.FC<Props> = ({ navigation }) => {
-  return (
-    <View style={styles.container}>
-      {/* TODO: Implement service list with filters */}
-=======
-<<<<<<< HEAD
-import { View, Text, StyleSheet } from 'react-native';
-=======
-import { View, Text, StyleSheet, FlatList } from 'react-native';
->>>>>>> origin/main
-
-const ServiceListScreen: React.FC = () => {
-  return (
-    <View style={styles.container}>
-<<<<<<< HEAD
-      <Text style={styles.title}>Service List Screen</Text>
-=======
-      <Text style={styles.title}>Pet Services</Text>
-      <FlatList
-        data={[]}
-        renderItem={() => null}
-        keyExtractor={(item, index) => index.toString()}
-        contentContainerStyle={styles.list}
-      />
-import { View, FlatList, RefreshControl, StyleSheet } from 'react-native';
-import { Appbar, Chip, Searchbar, SegmentedButtons, Text, Button, Menu, IconButton } from 'react-native-paper';
 import { useInfiniteServices } from '../../hooks/useServices';
 import { useDebouncedValue } from '../../hooks/useDebounce';
 import { useUserLocation } from '../../hooks/useUserLocation';
 import { ServiceCard } from '../../components/booking/ServiceCard';
 import type { ServiceFilters } from '../../types/service';
+
+type Props = NativeStackScreenProps<BookingStackParamList, 'ServiceList'>;
 
 const SERVICE_TYPES = ['all', 'grooming', 'walking', 'vet_care', 'training'] as const;
 
@@ -57,7 +30,7 @@ function mapSort(choice: SortChoice): ServiceFilters['sort_by'] {
   }
 }
 
-export const ServiceListScreen: React.FC<any> = ({ navigation }) => {
+const ServiceListScreen: React.FC<Props> = ({ navigation }) => {
   // Search
   const [query, setQuery] = React.useState('');
   const debouncedQuery = useDebouncedValue(query, 500);
@@ -106,7 +79,7 @@ export const ServiceListScreen: React.FC<any> = ({ navigation }) => {
   const ListFooter = () => (
     <View style={{ paddingVertical: 16 }}>
       {isFetchingNextPage && <Text>Loading more...</Text>}
-      {!hasNextPage && flatData.length > 0 && <Text style={{ textAlign: 'center', color: '#666' }}>You\'re all caught up</Text>}
+      {!hasNextPage && flatData.length > 0 && <Text style={{ textAlign: 'center', color: '#666' }}>You're all caught up</Text>}
     </View>
   );
 
@@ -148,7 +121,7 @@ export const ServiceListScreen: React.FC<any> = ({ navigation }) => {
           />
         </View>
 
-        {/* Secondary filters: Simple quick toggles and icon leading to full filters (sliders) */}
+        {/* Secondary filters */}
         <View style={styles.quickFilters}>
           <SegmentedButtons
             value={availability}
@@ -159,7 +132,6 @@ export const ServiceListScreen: React.FC<any> = ({ navigation }) => {
               { value: 'anytime', label: 'Anytime' },
             ]}
           />
-          {/* Placeholder icons for range filters; full screen modal could be added later */}
           <View style={{ flexDirection: 'row', gap: 8 }}>
             <Chip icon="cash" onPress={() => setPriceRange(([a, b]) => [a, b])}>{`$${priceRange[0]}-$${priceRange[1]}`}</Chip>
             <Chip icon="map-marker-distance" onPress={() => setDistance((d) => d)}>{`${distance} mi`}</Chip>
@@ -186,52 +158,42 @@ export const ServiceListScreen: React.FC<any> = ({ navigation }) => {
           <Button onPress={() => refetch()}>Retry</Button>
         </View>
       )}
->>>>>>> origin/main
->>>>>>> origin/main
     </View>
   );
 };
 
 const styles = StyleSheet.create({
-  container: {
-    flex: 1,
-<<<<<<< HEAD
+  container: { 
+    flex: 1, 
+    paddingHorizontal: 12,
     backgroundColor: '#fff',
   },
+  filtersRow: { 
+    marginBottom: 8 
+  },
+  quickFilters: { 
+    flexDirection: 'row', 
+    alignItems: 'center', 
+    justifyContent: 'space-between', 
+    marginBottom: 8 
+  },
+  empty: { 
+    padding: 24, 
+    alignItems: 'center' 
+  },
+  errorToast: { 
+    position: 'absolute', 
+    bottom: 24, 
+    left: 24, 
+    right: 24, 
+    backgroundColor: '#D32F2F', 
+    borderRadius: 8, 
+    flexDirection: 'row', 
+    alignItems: 'center', 
+    justifyContent: 'space-between', 
+    paddingHorizontal: 12, 
+    paddingVertical: 8 
+  },
 });
 
 export default ServiceListScreen;
-=======
-<<<<<<< HEAD
-    justifyContent: 'center',
-    alignItems: 'center',
-=======
-    padding: 20,
->>>>>>> origin/main
-  },
-  title: {
-    fontSize: 24,
-    fontWeight: 'bold',
-<<<<<<< HEAD
-=======
-    marginBottom: 20,
-  },
-  list: {
-    flexGrow: 1,
->>>>>>> origin/main
-  },
-});
-
-export default ServiceListScreen;
-<<<<<<< HEAD
-=======
-  container: { flex: 1, paddingHorizontal: 12 },
-  filtersRow: { marginBottom: 8 },
-  quickFilters: { flexDirection: 'row', alignItems: 'center', justifyContent: 'space-between', marginBottom: 8 },
-  empty: { padding: 24, alignItems: 'center' },
-  errorToast: { position: 'absolute', bottom: 24, left: 24, right: 24, backgroundColor: '#D32F2F', borderRadius: 8, flexDirection: 'row', alignItems: 'center', justifyContent: 'space-between', paddingHorizontal: 12, paddingVertical: 8 },
-});
-
-export default ServiceListScreen;
->>>>>>> origin/main
->>>>>>> origin/main
