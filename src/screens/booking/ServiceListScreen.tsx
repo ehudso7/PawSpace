@@ -1,193 +1,84 @@
-import React from 'react';
-<<<<<<< HEAD
-import { View, StyleSheet } from 'react-native';
+import React, { useState, useEffect } from 'react';
+import { View, Text, StyleSheet, FlatList, RefreshControl } from 'react-native';
 import { NativeStackScreenProps } from '@react-navigation/native-stack';
 import { BookingStackParamList } from '@/types/navigation';
+import { useServices } from '@/hooks/useBookings';
+import { ServiceCard, Loading, ErrorMessage } from '@/components';
+import { theme } from '@/constants/theme';
 
 type Props = NativeStackScreenProps<BookingStackParamList, 'ServiceList'>;
 
 const ServiceListScreen: React.FC<Props> = ({ navigation }) => {
-  return (
-    <View style={styles.container}>
-      {/* TODO: Implement service list with filters */}
-=======
-<<<<<<< HEAD
-import { View, Text, StyleSheet } from 'react-native';
-=======
-import { View, Text, StyleSheet, FlatList } from 'react-native';
->>>>>>> origin/main
+  const { services, isLoading, error, fetchServices } = useServices();
+  const [refreshing, setRefreshing] = useState(false);
 
-const ServiceListScreen: React.FC = () => {
-  return (
-    <View style={styles.container}>
-<<<<<<< HEAD
-      <Text style={styles.title}>Service List Screen</Text>
-=======
-      <Text style={styles.title}>Pet Services</Text>
-      <FlatList
-        data={[]}
-        renderItem={() => null}
-        keyExtractor={(item, index) => index.toString()}
-        contentContainerStyle={styles.list}
-      />
-import { View, FlatList, RefreshControl, StyleSheet } from 'react-native';
-import { Appbar, Chip, Searchbar, SegmentedButtons, Text, Button, Menu, IconButton } from 'react-native-paper';
-import { useInfiniteServices } from '../../hooks/useServices';
-import { useDebouncedValue } from '../../hooks/useDebounce';
-import { useUserLocation } from '../../hooks/useUserLocation';
-import { ServiceCard } from '../../components/booking/ServiceCard';
-import type { ServiceFilters } from '../../types/service';
+  const handleRefresh = async () => {
+    setRefreshing(true);
+    await fetchServices();
+    setRefreshing(false);
+  };
 
-const SERVICE_TYPES = ['all', 'grooming', 'walking', 'vet_care', 'training'] as const;
+  const handleServicePress = (serviceId: string) => {
+    // Navigate to provider profile or booking flow
+    // This would typically navigate to a provider list or specific provider
+    console.log('Service pressed:', serviceId);
+  };
 
-type SortChoice = 'nearest' | 'price_asc' | 'rating' | 'popular';
-
-function mapSort(choice: SortChoice): ServiceFilters['sort_by'] {
-  switch (choice) {
-    case 'nearest':
-      return 'distance';
-    case 'price_asc':
-      return 'price';
-    case 'rating':
-      return 'rating';
-    case 'popular':
-      return 'popularity';
-    default:
-      return undefined;
-  }
-}
-
-export const ServiceListScreen: React.FC<any> = ({ navigation }) => {
-  // Search
-  const [query, setQuery] = React.useState('');
-  const debouncedQuery = useDebouncedValue(query, 500);
-
-  // Filters
-  const [serviceType, setServiceType] = React.useState<(typeof SERVICE_TYPES)[number]>('all');
-  const [priceRange, setPriceRange] = React.useState<[number, number]>([0, 200]);
-  const [distance, setDistance] = React.useState<number>(50);
-  const [availability, setAvailability] = React.useState<'today' | 'this_week' | 'anytime'>('anytime');
-  const [sort, setSort] = React.useState<SortChoice>('nearest');
-
-  const filters: ServiceFilters = React.useMemo(() => ({
-    service_type: serviceType,
-    min_price: priceRange[0],
-    max_price: priceRange[1],
-    max_distance: distance,
-    availability_date: availability === 'anytime' ? undefined : availability,
-    sort_by: mapSort(sort),
-  }), [serviceType, priceRange, distance, availability, sort]);
-
-  const { location } = useUserLocation();
-
-  const { data, fetchNextPage, hasNextPage, isFetchingNextPage, isRefetching, refetch, isLoading, error } = useInfiniteServices(filters, 12);
-
-  const flatData = React.useMemo(() => (data?.pages || []).flat(), [data]);
-
-  const onRefresh = React.useCallback(() => { refetch(); }, [refetch]);
-
-  const renderItem = React.useCallback(({ item }: any) => (
+  const renderService = ({ item }: { item: any }) => (
     <ServiceCard
       service={item}
-      userLocation={location || undefined}
-      onPress={(svc) => navigation?.navigate?.('ProviderProfile', { id: svc.provider_id })}
-      onBook={(svc) => navigation?.navigate?.('Booking', { id: svc.id })}
+      onPress={() => handleServicePress(item.id)}
     />
-  ), [location, navigation]);
+  );
 
-  const keyExtractor = React.useCallback((item: any) => item.id, []);
-
-  const ListEmpty = () => (
-    <View style={styles.empty}> 
-      {isLoading ? <Text>Loading...</Text> : <Text>No services found</Text>}
+  const renderEmpty = () => (
+    <View style={styles.emptyContainer}>
+      <Text style={styles.emptyTitle}>No Services Available</Text>
+      <Text style={styles.emptyMessage}>
+        Check back later for new pet care services in your area.
+      </Text>
     </View>
   );
 
-  const ListFooter = () => (
-    <View style={{ paddingVertical: 16 }}>
-      {isFetchingNextPage && <Text>Loading more...</Text>}
-      {!hasNextPage && flatData.length > 0 && <Text style={{ textAlign: 'center', color: '#666' }}>You\'re all caught up</Text>}
-    </View>
-  );
+  if (isLoading && !refreshing) {
+    return <Loading text="Loading services..." fullScreen />;
+  }
 
-  const [menuVisible, setMenuVisible] = React.useState(false);
-
-  return (
-    <View style={{ flex: 1 }}>
-      <Appbar.Header>
-        <Appbar.Content title="Services" />
-        <Menu visible={menuVisible} onDismiss={() => setMenuVisible(false)} anchor={<Appbar.Action icon="sort" onPress={() => setMenuVisible(true)} />}>
-          <Menu.Item title="Nearest" onPress={() => { setSort('nearest'); setMenuVisible(false); }} />
-          <Menu.Item title="Price (Low-High)" onPress={() => { setSort('price_asc'); setMenuVisible(false); }} />
-          <Menu.Item title="Top Rated" onPress={() => { setSort('rating'); setMenuVisible(false); }} />
-          <Menu.Item title="Most Popular" onPress={() => { setSort('popular'); setMenuVisible(false); }} />
-        </Menu>
-      </Appbar.Header>
-
-      <View style={styles.container}>
-        {/* Search */}
-        <Searchbar
-          placeholder="Search by service or provider"
-          value={query}
-          onChangeText={setQuery}
-          style={{ marginBottom: 8 }}
-          onSubmitEditing={() => setQuery((q) => q)}
-        />
-
-        {/* Filter Chips */}
-        <View style={styles.filtersRow}>
-          <FlatList
-            horizontal
-            data={SERVICE_TYPES as unknown as string[]}
-            keyExtractor={(t) => t}
-            showsHorizontalScrollIndicator={false}
-            ItemSeparatorComponent={() => <View style={{ width: 8 }} />}
-            renderItem={({ item }) => (
-              <Chip selected={serviceType === item} onPress={() => setServiceType(item as any)}>{item === 'all' ? 'All' : item.replace('_', ' ')}</Chip>
-            )}
-          />
-        </View>
-
-        {/* Secondary filters: Simple quick toggles and icon leading to full filters (sliders) */}
-        <View style={styles.quickFilters}>
-          <SegmentedButtons
-            value={availability}
-            onValueChange={(v: any) => setAvailability(v)}
-            buttons={[
-              { value: 'today', label: 'Today' },
-              { value: 'this_week', label: 'This Week' },
-              { value: 'anytime', label: 'Anytime' },
-            ]}
-          />
-          {/* Placeholder icons for range filters; full screen modal could be added later */}
-          <View style={{ flexDirection: 'row', gap: 8 }}>
-            <Chip icon="cash" onPress={() => setPriceRange(([a, b]) => [a, b])}>{`$${priceRange[0]}-$${priceRange[1]}`}</Chip>
-            <Chip icon="map-marker-distance" onPress={() => setDistance((d) => d)}>{`${distance} mi`}</Chip>
-          </View>
-        </View>
-
-        {/* Results */}
-        <FlatList
-          data={flatData}
-          keyExtractor={keyExtractor}
-          renderItem={renderItem}
-          contentContainerStyle={{ paddingVertical: 8 }}
-          onEndReachedThreshold={0.3}
-          onEndReached={() => { if (hasNextPage && !isFetchingNextPage) fetchNextPage(); }}
-          ListEmptyComponent={ListEmpty}
-          ListFooterComponent={ListFooter}
-          refreshControl={<RefreshControl refreshing={!!isRefetching} onRefresh={onRefresh} />}
+  if (error) {
+    return (
+      <View style={styles.errorContainer}>
+        <ErrorMessage message={error} />
+        <Button
+          title="Try Again"
+          onPress={fetchServices}
+          style={styles.retryButton}
         />
       </View>
+    );
+  }
 
-      {error && (
-        <View style={styles.errorToast}>
-          <Text style={{ color: 'white' }}>{error.message}</Text>
-          <Button onPress={() => refetch()}>Retry</Button>
-        </View>
-      )}
->>>>>>> origin/main
->>>>>>> origin/main
+  return (
+    <View style={styles.container}>
+      <View style={styles.header}>
+        <Text style={styles.title}>Pet Services</Text>
+        <Text style={styles.subtitle}>Find the perfect care for your pet</Text>
+      </View>
+
+      <FlatList
+        data={services}
+        renderItem={renderService}
+        keyExtractor={(item) => item.id}
+        contentContainerStyle={styles.list}
+        showsVerticalScrollIndicator={false}
+        refreshControl={
+          <RefreshControl
+            refreshing={refreshing}
+            onRefresh={handleRefresh}
+            tintColor={theme.colors.primary}
+          />
+        }
+        ListEmptyComponent={renderEmpty}
+      />
     </View>
   );
 };
@@ -195,43 +86,53 @@ export const ServiceListScreen: React.FC<any> = ({ navigation }) => {
 const styles = StyleSheet.create({
   container: {
     flex: 1,
-<<<<<<< HEAD
-    backgroundColor: '#fff',
+    backgroundColor: theme.colors.background,
   },
-});
-
-export default ServiceListScreen;
-=======
-<<<<<<< HEAD
-    justifyContent: 'center',
-    alignItems: 'center',
-=======
-    padding: 20,
->>>>>>> origin/main
+  header: {
+    padding: theme.spacing.lg,
+    paddingBottom: theme.spacing.md,
   },
   title: {
-    fontSize: 24,
+    fontSize: theme.fonts['3xl'],
     fontWeight: 'bold',
-<<<<<<< HEAD
-=======
-    marginBottom: 20,
+    color: theme.colors.text,
+    marginBottom: theme.spacing.sm,
+  },
+  subtitle: {
+    fontSize: theme.fonts.lg,
+    color: theme.colors.textSecondary,
   },
   list: {
-    flexGrow: 1,
->>>>>>> origin/main
+    padding: theme.spacing.lg,
+    paddingTop: 0,
+  },
+  emptyContainer: {
+    flex: 1,
+    justifyContent: 'center',
+    alignItems: 'center',
+    padding: theme.spacing.xl,
+  },
+  emptyTitle: {
+    fontSize: theme.fonts.xl,
+    fontWeight: '600',
+    color: theme.colors.text,
+    marginBottom: theme.spacing.sm,
+  },
+  emptyMessage: {
+    fontSize: theme.fonts.md,
+    color: theme.colors.textSecondary,
+    textAlign: 'center',
+    lineHeight: 22,
+  },
+  errorContainer: {
+    flex: 1,
+    justifyContent: 'center',
+    alignItems: 'center',
+    padding: theme.spacing.lg,
+  },
+  retryButton: {
+    marginTop: theme.spacing.lg,
   },
 });
 
 export default ServiceListScreen;
-<<<<<<< HEAD
-=======
-  container: { flex: 1, paddingHorizontal: 12 },
-  filtersRow: { marginBottom: 8 },
-  quickFilters: { flexDirection: 'row', alignItems: 'center', justifyContent: 'space-between', marginBottom: 8 },
-  empty: { padding: 24, alignItems: 'center' },
-  errorToast: { position: 'absolute', bottom: 24, left: 24, right: 24, backgroundColor: '#D32F2F', borderRadius: 8, flexDirection: 'row', alignItems: 'center', justifyContent: 'space-between', paddingHorizontal: 12, paddingVertical: 8 },
-});
-
-export default ServiceListScreen;
->>>>>>> origin/main
->>>>>>> origin/main

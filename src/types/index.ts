@@ -1,19 +1,13 @@
-<<<<<<< HEAD
-// User Types
-=======
-<<<<<<< HEAD
 // Re-export all types
 export * from './navigation';
 export * from './database';
 
 // Common types
->>>>>>> origin/main
 export interface User {
   id: string;
   email: string;
   name: string;
   avatar?: string;
-<<<<<<< HEAD
   phone?: string;
   bio?: string;
   location?: string;
@@ -34,28 +28,33 @@ export interface Transformation {
   imageUrl: string;
   beforeImageUrl?: string;
   caption: string;
-  tags: string[];
+  category: string;
   likesCount: number;
-  isLiked: boolean;
-  commentsCount: number;
+  isLiked?: boolean;
   createdAt: string;
   updatedAt: string;
 }
 
 export interface CreateTransformationData {
   imageUrl: string;
-  beforeImageUrl?: string;
   caption: string;
-  tags: string[];
+  category?: string;
 }
 
-export interface TransformationComment {
+// Service Types
+export interface Service {
   id: string;
-  transformationId: string;
-  userId: string;
-  user: User;
-  content: string;
+  providerId: string;
+  title: string;
+  description: string;
+  price: number;
+  duration: number;
+  imageUrl: string;
+  category: string;
+  isAvailable: boolean;
+  rating?: number;
   createdAt: string;
+  updatedAt: string;
 }
 
 // Provider Types
@@ -71,200 +70,75 @@ export interface Provider {
   rating: number;
   reviewCount: number;
   startingPrice: number;
-  isVerified: boolean;
-  services: Service[];
-  availability: Availability[];
+  services?: Service[];
   createdAt: string;
   updatedAt: string;
-=======
-  createdAt: string;
-}
-
-export interface Provider extends User {
-  bio: string;
-  rating: number;
-  reviewCount: number;
-  services: Service[];
->>>>>>> origin/main
-}
-
-export interface Service {
-  id: string;
-  providerId: string;
-<<<<<<< HEAD
-  provider?: Provider;
-  title: string;
-  description: string;
-  category: ServiceCategory;
-  price: number;
-  duration: number; // in minutes
-  imageUrl: string;
-  rating: number;
-  isActive: boolean;
-  createdAt: string;
-  updatedAt: string;
-}
-
-export type ServiceCategory = 
-  | 'grooming'
-  | 'training'
-  | 'veterinary'
-  | 'boarding'
-  | 'walking'
-  | 'sitting'
-  | 'photography'
-  | 'other';
-
-export interface Availability {
-  id: string;
-  providerId: string;
-  dayOfWeek: number; // 0-6, Sunday = 0
-  startTime: string; // HH:mm format
-  endTime: string; // HH:mm format
-  isActive: boolean;
 }
 
 // Booking Types
 export interface Booking {
   id: string;
   userId: string;
-  user?: User;
   serviceId: string;
-  service: Service;
   providerId: string;
-  provider: Provider;
+  service?: Service;
+  provider?: Provider;
   date: string;
-  timeSlot: string;
+  time: string;
   status: BookingStatus;
   notes?: string;
-  totalAmount: number;
-  paymentStatus: PaymentStatus;
+  totalPrice: number;
   createdAt: string;
   updatedAt: string;
 }
 
-export type BookingStatus = 
-  | 'pending'
-  | 'confirmed'
-  | 'in_progress'
-  | 'completed'
-  | 'cancelled'
-  | 'no_show';
+export type BookingStatus = 'pending' | 'confirmed' | 'in_progress' | 'completed' | 'cancelled';
 
-export type PaymentStatus = 
-  | 'pending'
-  | 'paid'
-  | 'failed'
-  | 'refunded';
+export interface CreateBookingData {
+  serviceId: string;
+  providerId: string;
+  date: string;
+  time: string;
+  notes?: string;
+}
 
 // Review Types
 export interface Review {
   id: string;
-  bookingId: string;
   userId: string;
-  user: User;
   providerId: string;
+  bookingId: string;
   rating: number;
-  comment?: string;
-  images?: string[];
+  comment: string;
   createdAt: string;
   updatedAt: string;
 }
-
-// Pet Types
-export interface Pet {
-  id: string;
-  userId: string;
-  name: string;
-  species: PetSpecies;
-  breed?: string;
-  age?: number;
-  weight?: number;
-  color?: string;
-  avatar?: string;
-  medicalNotes?: string;
-  behaviorNotes?: string;
-  createdAt: string;
-  updatedAt: string;
-}
-
-export type PetSpecies = 'dog' | 'cat' | 'bird' | 'rabbit' | 'other';
-
-// Subscription Types
-export interface Subscription {
-  id: string;
-  userId: string;
-  plan: SubscriptionPlan;
-  status: SubscriptionStatus;
-  startDate: string;
-  endDate: string;
-  autoRenew: boolean;
-  createdAt: string;
-  updatedAt: string;
-}
-
-export type SubscriptionPlan = 'free' | 'premium' | 'pro';
-export type SubscriptionStatus = 'active' | 'cancelled' | 'expired' | 'past_due';
 
 // Notification Types
 export interface Notification {
   id: string;
   userId: string;
-  type: NotificationType;
+  type: 'booking' | 'message' | 'system';
   title: string;
   message: string;
-  data?: Record<string, any>;
   isRead: boolean;
+  data?: any;
   createdAt: string;
 }
-
-export type NotificationType = 
-  | 'booking_confirmed'
-  | 'booking_reminder'
-  | 'booking_cancelled'
-  | 'new_message'
-  | 'transformation_liked'
-  | 'new_follower'
-  | 'payment_received'
-  | 'review_received';
-
-// Chat/Message Types
-export interface ChatRoom {
-  id: string;
-  participants: string[]; // User IDs
-  lastMessage?: Message;
-  updatedAt: string;
-  createdAt: string;
-}
-
-export interface Message {
-  id: string;
-  chatRoomId: string;
-  senderId: string;
-  sender: User;
-  content: string;
-  messageType: MessageType;
-  isRead: boolean;
-  createdAt: string;
-}
-
-export type MessageType = 'text' | 'image' | 'booking_request' | 'system';
 
 // API Response Types
 export interface ApiResponse<T> {
-  data?: T;
-  error?: string;
-  message?: string;
+  data: T;
+  error: string | null;
+  success: boolean;
 }
 
 export interface PaginatedResponse<T> {
   data: T[];
-  pagination: {
-    page: number;
-    limit: number;
-    total: number;
-    hasMore: boolean;
-  };
+  page: number;
+  limit: number;
+  total: number;
+  hasMore: boolean;
 }
 
 // Form Types
@@ -278,7 +152,6 @@ export interface SignupForm {
   email: string;
   password: string;
   confirmPassword: string;
-  phone?: string;
 }
 
 export interface ProfileForm {
@@ -290,53 +163,47 @@ export interface ProfileForm {
 
 // Filter Types
 export interface ServiceFilters {
-  category?: ServiceCategory;
+  category?: string;
+  minPrice?: number;
+  maxPrice?: number;
   location?: string;
-  priceRange?: [number, number];
   rating?: number;
-  availability?: string; // date string
 }
 
-export interface TransformationFilters {
-  tags?: string[];
-  userId?: string;
-  dateRange?: [string, string];
+export interface ProviderFilters {
+  location?: string;
+  minRating?: number;
+  services?: string[];
 }
-=======
-  name: string;
+
+// Search Types
+export interface SearchResult {
+  type: 'service' | 'provider' | 'transformation';
+  id: string;
+  title: string;
   description: string;
-  price: number;
-  duration: number;
-  image: string;
+  imageUrl?: string;
+  rating?: number;
+  price?: number;
 }
 
-export interface Booking {
-  id: string;
-  userId: string;
-  providerId: string;
-  serviceId: string;
-  date: string;
-  time: string;
-  status: 'pending' | 'confirmed' | 'completed' | 'cancelled';
-  createdAt: string;
+// Error Types
+export interface ValidationError {
+  field: string;
+  message: string;
 }
 
-export interface Transformation {
-  id: string;
-  userId: string;
-  beforeImage: string;
-  afterImage: string;
-  description?: string;
-  likes: number;
-  createdAt: string;
+export interface ApiError {
+  message: string;
+  code?: string;
+  details?: any;
 }
 
-export interface TimeSlot {
-  time: string;
-  available: boolean;
-}
-=======
-export * from './database';
-export * from './navigation';
->>>>>>> origin/main
->>>>>>> origin/main
+// Utility Types
+export type DeepPartial<T> = {
+  [P in keyof T]?: T[P] extends object ? DeepPartial<T[P]> : T[P];
+};
+
+export type Optional<T, K extends keyof T> = Omit<T, K> & Partial<Pick<T, K>>;
+
+export type RequiredFields<T, K extends keyof T> = T & Required<Pick<T, K>>;

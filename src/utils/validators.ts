@@ -1,4 +1,3 @@
-<<<<<<< HEAD
 import { APP_CONFIG } from '@/constants/config';
 
 // Email validation
@@ -47,19 +46,6 @@ export const validatePassword = (password: string): { isValid: boolean; error?: 
   return { isValid: true };
 };
 
-// Confirm password validation
-export const validateConfirmPassword = (password: string, confirmPassword: string): { isValid: boolean; error?: string } => {
-  if (!confirmPassword) {
-    return { isValid: false, error: 'Please confirm your password' };
-  }
-  
-  if (password !== confirmPassword) {
-    return { isValid: false, error: 'Passwords do not match' };
-  }
-  
-  return { isValid: true };
-};
-
 // Name validation
 export const validateName = (name: string): { isValid: boolean; error?: string } => {
   if (!name) {
@@ -71,7 +57,7 @@ export const validateName = (name: string): { isValid: boolean; error?: string }
   }
   
   if (name.trim().length > 50) {
-    return { isValid: false, error: 'Name must be less than 50 characters long' };
+    return { isValid: false, error: 'Name must be less than 50 characters' };
   }
   
   return { isValid: true };
@@ -80,36 +66,19 @@ export const validateName = (name: string): { isValid: boolean; error?: string }
 // Phone validation
 export const validatePhone = (phone: string): { isValid: boolean; error?: string } => {
   if (!phone) {
-    return { isValid: true }; // Phone is optional in most cases
+    return { isValid: true }; // Phone is optional
   }
   
-  const phoneRegex = /^\+?[\d\s\-\(\)]{10,}$/;
+  const phoneRegex = /^\+?[\d\s-()]+$/;
   
   if (!phoneRegex.test(phone)) {
     return { isValid: false, error: 'Please enter a valid phone number' };
   }
   
-  return { isValid: true };
-};
-
-// Username validation
-export const validateUsername = (username: string): { isValid: boolean; error?: string } => {
-  const { validation } = APP_CONFIG;
+  const cleaned = phone.replace(/\D/g, '');
   
-  if (!username) {
-    return { isValid: false, error: 'Username is required' };
-  }
-  
-  if (username.length < validation.username.minLength) {
-    return { isValid: false, error: `Username must be at least ${validation.username.minLength} characters long` };
-  }
-  
-  if (username.length > validation.username.maxLength) {
-    return { isValid: false, error: `Username must be less than ${validation.username.maxLength} characters long` };
-  }
-  
-  if (!validation.username.allowedChars.test(username)) {
-    return { isValid: false, error: 'Username can only contain letters, numbers, dots, hyphens, and underscores' };
+  if (cleaned.length < 10) {
+    return { isValid: false, error: 'Phone number must be at least 10 digits' };
   }
   
   return { isValid: true };
@@ -117,14 +86,12 @@ export const validateUsername = (username: string): { isValid: boolean; error?: 
 
 // Bio validation
 export const validateBio = (bio: string): { isValid: boolean; error?: string } => {
-  const { validation } = APP_CONFIG;
-  
   if (!bio) {
     return { isValid: true }; // Bio is optional
   }
   
-  if (bio.length > validation.bio.maxLength) {
-    return { isValid: false, error: `Bio must be less than ${validation.bio.maxLength} characters long` };
+  if (bio.length > 500) {
+    return { isValid: false, error: 'Bio must be less than 500 characters' };
   }
   
   return { isValid: true };
@@ -132,36 +99,29 @@ export const validateBio = (bio: string): { isValid: boolean; error?: string } =
 
 // Caption validation
 export const validateCaption = (caption: string): { isValid: boolean; error?: string } => {
-  const { validation } = APP_CONFIG;
-  
   if (!caption) {
-    return { isValid: false, error: 'Caption is required' };
+    return { isValid: true }; // Caption is optional
   }
   
-  if (caption.length > validation.caption.maxLength) {
-    return { isValid: false, error: `Caption must be less than ${validation.caption.maxLength} characters long` };
+  if (caption.length > 2000) {
+    return { isValid: false, error: 'Caption must be less than 2000 characters' };
   }
   
   return { isValid: true };
 };
 
-// Price validation
-export const validatePrice = (price: string | number): { isValid: boolean; error?: string } => {
-  const numPrice = typeof price === 'string' ? parseFloat(price) : price;
-  
-  if (isNaN(numPrice)) {
-    return { isValid: false, error: 'Please enter a valid price' };
+// URL validation
+export const validateUrl = (url: string): { isValid: boolean; error?: string } => {
+  if (!url) {
+    return { isValid: true }; // URL is optional
   }
   
-  if (numPrice < 0) {
-    return { isValid: false, error: 'Price cannot be negative' };
+  try {
+    new URL(url);
+    return { isValid: true };
+  } catch {
+    return { isValid: false, error: 'Please enter a valid URL' };
   }
-  
-  if (numPrice > 10000) {
-    return { isValid: false, error: 'Price cannot exceed $10,000' };
-  }
-  
-  return { isValid: true };
 };
 
 // Date validation
@@ -170,259 +130,59 @@ export const validateDate = (date: string): { isValid: boolean; error?: string }
     return { isValid: false, error: 'Date is required' };
   }
   
-  const selectedDate = new Date(date);
+  const dateObj = new Date(date);
+  
+  if (isNaN(dateObj.getTime())) {
+    return { isValid: false, error: 'Please enter a valid date' };
+  }
+  
   const today = new Date();
   today.setHours(0, 0, 0, 0);
   
-  if (selectedDate < today) {
+  if (dateObj < today) {
     return { isValid: false, error: 'Date cannot be in the past' };
-  }
-  
-  const maxDate = new Date();
-  maxDate.setDate(maxDate.getDate() + APP_CONFIG.booking.maxAdvanceBookingDays);
-  
-  if (selectedDate > maxDate) {
-    return { isValid: false, error: `Date cannot be more than ${APP_CONFIG.booking.maxAdvanceBookingDays} days in advance` };
   }
   
   return { isValid: true };
 };
 
 // Time validation
-export const validateTime = (time: string, date: string): { isValid: boolean; error?: string } => {
+export const validateTime = (time: string): { isValid: boolean; error?: string } => {
   if (!time) {
     return { isValid: false, error: 'Time is required' };
   }
   
-  const selectedDateTime = new Date(`${date} ${time}`);
-  const now = new Date();
-  const minBookingTime = new Date(now.getTime() + (APP_CONFIG.booking.minAdvanceBookingHours * 60 * 60 * 1000));
+  const timeRegex = /^([0-1]?[0-9]|2[0-3]):[0-5][0-9]$/;
   
-  if (selectedDateTime < minBookingTime) {
-    return { isValid: false, error: `Booking must be at least ${APP_CONFIG.booking.minAdvanceBookingHours} hours in advance` };
+  if (!timeRegex.test(time)) {
+    return { isValid: false, error: 'Please enter a valid time (HH:MM format)' };
   }
   
   return { isValid: true };
 };
 
-// File size validation
-export const validateFileSize = (fileSize: number): { isValid: boolean; error?: string } => {
-  const maxSize = APP_CONFIG.storage.maxFileSize;
-  
-  if (fileSize > maxSize) {
-    const maxSizeMB = Math.round(maxSize / (1024 * 1024));
-    return { isValid: false, error: `File size cannot exceed ${maxSizeMB}MB` };
-  }
-  
-  return { isValid: true };
-};
-
-// Image type validation
-export const validateImageType = (mimeType: string): { isValid: boolean; error?: string } => {
-  const allowedTypes = APP_CONFIG.storage.allowedImageTypes;
-  
-  if (!allowedTypes.includes(mimeType)) {
-    return { isValid: false, error: 'Only JPEG, PNG, and WebP images are allowed' };
+// Rating validation
+export const validateRating = (rating: number, maxRating = 5): { isValid: boolean; error?: string } => {
+  if (rating < 0 || rating > maxRating) {
+    return { isValid: false, error: `Rating must be between 0 and ${maxRating}` };
   }
   
   return { isValid: true };
 };
 
 // Form validation helper
-export const validateForm = (fields: Record<string, any>, validators: Record<string, (value: any) => { isValid: boolean; error?: string }>): { isValid: boolean; errors: Record<string, string> } => {
+export const validateForm = (data: Record<string, any>, rules: Record<string, (value: any) => { isValid: boolean; error?: string }>): { isValid: boolean; errors: Record<string, string> } => {
   const errors: Record<string, string> = {};
   let isValid = true;
   
-  Object.keys(validators).forEach(field => {
-    const validation = validators[field](fields[field]);
-    if (!validation.isValid && validation.error) {
-      errors[field] = validation.error;
+  for (const [field, validator] of Object.entries(rules)) {
+    const result = validator(data[field]);
+    
+    if (!result.isValid) {
+      errors[field] = result.error || 'Invalid value';
       isValid = false;
     }
-  });
+  }
   
   return { isValid, errors };
 };
-=======
-<<<<<<< HEAD
-import { config } from '@/constants';
-
-// Email validation
-export const validateEmail = (email: string): { valid: boolean; error?: string } => {
-  if (!email) {
-    return { valid: false, error: 'Email is required' };
-  }
-
-  if (email.length < config.validation.email.minLength) {
-    return { valid: false, error: `Email must be at least ${config.validation.email.minLength} characters` };
-  }
-
-  if (email.length > config.validation.email.maxLength) {
-    return { valid: false, error: `Email must be less than ${config.validation.email.maxLength} characters` };
-  }
-
-  const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
-  if (!emailRegex.test(email)) {
-    return { valid: false, error: 'Invalid email format' };
-  }
-
-  return { valid: true };
-};
-
-// Password validation
-export const validatePassword = (password: string): { valid: boolean; error?: string } => {
-  if (!password) {
-    return { valid: false, error: 'Password is required' };
-  }
-
-  if (password.length < config.validation.password.minLength) {
-    return { valid: false, error: `Password must be at least ${config.validation.password.minLength} characters` };
-  }
-
-  if (password.length > config.validation.password.maxLength) {
-    return { valid: false, error: `Password must be less than ${config.validation.password.maxLength} characters` };
-  }
-
-  if (config.validation.password.requireUppercase && !/[A-Z]/.test(password)) {
-    return { valid: false, error: 'Password must contain at least one uppercase letter' };
-  }
-
-  if (config.validation.password.requireLowercase && !/[a-z]/.test(password)) {
-    return { valid: false, error: 'Password must contain at least one lowercase letter' };
-  }
-
-  if (config.validation.password.requireNumber && !/\d/.test(password)) {
-    return { valid: false, error: 'Password must contain at least one number' };
-  }
-
-  if (config.validation.password.requireSpecialChar && !/[!@#$%^&*(),.?":{}|<>]/.test(password)) {
-    return { valid: false, error: 'Password must contain at least one special character' };
-  }
-
-  return { valid: true };
-};
-
-// Name validation
-export const validateName = (name: string): { valid: boolean; error?: string } => {
-  if (!name) {
-    return { valid: false, error: 'Name is required' };
-  }
-
-  if (name.length < config.validation.name.minLength) {
-    return { valid: false, error: `Name must be at least ${config.validation.name.minLength} characters` };
-  }
-
-  if (name.length > config.validation.name.maxLength) {
-    return { valid: false, error: `Name must be less than ${config.validation.name.maxLength} characters` };
-  }
-
-  return { valid: true };
-};
-
-// Phone number validation (basic)
-export const validatePhone = (phone: string): { valid: boolean; error?: string } => {
-  if (!phone) {
-    return { valid: false, error: 'Phone number is required' };
-  }
-
-  const phoneRegex = /^\+?[\d\s\-()]+$/;
-  if (!phoneRegex.test(phone)) {
-    return { valid: false, error: 'Invalid phone number format' };
-  }
-
-  const digitsOnly = phone.replace(/\D/g, '');
-  if (digitsOnly.length < 10 || digitsOnly.length > 15) {
-    return { valid: false, error: 'Phone number must be between 10 and 15 digits' };
-  }
-
-  return { valid: true };
-};
-
-// URL validation
-export const validateUrl = (url: string): { valid: boolean; error?: string } => {
-  if (!url) {
-    return { valid: false, error: 'URL is required' };
-  }
-
-  try {
-    new URL(url);
-    return { valid: true };
-  } catch {
-    return { valid: false, error: 'Invalid URL format' };
-  }
-};
-=======
-export const validators = {
-  email: (email: string): boolean => {
-    const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
-    return emailRegex.test(email);
-  },
-
-  password: (password: string): { isValid: boolean; errors: string[] } => {
-    const errors: string[] = [];
-    
-    if (password.length < 8) {
-      errors.push('Password must be at least 8 characters long');
-    }
-    
-    if (!/[A-Z]/.test(password)) {
-      errors.push('Password must contain at least one uppercase letter');
-    }
-    
-    if (!/[a-z]/.test(password)) {
-      errors.push('Password must contain at least one lowercase letter');
-    }
-    
-    if (!/\d/.test(password)) {
-      errors.push('Password must contain at least one number');
-    }
-    
-    return {
-      isValid: errors.length === 0,
-      errors,
-    };
-  },
-
-  phone: (phone: string): boolean => {
-    const phoneRegex = /^\+?[\d\s\-\(\)]+$/;
-    return phoneRegex.test(phone) && phone.replace(/\D/g, '').length >= 10;
-  },
-
-  required: (value: string | number | undefined | null): boolean => {
-    if (typeof value === 'string') {
-      return value.trim().length > 0;
-    }
-    return value !== undefined && value !== null;
-  },
-
-  minLength: (value: string, min: number): boolean => {
-    return value.length >= min;
-  },
-
-  maxLength: (value: string, max: number): boolean => {
-    return value.length <= max;
-  },
-
-  url: (url: string): boolean => {
-    try {
-      new URL(url);
-      return true;
-    } catch {
-      return false;
-    }
-  },
-
-  positiveNumber: (value: number): boolean => {
-    return value > 0;
-  },
-
-  futureDate: (date: Date): boolean => {
-    return date > new Date();
-  },
-
-  pastDate: (date: Date): boolean => {
-    return date < new Date();
-  },
-};
->>>>>>> origin/main
->>>>>>> origin/main

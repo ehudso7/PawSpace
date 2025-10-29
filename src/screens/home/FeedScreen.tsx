@@ -1,37 +1,110 @@
-import React from 'react';
-<<<<<<< HEAD
-import { View, StyleSheet } from 'react-native';
+import React, { useState } from 'react';
+import { View, Text, StyleSheet, FlatList, RefreshControl } from 'react-native';
 import { NativeStackScreenProps } from '@react-navigation/native-stack';
 import { HomeStackParamList } from '@/types/navigation';
+import { useTransformations } from '@/hooks/useTransformations';
+import { TransformationCard, Loading, ErrorMessage } from '@/components';
+import { theme } from '@/constants/theme';
 
 type Props = NativeStackScreenProps<HomeStackParamList, 'Feed'>;
 
 const FeedScreen: React.FC<Props> = ({ navigation }) => {
-  return (
-    <View style={styles.container}>
-      {/* TODO: Implement pet transformation feed */}
-=======
-<<<<<<< HEAD
-import { View, Text, StyleSheet } from 'react-native';
-=======
-import { View, Text, StyleSheet, FlatList } from 'react-native';
->>>>>>> origin/main
+  const {
+    transformations,
+    isLoading,
+    isRefreshing,
+    error,
+    hasMore,
+    loadMore,
+    refresh,
+    likeTransformation,
+    unlikeTransformation,
+  } = useTransformations();
 
-const FeedScreen: React.FC = () => {
+  const handleTransformationPress = (transformationId: string) => {
+    navigation.navigate('TransformationDetail', { id: transformationId });
+  };
+
+  const handleLike = async (transformationId: string) => {
+    // Check if already liked (this would need to be tracked in the transformation data)
+    // For now, just call the like function
+    await likeTransformation(transformationId);
+  };
+
+  const handleShare = (transformationId: string) => {
+    // Implement sharing functionality
+    console.log('Share transformation:', transformationId);
+  };
+
+  const renderTransformation = ({ item }: { item: any }) => (
+    <TransformationCard
+      transformation={item}
+      onPress={() => handleTransformationPress(item.id)}
+      onLike={() => handleLike(item.id)}
+      onShare={() => handleShare(item.id)}
+    />
+  );
+
+  const renderEmpty = () => (
+    <View style={styles.emptyContainer}>
+      <Text style={styles.emptyTitle}>No Transformations Yet</Text>
+      <Text style={styles.emptyMessage}>
+        Be the first to share your pet's amazing transformation!
+      </Text>
+    </View>
+  );
+
+  const renderFooter = () => {
+    if (!hasMore) return null;
+    return (
+      <View style={styles.footer}>
+        <Loading size="small" text="Loading more..." />
+      </View>
+    );
+  };
+
+  if (isLoading && !isRefreshing) {
+    return <Loading text="Loading feed..." fullScreen />;
+  }
+
+  if (error) {
+    return (
+      <View style={styles.errorContainer}>
+        <ErrorMessage message={error} />
+        <Button
+          title="Try Again"
+          onPress={refresh}
+          style={styles.retryButton}
+        />
+      </View>
+    );
+  }
+
   return (
     <View style={styles.container}>
-<<<<<<< HEAD
-      <Text style={styles.title}>Feed Screen</Text>
-=======
-      <Text style={styles.title}>Pet Transformations Feed</Text>
+      <View style={styles.header}>
+        <Text style={styles.title}>PawSpace</Text>
+        <Text style={styles.subtitle}>Amazing pet transformations</Text>
+      </View>
+
       <FlatList
-        data={[]}
-        renderItem={() => null}
-        keyExtractor={(item, index) => index.toString()}
+        data={transformations}
+        renderItem={renderTransformation}
+        keyExtractor={(item) => item.id}
         contentContainerStyle={styles.list}
+        showsVerticalScrollIndicator={false}
+        refreshControl={
+          <RefreshControl
+            refreshing={isRefreshing}
+            onRefresh={refresh}
+            tintColor={theme.colors.primary}
+          />
+        }
+        onEndReached={loadMore}
+        onEndReachedThreshold={0.5}
+        ListEmptyComponent={renderEmpty}
+        ListFooterComponent={renderFooter}
       />
->>>>>>> origin/main
->>>>>>> origin/main
     </View>
   );
 };
@@ -39,36 +112,57 @@ const FeedScreen: React.FC = () => {
 const styles = StyleSheet.create({
   container: {
     flex: 1,
-<<<<<<< HEAD
-    backgroundColor: '#fff',
+    backgroundColor: theme.colors.background,
   },
-});
-
-export default FeedScreen;
-=======
-<<<<<<< HEAD
-    justifyContent: 'center',
-    alignItems: 'center',
-=======
-    padding: 20,
->>>>>>> origin/main
+  header: {
+    padding: theme.spacing.lg,
+    paddingBottom: theme.spacing.md,
   },
   title: {
-    fontSize: 24,
+    fontSize: theme.fonts['3xl'],
     fontWeight: 'bold',
-<<<<<<< HEAD
+    color: theme.colors.text,
+    marginBottom: theme.spacing.sm,
   },
-});
-
-export default FeedScreen;
-=======
-    marginBottom: 20,
+  subtitle: {
+    fontSize: theme.fonts.lg,
+    color: theme.colors.textSecondary,
   },
   list: {
-    flexGrow: 1,
+    padding: theme.spacing.lg,
+    paddingTop: 0,
+  },
+  emptyContainer: {
+    flex: 1,
+    justifyContent: 'center',
+    alignItems: 'center',
+    padding: theme.spacing.xl,
+  },
+  emptyTitle: {
+    fontSize: theme.fonts.xl,
+    fontWeight: '600',
+    color: theme.colors.text,
+    marginBottom: theme.spacing.sm,
+  },
+  emptyMessage: {
+    fontSize: theme.fonts.md,
+    color: theme.colors.textSecondary,
+    textAlign: 'center',
+    lineHeight: 22,
+  },
+  footer: {
+    padding: theme.spacing.lg,
+    alignItems: 'center',
+  },
+  errorContainer: {
+    flex: 1,
+    justifyContent: 'center',
+    alignItems: 'center',
+    padding: theme.spacing.lg,
+  },
+  retryButton: {
+    marginTop: theme.spacing.lg,
   },
 });
 
 export default FeedScreen;
->>>>>>> origin/main
->>>>>>> origin/main

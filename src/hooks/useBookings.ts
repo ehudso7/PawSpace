@@ -1,6 +1,5 @@
 import { useState, useEffect } from 'react';
-<<<<<<< HEAD
-import { bookingsService, CreateBookingData } from '@/services/bookings';
+import { supabase } from '@/services/supabase';
 import { Booking, Service, Provider, BookingStatus } from '@/types';
 
 export const useBookings = () => {
@@ -13,8 +12,21 @@ export const useBookings = () => {
     setError(null);
 
     try {
-      const userBookings = await bookingsService.getUserBookings();
-      setBookings(userBookings);
+      const { data: { user } } = await supabase.auth.getUser();
+      if (!user) throw new Error('User not authenticated');
+
+      const { data, error } = await supabase
+        .from('bookings')
+        .select(`
+          *,
+          service:services(*),
+          provider:providers(*)
+        `)
+        .eq('user_id', user.id)
+        .order('created_at', { ascending: false });
+
+      if (error) throw error;
+      setBookings(data || []);
     } catch (error) {
       setError('Failed to fetch bookings');
       console.error('Error fetching bookings:', error);
@@ -23,23 +35,41 @@ export const useBookings = () => {
     }
   };
 
-  const createBooking = async (bookingData: CreateBookingData) => {
+  const createBooking = async (bookingData: {
+    serviceId: string;
+    providerId: string;
+    date: string;
+    time: string;
+    notes?: string;
+  }) => {
     setIsLoading(true);
     setError(null);
 
     try {
-      const { booking, error } = await bookingsService.createBooking(bookingData);
-      
-      if (error) {
-        setError(error);
-        return { success: false, error };
-      }
+      const { data: { user } } = await supabase.auth.getUser();
+      if (!user) throw new Error('User not authenticated');
 
-      if (booking) {
-        setBookings(prev => [booking, ...prev]);
-      }
+      const { data, error } = await supabase
+        .from('bookings')
+        .insert({
+          user_id: user.id,
+          service_id: bookingData.serviceId,
+          provider_id: bookingData.providerId,
+          date: bookingData.date,
+          time: bookingData.time,
+          notes: bookingData.notes,
+          status: 'pending' as BookingStatus,
+        })
+        .select(`
+          *,
+          service:services(*),
+          provider:providers(*)
+        `)
+        .single();
 
-      return { success: true, booking };
+      if (error) throw error;
+      setBookings(prev => [data, ...prev]);
+      return { success: true, booking: data };
     } catch (error) {
       const errorMessage = 'Failed to create booking';
       setError(errorMessage);
@@ -50,32 +80,38 @@ export const useBookings = () => {
   };
 
   const updateBookingStatus = async (bookingId: string, status: BookingStatus) => {
+    setIsLoading(true);
     setError(null);
 
     try {
-      const { error } = await bookingsService.updateBookingStatus(bookingId, status);
-      
-      if (error) {
-        setError(error);
-        return { success: false, error };
-      }
+      const { data, error } = await supabase
+        .from('bookings')
+        .update({ status })
+        .eq('id', bookingId)
+        .select(`
+          *,
+          service:services(*),
+          provider:providers(*)
+        `)
+        .single();
 
-      // Update local state
-      setBookings(prev => 
-        prev.map(booking => 
-          booking.id === bookingId ? { ...booking, status } : booking
-        )
-      );
-
-      return { success: true };
+      if (error) throw error;
+      setBookings(prev => prev.map(booking => 
+        booking.id === bookingId ? data : booking
+      ));
+      return { success: true, booking: data };
     } catch (error) {
       const errorMessage = 'Failed to update booking status';
       setError(errorMessage);
       return { success: false, error: errorMessage };
+    } finally {
+      setIsLoading(false);
     }
   };
 
-  const clearError = () => setError(null);
+  const cancelBooking = async (bookingId: string) => {
+    return updateBookingStatus(bookingId, 'cancelled');
+  };
 
   useEffect(() => {
     fetchUserBookings();
@@ -88,15 +124,11 @@ export const useBookings = () => {
     fetchUserBookings,
     createBooking,
     updateBookingStatus,
-    clearError,
+    cancelBooking,
   };
 };
 
-export const useServices = (filters?: {
-  category?: string;
-  location?: string;
-  priceRange?: [number, number];
-}) => {
+export const useServices = () => {
   const [services, setServices] = useState<Service[]>([]);
   const [isLoading, setIsLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
@@ -106,8 +138,13 @@ export const useServices = (filters?: {
     setError(null);
 
     try {
-      const servicesData = await bookingsService.getServices(filters);
-      setServices(servicesData);
+      const { data, error } = await supabase
+        .from('services')
+        .select('*')
+        .order('created_at', { ascending: false });
+
+      if (error) throw error;
+      setServices(data || []);
     } catch (error) {
       setError('Failed to fetch services');
       console.error('Error fetching services:', error);
@@ -116,22 +153,19 @@ export const useServices = (filters?: {
     }
   };
 
-  const clearError = () => setError(null);
-
   useEffect(() => {
     fetchServices();
-  }, [filters?.category, filters?.location, filters?.priceRange]);
+  }, []);
 
   return {
     services,
     isLoading,
     error,
     fetchServices,
-    clearError,
   };
 };
 
-export const useProviders = (location?: string) => {
+export const useProviders = () => {
   const [providers, setProviders] = useState<Provider[]>([]);
   const [isLoading, setIsLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
@@ -141,8 +175,16 @@ export const useProviders = (location?: string) => {
     setError(null);
 
     try {
-      const providersData = await bookingsService.getProviders(location);
-      setProviders(providersData);
+      const { data, error } = await supabase
+        .from('providers')
+        .select(`
+          *,
+          user:users(*)
+        `)
+        .order('created_at', { ascending: false });
+
+      if (error) throw error;
+      setProviders(data || []);
     } catch (error) {
       setError('Failed to fetch providers');
       console.error('Error fetching providers:', error);
@@ -151,205 +193,14 @@ export const useProviders = (location?: string) => {
     }
   };
 
-  const clearError = () => setError(null);
-
   useEffect(() => {
     fetchProviders();
-  }, [location]);
+  }, []);
 
   return {
     providers,
     isLoading,
     error,
     fetchProviders,
-    clearError,
   };
 };
-=======
-<<<<<<< HEAD
-import { bookingsService, type Booking } from '@/services/bookings';
-
-export const useBookings = (userId: string) => {
-  const [bookings, setBookings] = useState<Booking[]>([]);
-  const [loading, setLoading] = useState(true);
-  const [error, setError] = useState<Error | null>(null);
-
-  const fetchBookings = async () => {
-    setLoading(true);
-    setError(null);
-    try {
-      const { data, error: fetchError } = await bookingsService.getBookings(userId);
-      if (fetchError) throw fetchError;
-      setBookings(data || []);
-    } catch (err) {
-      setError(err as Error);
-=======
-import { bookingService } from '@/services/bookings';
-import { Booking, Service, Provider } from '@/types/database';
-
-export const useBookings = () => {
-  const [bookings, setBookings] = useState<Booking[]>([]);
-  const [services, setServices] = useState<Service[]>([]);
-  const [providers, setProviders] = useState<Provider[]>([]);
-  const [loading, setLoading] = useState(false);
-  const [error, setError] = useState<string | null>(null);
-
-  const fetchBookings = async (userId: string) => {
-    setLoading(true);
-    setError(null);
-    try {
-      const data = await bookingService.getUserBookings(userId);
-      setBookings(data);
-    } catch (err) {
-      setError(err instanceof Error ? err.message : 'Failed to fetch bookings');
->>>>>>> origin/main
-    } finally {
-      setLoading(false);
-    }
-  };
-
-<<<<<<< HEAD
-  useEffect(() => {
-    if (userId) {
-      fetchBookings();
-    }
-  }, [userId]);
-
-  const createBooking = async (bookingData: Omit<Booking, 'id' | 'created_at'>) => {
-    setError(null);
-    try {
-      const { data, error: createError } = await bookingsService.createBooking(bookingData);
-      if (createError) throw createError;
-      if (data) {
-        setBookings([data, ...bookings]);
-      }
-      return { data, error: null };
-    } catch (err) {
-      const error = err as Error;
-      setError(error);
-      return { data: null, error };
-    }
-  };
-
-  const updateBooking = async (id: string, updates: Partial<Booking>) => {
-    setError(null);
-    try {
-      const { data, error: updateError } = await bookingsService.updateBooking(id, updates);
-      if (updateError) throw updateError;
-      if (data) {
-        setBookings(bookings.map(b => b.id === id ? data : b));
-      }
-      return { data, error: null };
-    } catch (err) {
-      const error = err as Error;
-      setError(error);
-      return { data: null, error };
-    }
-  };
-
-  const cancelBooking = async (id: string) => {
-    setError(null);
-    try {
-      const { data, error: cancelError } = await bookingsService.cancelBooking(id);
-      if (cancelError) throw cancelError;
-      if (data) {
-        setBookings(bookings.map(b => b.id === id ? data : b));
-      }
-      return { data, error: null };
-    } catch (err) {
-      const error = err as Error;
-      setError(error);
-      return { data: null, error };
-=======
-  const fetchServices = async () => {
-    setLoading(true);
-    setError(null);
-    try {
-      const data = await bookingService.getServices();
-      setServices(data);
-    } catch (err) {
-      setError(err instanceof Error ? err.message : 'Failed to fetch services');
-    } finally {
-      setLoading(false);
-    }
-  };
-
-  const fetchProviders = async () => {
-    setLoading(true);
-    setError(null);
-    try {
-      const data = await bookingService.getProviders();
-      setProviders(data);
-    } catch (err) {
-      setError(err instanceof Error ? err.message : 'Failed to fetch providers');
-    } finally {
-      setLoading(false);
-    }
-  };
-
-  const createBooking = async (bookingData: Omit<Booking, 'id' | 'created_at' | 'updated_at'>) => {
-    setLoading(true);
-    setError(null);
-    try {
-      const newBooking = await bookingService.createBooking(bookingData);
-      setBookings(prev => [newBooking, ...prev]);
-      return { data: newBooking, error: null };
-    } catch (err) {
-      const errorMessage = err instanceof Error ? err.message : 'Failed to create booking';
-      setError(errorMessage);
-      return { data: null, error: errorMessage };
-    } finally {
-      setLoading(false);
-    }
-  };
-
-  const cancelBooking = async (bookingId: string) => {
-    setLoading(true);
-    setError(null);
-    try {
-      await bookingService.cancelBooking(bookingId);
-      setBookings(prev => 
-        prev.map(booking => 
-          booking.id === bookingId 
-            ? { ...booking, status: 'cancelled' as const }
-            : booking
-        )
-      );
-      return { error: null };
-    } catch (err) {
-      const errorMessage = err instanceof Error ? err.message : 'Failed to cancel booking';
-      setError(errorMessage);
-      return { error: errorMessage };
-    } finally {
-      setLoading(false);
->>>>>>> origin/main
-    }
-  };
-
-  return {
-    bookings,
-<<<<<<< HEAD
-    loading,
-    error,
-    refetch: fetchBookings,
-    createBooking,
-    updateBooking,
-    cancelBooking,
-  };
-};
-
-export default useBookings;
-=======
-    services,
-    providers,
-    loading,
-    error,
-    fetchBookings,
-    fetchServices,
-    fetchProviders,
-    createBooking,
-    cancelBooking,
-  };
-};
->>>>>>> origin/main
->>>>>>> origin/main
