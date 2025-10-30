@@ -1,0 +1,10 @@
+node_modules
+examples
+**/__tests__/**
+EXAMPLE_USAGE.tsx
+App.example.tsx
+useAuth.examples.tsx
+src/store/**
+src/utils/**
+src/theme.ts
+index.js

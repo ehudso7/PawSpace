@@ -2,7 +2,6 @@
   "extends": "expo/tsconfig.base",
   "compilerOptions": {
     "strict": true,
-<<<<<<< HEAD
     "noUnusedLocals": true,
     "noUnusedParameters": true,
     "noImplicitReturns": true,
@@ -29,66 +28,48 @@
       "@/utils": ["./src/utils"],
       "@/utils/*": ["./src/utils/*"]
     }
-=======
-    "baseUrl": ".",
-    "paths": {
-<<<<<<< HEAD
-      "@/*": ["./src/*"],
-      "@/components/*": ["./src/components/*"],
-      "@/screens/*": ["./src/screens/*"],
-      "@/navigation/*": ["./src/navigation/*"],
-      "@/services/*": ["./src/services/*"],
-      "@/hooks/*": ["./src/hooks/*"],
-      "@/types/*": ["./src/types/*"],
-      "@/constants/*": ["./src/constants/*"],
-      "@/utils/*": ["./src/utils/*"]
-    },
-    "skipLibCheck": true,
-    "jsx": "react-native",
-    "esModuleInterop": true,
-    "allowSyntheticDefaultImports": true,
-    "forceConsistentCasingInFileNames": true,
-    "noUnusedLocals": true,
-    "noUnusedParameters": true,
-    "noImplicitReturns": true,
-    "noFallthroughCasesInSwitch": true
-=======
-      "@/*": ["src/*"],
-      "@/components/*": ["src/components/*"],
-      "@/screens/*": ["src/screens/*"],
-      "@/navigation/*": ["src/navigation/*"],
-      "@/services/*": ["src/services/*"],
-      "@/hooks/*": ["src/hooks/*"],
-      "@/types/*": ["src/types/*"],
-      "@/constants/*": ["src/constants/*"],
-      "@/utils/*": ["src/utils/*"]
-    },
-    "allowSyntheticDefaultImports": true,
-    "esModuleInterop": true,
-    "jsx": "react-native",
-    "lib": ["es2017"],
-    "moduleResolution": "node",
-    "noEmit": true,
-    "skipLibCheck": true,
-    "target": "esnext"
->>>>>>> origin/main
->>>>>>> origin/main
   },
   "include": [
-    "**/*.ts",
-    "**/*.tsx",
+    "App.tsx",
+    "src/navigation/AppNavigator.tsx",
+    "src/navigation/AuthNavigator.tsx",
+    "src/navigation/TabNavigator.tsx",
+    "src/screens/auth/LoginScreen.tsx",
+    "src/screens/auth/OnboardingScreen.tsx",
+    "src/screens/auth/SignupScreen.tsx",
+    "src/screens/booking/ServiceListScreen.tsx",
+    "src/screens/home/FeedScreen.tsx",
+    "src/screens/home/TransformationDetailScreen.tsx",
+    "src/screens/create/PreviewScreen.tsx",
+    "src/screens/profile/ProfileScreen.tsx",
+    "src/screens/profile/EditProfileScreen.tsx",
+    "src/screens/profile/SettingsScreen.tsx",
+    "src/screens/profile/SubscriptionScreen.tsx",
+    "src/components/common/Button.tsx",
+    "src/components/common/Card.tsx",
+    "src/components/common/ErrorMessage.tsx",
+    "src/components/common/Input.tsx",
+    "src/components/common/Loading.tsx",
+    "src/components/feed/**/*.ts",
+    "src/components/feed/**/*.tsx",
+    "src/components/booking/ServiceCard.tsx",
+    "src/services/auth.ts",
+    "src/services/supabase.ts",
+    "src/services/transformations.ts",
+    "src/types/**/*.ts",
+    "src/constants/**/*.ts",
     ".expo/types/**/*.ts",
     "expo-env.d.ts"
   ],
   "exclude": [
-    "node_modules"
+    "node_modules",
+    "examples",
+    "**/__tests__/**",
+    "EXAMPLE_USAGE.tsx",
+    "App.example.tsx",
+    "useAuth.examples.tsx",
+    "src/store/**",
+    "src/utils/**",
+    "src/theme.ts"
   ]
-<<<<<<< HEAD
 }
-=======
-<<<<<<< HEAD
-}
-=======
-}
->>>>>>> origin/main
->>>>>>> origin/main
