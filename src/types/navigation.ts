@@ -2,7 +2,14 @@ import {StackNavigationProp} from '@react-navigation/stack';
 import {RouteProp} from '@react-navigation/native';
 import {Service, ProviderProfile, Booking} from './booking';
 
+export type AuthStackParamList = {
+  Onboarding: undefined;
+  Login: undefined;
+  Signup: undefined;
+};
+
 export type RootStackParamList = {
+  Auth: undefined;
   Main: undefined;
   Home: undefined;
   ServiceList: undefined;

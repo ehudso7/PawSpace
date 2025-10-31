@@ -1,16 +1,23 @@
 import { createClient } from '@supabase/supabase-js';
+import AsyncStorage from '@react-native-async-storage/async-storage';
+import Constants from 'expo-constants';
 
-// Replace these with your actual Supabase project URL and anon key
-const supabaseUrl = process.env.EXPO_PUBLIC_SUPABASE_URL || 'your-supabase-url';
-const supabaseAnonKey = process.env.EXPO_PUBLIC_SUPABASE_ANON_KEY || 'your-supabase-anon-key';
+const supabaseUrl = Constants.expoConfig?.extra?.supabaseUrl || process.env.EXPO_PUBLIC_SUPABASE_URL;
+const supabaseAnonKey = Constants.expoConfig?.extra?.supabaseAnonKey || process.env.EXPO_PUBLIC_SUPABASE_ANON_KEY;
 
-export const supabase = createClient(supabaseUrl, supabaseAnonKey, {
+if (!supabaseUrl || supabaseUrl.includes('your') || supabaseUrl.includes('placeholder')) {
+  console.warn('?? Supabase URL not configured. Authentication features will not work.');
+}
+
+if (!supabaseAnonKey || supabaseAnonKey.includes('your') || supabaseAnonKey.includes('placeholder')) {
+  console.warn('?? Supabase anon key not configured. Authentication features will not work.');
+}
+
+export const supabase = createClient(supabaseUrl || '', supabaseAnonKey || '', {
   auth: {
-    // Enable automatic session refresh
+    storage: AsyncStorage,
     autoRefreshToken: true,
-    // Persist session in AsyncStorage
     persistSession: true,
-    // Detect session from URL (for deep linking)
-    detectSessionInUrl: true,
+    detectSessionInUrl: false,
   },
 });

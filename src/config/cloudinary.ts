@@ -1,11 +1,18 @@
 import { CloudinaryConfig } from '../types';
 
 // Cloudinary configuration
-// In production, these should be environment variables
+const CLOUDINARY_CLOUD_NAME = process.env.EXPO_PUBLIC_CLOUDINARY_CLOUD_NAME;
+const CLOUDINARY_API_KEY = process.env.EXPO_PUBLIC_CLOUDINARY_API_KEY;
+const CLOUDINARY_API_SECRET = process.env.EXPO_PUBLIC_CLOUDINARY_API_SECRET;
+
+if (!CLOUDINARY_CLOUD_NAME || CLOUDINARY_CLOUD_NAME.includes('your')) {
+  console.warn('?? Cloudinary cloud name not configured. Image upload features will not work.');
+}
+
 export const cloudinaryConfig: CloudinaryConfig = {
-  cloud_name: process.env.EXPO_PUBLIC_CLOUDINARY_CLOUD_NAME || 'your-cloud-name',
-  api_key: process.env.EXPO_PUBLIC_CLOUDINARY_API_KEY || 'your-api-key',
-  api_secret: process.env.EXPO_PUBLIC_CLOUDINARY_API_SECRET || 'your-api-secret'
+  cloud_name: CLOUDINARY_CLOUD_NAME || '',
+  api_key: CLOUDINARY_API_KEY || '',
+  api_secret: CLOUDINARY_API_SECRET || '',
 };
 
 // Validate configuration

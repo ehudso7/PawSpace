@@ -137,8 +137,14 @@ const getAuthToken = async (): Promise<string> => {
 };
 
 // Stripe configuration
+const STRIPE_KEY = process.env.EXPO_PUBLIC_STRIPE_PUBLISHABLE_KEY;
+
+if (!STRIPE_KEY || STRIPE_KEY.includes('your') || STRIPE_KEY.includes('placeholder')) {
+  console.warn('?? Stripe publishable key not configured. Payment features will not work.');
+}
+
 export const STRIPE_CONFIG = {
-  publishableKey: process.env.EXPO_PUBLIC_STRIPE_PUBLISHABLE_KEY || 'pk_test_your_key_here',
-  merchantId: 'merchant.com.yourapp',
-  urlScheme: 'yourapp',
+  publishableKey: STRIPE_KEY || '',
+  merchantId: 'merchant.com.pawspace',
+  urlScheme: 'pawspace',
 };
