@@ -7,7 +7,7 @@ import {
   ProviderProfile,
 } from '../types/booking';
 
-const API_BASE_URL = 'https://your-api-url.com'; // Replace with your actual API URL
+import { getApiUrl } from '../config/appConfig';
 
 class BookingService {
   private async makeRequest(

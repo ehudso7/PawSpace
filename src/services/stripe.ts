@@ -1,14 +1,31 @@
 import { initStripe, presentPaymentSheet as stripePresent, useStripe } from '@stripe/stripe-react-native';
 import { PaymentIntent, PaymentResult, BookingData } from '../types/booking';
 import { ErrorHandler } from '../utils/errorHandler';
+import { APP_CONFIG } from '../config/appConfig';
+
+// Stripe configuration
+export const STRIPE_CONFIG = {
+  publishableKey: APP_CONFIG.stripe.publishableKey,
+  merchantId: APP_CONFIG.stripe.merchantId,
+  urlScheme: APP_CONFIG.stripe.urlScheme,
+};
+
+if (!STRIPE_CONFIG.publishableKey && APP_CONFIG.env === 'production') {
+  console.warn('Warning: Stripe publishable key is not configured. Payments will not work.');
+}
 
 // Initialize Stripe with your publishable key
-export const initializeStripe = async (publishableKey: string) => {
+export const initializeStripe = async (publishableKey?: string) => {
+  const key = publishableKey || STRIPE_CONFIG.publishableKey;
+  if (!key) {
+    throw new Error('Stripe publishable key is not configured');
+  }
+  
   try {
     await initStripe({
-      publishableKey,
-      merchantIdentifier: 'merchant.com.yourapp', // Replace with your merchant ID
-      urlScheme: 'yourapp', // Replace with your app's URL scheme
+      publishableKey: key,
+      merchantIdentifier: STRIPE_CONFIG.merchantId,
+      urlScheme: STRIPE_CONFIG.urlScheme,
     });
   } catch (error) {
     console.error('Error initializing Stripe:', error);
@@ -16,13 +33,25 @@ export const initializeStripe = async (publishableKey: string) => {
   }
 };
 
+// Helper function to get auth token
+const getAuthToken = async (): Promise<string> => {
+  // TODO: Implement your auth token retrieval logic here
+  // This could be from AsyncStorage, Redux store, or context
+  // Example: return await AsyncStorage.getItem('auth_token') || '';
+  return '';
+};
+
 // Create payment intent on backend
 export const createPaymentIntent = async (
   amount: number,
   bookingData: BookingData
 ): Promise<PaymentIntent> => {
+  if (!APP_CONFIG.api.baseUrl) {
+    throw new Error('API base URL is not configured');
+  }
+  
   try {
-    const response = await fetch('/api/payments/create-intent', {
+    const response = await fetch(`${APP_CONFIG.api.baseUrl}/api/payments/create-intent`, {
       method: 'POST',
       headers: {
         'Content-Type': 'application/json',
@@ -60,8 +89,8 @@ export const presentPaymentSheet = async (
   try {
     const { error } = await stripePresent({
       paymentIntentClientSecret: paymentIntent.client_secret,
-      merchantDisplayName: 'PetCare App',
-      returnURL: 'yourapp://stripe-redirect',
+      merchantDisplayName: 'PawSpace',
+      returnURL: `${APP_CONFIG.scheme}://stripe-redirect`,
     });
 
     if (error) {
@@ -88,8 +117,12 @@ export const presentPaymentSheet = async (
 
 // Get saved payment methods
 export const getSavedPaymentMethods = async () => {
+  if (!APP_CONFIG.api.baseUrl) {
+    throw new Error('API base URL is not configured');
+  }
+  
   try {
-    const response = await fetch('/api/payments/methods', {
+    const response = await fetch(`${APP_CONFIG.api.baseUrl}/api/payments/methods`, {
       headers: {
         'Authorization': `Bearer ${await getAuthToken()}`,
       },
@@ -108,8 +141,12 @@ export const getSavedPaymentMethods = async () => {
 
 // Save payment method
 export const savePaymentMethod = async (paymentMethodId: string) => {
+  if (!APP_CONFIG.api.baseUrl) {
+    throw new Error('API base URL is not configured');
+  }
+  
   try {
-    const response = await fetch('/api/payments/save-method', {
+    const response = await fetch(`${APP_CONFIG.api.baseUrl}/api/payments/save-method`, {
       method: 'POST',
       headers: {
         'Content-Type': 'application/json',
@@ -127,18 +164,4 @@ export const savePaymentMethod = async (paymentMethodId: string) => {
     console.error('Error saving payment method:', error);
     throw error;
   }
-};
-
-// Helper function to get auth token
-const getAuthToken = async (): Promise<string> => {
-  // Implement your auth token retrieval logic here
-  // This could be from AsyncStorage, Redux store, or context
-  return 'your-auth-token';
-};
-
-// Stripe configuration
-export const STRIPE_CONFIG = {
-  publishableKey: process.env.EXPO_PUBLIC_STRIPE_PUBLISHABLE_KEY || 'pk_test_your_key_here',
-  merchantId: 'merchant.com.yourapp',
-  urlScheme: 'yourapp',
 };

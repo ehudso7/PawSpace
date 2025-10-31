@@ -1,8 +1,7 @@
-export const API_BASE_URL = process.env.API_BASE_URL || 'https://api.example.com';
+import { getApiUrl as getApiUrlFromConfig, APP_CONFIG } from './appConfig';
+
+export const API_BASE_URL = APP_CONFIG.api.baseUrl;
 
 export function getApiUrl(path: string): string {
-  if (!path.startsWith('/')) {
-    return `${API_BASE_URL}/${path}`;
-  }
-  return `${API_BASE_URL}${path}`;
+  return getApiUrlFromConfig(path);
 }

@@ -15,7 +15,7 @@ class BookingService {
     options: RequestInit = {},
   ): Promise<any> {
     try {
-      const response = await fetch(`${API_BASE_URL}${endpoint}`, {
+      const response = await fetch(getApiUrl(endpoint), {
         headers: {
           'Content-Type': 'application/json',
           // Add authorization header here
