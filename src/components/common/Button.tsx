@@ -1,26 +1,6 @@
 import React from 'react';
-<<<<<<< HEAD
-import { TouchableOpacity, Text, StyleSheet, ViewStyle, TextStyle } from 'react-native';
+import { TouchableOpacity, Text, StyleSheet, ViewStyle, TextStyle, ActivityIndicator } from 'react-native';
 import { theme } from '@/constants/theme';
-=======
-<<<<<<< HEAD
-import { TouchableOpacity, Text, StyleSheet, TouchableOpacityProps } from 'react-native';
-
-interface ButtonProps extends TouchableOpacityProps {
-  title: string;
-  variant?: 'primary' | 'secondary' | 'outline';
-}
-
-const Button: React.FC<ButtonProps> = ({ title, variant = 'primary', style, ...props }) => {
-  return (
-    <TouchableOpacity
-      style={[styles.button, styles[variant], style]}
-      {...props}
-    >
-      <Text style={[styles.text, styles[`${variant}Text`]]}>{title}</Text>
-=======
-import { TouchableOpacity, Text, StyleSheet, ViewStyle, TextStyle } from 'react-native';
->>>>>>> origin/main
 
 interface ButtonProps {
   title: string;
@@ -28,6 +8,7 @@ interface ButtonProps {
   variant?: 'primary' | 'secondary' | 'outline';
   size?: 'small' | 'medium' | 'large';
   disabled?: boolean;
+  loading?: boolean;
   style?: ViewStyle;
   textStyle?: TextStyle;
 }
@@ -38,6 +19,7 @@ const Button: React.FC<ButtonProps> = ({
   variant = 'primary',
   size = 'medium',
   disabled = false,
+  loading = false,
   style,
   textStyle,
 }) => {
@@ -47,72 +29,41 @@ const Button: React.FC<ButtonProps> = ({
         styles.button,
         styles[variant],
         styles[size],
-        disabled && styles.disabled,
+        (disabled || loading) && styles.disabled,
         style,
       ]}
       onPress={onPress}
-      disabled={disabled}
-<<<<<<< HEAD
+      disabled={disabled || loading}
       activeOpacity={0.7}
-=======
->>>>>>> origin/main
     >
-      <Text style={[styles.text, styles[`${variant}Text`], textStyle]}>
-        {title}
-      </Text>
-<<<<<<< HEAD
-=======
->>>>>>> origin/main
->>>>>>> origin/main
+      {loading ? (
+        <ActivityIndicator color={variant === 'outline' ? theme.colors.primary : theme.colors.white} />
+      ) : (
+        <Text style={[styles.text, styles[`${variant}Text`], styles[`${size}Text`], textStyle]}>
+          {title}
+        </Text>
+      )}
     </TouchableOpacity>
   );
 };
 
 const styles = StyleSheet.create({
   button: {
-<<<<<<< HEAD
-=======
-<<<<<<< HEAD
-    paddingVertical: 12,
-    paddingHorizontal: 24,
-=======
->>>>>>> origin/main
->>>>>>> origin/main
     borderRadius: 8,
     alignItems: 'center',
     justifyContent: 'center',
   },
   primary: {
-<<<<<<< HEAD
     backgroundColor: theme.colors.primary,
   },
   secondary: {
     backgroundColor: theme.colors.secondary,
-=======
-    backgroundColor: '#007AFF',
-  },
-  secondary: {
-<<<<<<< HEAD
-    backgroundColor: '#5856D6',
-=======
-    backgroundColor: '#6C757D',
->>>>>>> origin/main
->>>>>>> origin/main
   },
   outline: {
     backgroundColor: 'transparent',
     borderWidth: 1,
-<<<<<<< HEAD
     borderColor: theme.colors.primary,
   },
-=======
-    borderColor: '#007AFF',
-  },
-<<<<<<< HEAD
-  text: {
-    fontSize: 16,
-=======
->>>>>>> origin/main
   small: {
     paddingVertical: 8,
     paddingHorizontal: 16,
@@ -129,8 +80,6 @@ const styles = StyleSheet.create({
     opacity: 0.5,
   },
   text: {
-<<<<<<< HEAD
-    fontSize: 16,
     fontWeight: '600',
   },
   primaryText: {
@@ -142,27 +91,15 @@ const styles = StyleSheet.create({
   outlineText: {
     color: theme.colors.primary,
   },
-});
-
-export default Button;
-=======
->>>>>>> origin/main
-    fontWeight: '600',
+  smallText: {
+    fontSize: 14,
   },
-  primaryText: {
-    color: '#FFFFFF',
+  mediumText: {
+    fontSize: 16,
   },
-  secondaryText: {
-    color: '#FFFFFF',
-  },
-  outlineText: {
-    color: '#007AFF',
+  largeText: {
+    fontSize: 18,
   },
 });
 
-<<<<<<< HEAD
 export default Button;
-=======
-export default Button;
->>>>>>> origin/main
->>>>>>> origin/main

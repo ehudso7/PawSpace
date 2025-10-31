@@ -3,12 +3,18 @@ import { PaymentIntent, PaymentResult, BookingData } from '../types/booking';
 import { ErrorHandler } from '../utils/errorHandler';
 
 // Initialize Stripe with your publishable key
-export const initializeStripe = async (publishableKey: string) => {
+export const initializeStripe = async (publishableKey?: string) => {
   try {
+    const key = publishableKey || process.env.EXPO_PUBLIC_STRIPE_PUBLISHABLE_KEY || '';
+    
+    if (!key) {
+      throw new Error('Stripe publishable key not configured');
+    }
+    
     await initStripe({
-      publishableKey,
-      merchantIdentifier: 'merchant.com.yourapp', // Replace with your merchant ID
-      urlScheme: 'yourapp', // Replace with your app's URL scheme
+      publishableKey: key,
+      merchantIdentifier: 'merchant.com.pawspace', // Update with your Apple merchant ID
+      urlScheme: 'pawspace', // Matches app.json scheme
     });
   } catch (error) {
     console.error('Error initializing Stripe:', error);
@@ -22,7 +28,8 @@ export const createPaymentIntent = async (
   bookingData: BookingData
 ): Promise<PaymentIntent> => {
   try {
-    const response = await fetch('/api/payments/create-intent', {
+    const apiUrl = process.env.EXPO_PUBLIC_API_BASE_URL || 'https://api.pawspace.com';
+    const response = await fetch(`${apiUrl}/api/payments/create-intent`, {
       method: 'POST',
       headers: {
         'Content-Type': 'application/json',
@@ -60,8 +67,8 @@ export const presentPaymentSheet = async (
   try {
     const { error } = await stripePresent({
       paymentIntentClientSecret: paymentIntent.client_secret,
-      merchantDisplayName: 'PetCare App',
-      returnURL: 'yourapp://stripe-redirect',
+      merchantDisplayName: 'PawSpace',
+      returnURL: 'pawspace://stripe-redirect',
     });
 
     if (error) {
@@ -138,7 +145,9 @@ const getAuthToken = async (): Promise<string> => {
 
 // Stripe configuration
 export const STRIPE_CONFIG = {
-  publishableKey: process.env.EXPO_PUBLIC_STRIPE_PUBLISHABLE_KEY || 'pk_test_your_key_here',
-  merchantId: 'merchant.com.yourapp',
-  urlScheme: 'yourapp',
+  publishableKey: process.env.EXPO_PUBLIC_STRIPE_PUBLISHABLE_KEY || '',
+  merchantId: 'merchant.com.pawspace',
+  urlScheme: 'pawspace',
+  merchantDisplayName: 'PawSpace',
+  apiBaseUrl: process.env.EXPO_PUBLIC_API_BASE_URL || 'https://api.pawspace.com',
 };
