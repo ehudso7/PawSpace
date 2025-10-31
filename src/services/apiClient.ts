@@ -1,17 +1,23 @@
-import { API_BASE_URL } from '../config';
+import { getApiUrl } from '../config/appConfig';
 
 interface RequestOptions extends RequestInit {
   authToken?: string;
 }
 
 async function getAuthToken(): Promise<string | undefined> {
-  // TODO: Replace with your app's auth token retrieval
-  return undefined;
+  try {
+    const AsyncStorage = require('@react-native-async-storage/async-storage').default;
+    const token = await AsyncStorage.getItem('auth_token');
+    return token || undefined;
+  } catch (error) {
+    console.warn('Failed to retrieve auth token:', error);
+    return undefined;
+  }
 }
 
 export async function apiGet<T>(path: string, options: RequestOptions = {}): Promise<T> {
   const token = options.authToken ?? (await getAuthToken());
-  const res = await fetch(`${API_BASE_URL}${path}`, {
+  const res = await fetch(getApiUrl(path), {
     method: 'GET',
     headers: {
       'Content-Type': 'application/json',
@@ -28,7 +34,7 @@ export async function apiGet<T>(path: string, options: RequestOptions = {}): Pro
 
 export async function apiPost<T>(path: string, body: unknown, options: RequestOptions = {}): Promise<T> {
   const token = options.authToken ?? (await getAuthToken());
-  const res = await fetch(`${API_BASE_URL}${path}`, {
+  const res = await fetch(getApiUrl(path), {
     method: 'POST',
     headers: {
       'Content-Type': 'application/json',
@@ -46,7 +52,7 @@ export async function apiPost<T>(path: string, body: unknown, options: RequestOp
 
 export async function apiPatch<T>(path: string, body: unknown, options: RequestOptions = {}): Promise<T> {
   const token = options.authToken ?? (await getAuthToken());
-  const res = await fetch(`${API_BASE_URL}${path}`, {
+  const res = await fetch(getApiUrl(path), {
     method: 'PATCH',
     headers: {
       'Content-Type': 'application/json',
@@ -64,7 +70,7 @@ export async function apiPatch<T>(path: string, body: unknown, options: RequestO
 
 export async function apiDelete(path: string, options: RequestOptions = {}): Promise<void> {
   const token = options.authToken ?? (await getAuthToken());
-  const res = await fetch(`${API_BASE_URL}${path}`, {
+  const res = await fetch(getApiUrl(path), {
     method: 'DELETE',
     headers: {
       'Content-Type': 'application/json',

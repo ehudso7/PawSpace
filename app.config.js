@@ -7,30 +7,92 @@ export default {
     version: '1.0.0',
     orientation: 'portrait',
     icon: './assets/icon.png',
-    userInterfaceStyle: 'light',
+    userInterfaceStyle: 'automatic',
     splash: {
       image: './assets/splash.png',
       resizeMode: 'contain',
-      backgroundColor: '#ffffff'
+      backgroundColor: '#6366F1'
     },
     assetBundlePatterns: [
       '**/*'
     ],
     ios: {
-      supportsTablet: true
+      supportsTablet: true,
+      bundleIdentifier: 'com.pawspace.app',
+      buildNumber: '1',
+      infoPlist: {
+        NSCameraUsageDescription: 'PawSpace needs access to your camera to capture and share pet transformations.',
+        NSPhotoLibraryUsageDescription: 'PawSpace needs access to your photo library to select and share pet photos.',
+        NSLocationWhenInUseUsageDescription: 'PawSpace uses your location to find nearby pet service providers.',
+        NSMicrophoneUsageDescription: 'PawSpace needs access to your microphone for video features.'
+      },
+      config: {
+        usesNonExemptEncryption: false
+      }
     },
     android: {
       adaptiveIcon: {
         foregroundImage: './assets/adaptive-icon.png',
-        backgroundColor: '#FFFFFF'
-      }
+        backgroundColor: '#6366F1'
+      },
+      package: 'com.pawspace.app',
+      versionCode: 1,
+      permissions: [
+        'android.permission.CAMERA',
+        'android.permission.READ_EXTERNAL_STORAGE',
+        'android.permission.WRITE_EXTERNAL_STORAGE',
+        'android.permission.ACCESS_FINE_LOCATION',
+        'android.permission.ACCESS_COARSE_LOCATION',
+        'android.permission.RECORD_AUDIO',
+        'android.permission.INTERNET',
+        'android.permission.ACCESS_NETWORK_STATE'
+      ]
     },
     web: {
-      favicon: './assets/favicon.png'
+      favicon: './assets/favicon.png',
+      bundler: 'metro'
     },
+    plugins: [
+      'expo-router',
+      [
+        'expo-camera',
+        {
+          cameraPermission: 'Allow PawSpace to access your camera to capture pet photos and videos.'
+        }
+      ],
+      [
+        'expo-image-picker',
+        {
+          photosPermission: 'Allow PawSpace to access your photo library to select pet photos.'
+        }
+      ],
+      [
+        'expo-location',
+        {
+          locationAlwaysAndWhenInUsePermission: 'Allow PawSpace to use your location to find nearby pet services.'
+        }
+      ],
+      [
+        'expo-notifications',
+        {
+          icon: './assets/notification-icon.png',
+          color: '#6366F1',
+          sounds: [
+            './assets/notification.wav'
+          ]
+        }
+      ]
+    ],
+    scheme: 'pawspace',
     extra: {
+      router: {
+        origin: false
+      },
+      eas: {
+        projectId: process.env.EAS_PROJECT_ID || ''
+      },
       supabaseUrl: process.env.EXPO_PUBLIC_SUPABASE_URL,
-      supabaseAnonKey: process.env.EXPO_PUBLIC_SUPABASE_ANON_KEY,
+      supabaseAnonKey: process.env.EXPO_PUBLIC_SUPABASE_ANON_KEY
     }
   }
 };

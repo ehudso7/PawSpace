@@ -35,10 +35,14 @@ export const initializeStripe = async (publishableKey?: string) => {
 
 // Helper function to get auth token
 const getAuthToken = async (): Promise<string> => {
-  // TODO: Implement your auth token retrieval logic here
-  // This could be from AsyncStorage, Redux store, or context
-  // Example: return await AsyncStorage.getItem('auth_token') || '';
-  return '';
+  try {
+    const AsyncStorage = require('@react-native-async-storage/async-storage').default;
+    const token = await AsyncStorage.getItem('auth_token');
+    return token || '';
+  } catch (error) {
+    console.warn('Failed to retrieve auth token:', error);
+    return '';
+  }
 };
 
 // Create payment intent on backend
